@@ -1,4 +1,4 @@
-package dockerapi
+package containers
 
 // PortMapping representa mapeamento de portas do container
 type PortMapping struct {
@@ -19,9 +19,9 @@ type MountInfo struct {
 
 // NetworkEndpoint representa as configurações de rede do container
 type NetworkEndpoint struct {
-	NetworkID string `json:"networkId,omitempty"`
-	IPAddress string `json:"ipAddress"`
-	Gateway   string `json:"gateway"`
+	NetworkID  string `json:"networkId,omitempty"`
+	IPAddress  string `json:"ipAddress"`
+	Gateway    string `json:"gateway"`
 	MacAddress string `json:"macAddress,omitempty"`
 }
 
@@ -43,6 +43,13 @@ type Container struct {
 	RestartPolicy string                     `json:"restartPolicy"` // "always", "unless-stopped", "on-failure", "no"
 	Labels        map[string]string          `json:"labels"`
 	Env           []string                   `json:"env,omitempty"`
+}
+
+// ContainerActionResult armazena o resultado de uma operação em lote em containers
+type ContainerActionResult struct {
+	Success bool     `json:"success"`
+	Message string   `json:"message"`
+	Errors  []string `json:"errors,omitempty"`
 }
 
 // RawDockerContainer representa a estrutura padrão retornada pelo Docker Engine API (GET /containers/json)
@@ -71,9 +78,9 @@ type RawDockerContainer struct {
 	} `json:"Mounts"`
 	NetworkSettings struct {
 		Networks map[string]struct {
-			NetworkID string `json:"NetworkID"`
-			IPAddress string `json:"IPAddress"`
-			Gateway   string `json:"Gateway"`
+			NetworkID  string `json:"NetworkID"`
+			IPAddress  string `json:"IPAddress"`
+			Gateway    string `json:"Gateway"`
 			MacAddress string `json:"MacAddress"`
 		} `json:"Networks"`
 	} `json:"NetworkSettings"`
@@ -107,4 +114,3 @@ type DockerEvent struct {
 	Time     int64 `json:"time"`
 	TimeNano int64 `json:"timeNano"`
 }
-

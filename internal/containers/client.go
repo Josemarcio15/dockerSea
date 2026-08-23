@@ -1,7 +1,8 @@
-package dockerapi
+package containers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -150,6 +151,52 @@ func GetContainerLogs(client *connection.Client, id string, tail int) (string, e
 	return cleanedLogs, nil
 }
 
+// StreamEvents escuta eventos de containers em tempo real via GET /events
+func StreamEvents(ctx context.Context, client *connection.Client, eventType string, onEvent func(event DockerEvent)) error {
+	httpClient := client.GetStreamHttpClient()
+	if httpClient == nil {
+		return fmt.Errorf("cliente HTTP do Docker não disponível")
+	}
+
+	endpoint := "http://localhost/events"
+	if eventType != "" {
+		endpoint = fmt.Sprintf("http://localhost/events?filters=%%7B%%22type%%22:%%5B%%22%s%%22%%5D%%7D", url.QueryEscape(eventType))
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("falha ao abrir stream de eventos do Docker: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("Docker /events retornou status %d: %s", resp.StatusCode, string(body))
+	}
+
+	decoder := json.NewDecoder(resp.Body)
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			var ev DockerEvent
+			if err := decoder.Decode(&ev); err != nil {
+				if err == io.EOF || ctx.Err() != nil {
+					return nil
+				}
+				return fmt.Errorf("erro na leitura do stream de eventos: %w", err)
+			}
+			onEvent(ev)
+		}
+	}
+}
+
 func postContainerAction(client *connection.Client, id, action string, body io.Reader) error {
 	httpClient := client.GetHttpClient()
 	if httpClient == nil {
@@ -251,7 +298,6 @@ func stripDockerLogHeaders(raw []byte) string {
 	header := make([]byte, 8)
 
 	for {
-		// Tenta ler o header multiplexado de 8 bytes
 		n, err := io.ReadFull(r, header)
 		if err != nil {
 			if n > 0 {
@@ -260,10 +306,8 @@ func stripDockerLogHeaders(raw []byte) string {
 			break
 		}
 
-		// Tamanho do payload está nos últimos 4 bytes (big endian)
 		payloadSize := int(header[4])<<24 | int(header[5])<<16 | int(header[6])<<8 | int(header[7])
 		if payloadSize <= 0 || payloadSize > len(raw) {
-			// Se não bater o formato padrão multiplexado, escreve direto o restante
 			buf.Write(header)
 			_, _ = io.Copy(&buf, r)
 			break
@@ -279,4 +323,3 @@ func stripDockerLogHeaders(raw []byte) string {
 
 	return buf.String()
 }
-

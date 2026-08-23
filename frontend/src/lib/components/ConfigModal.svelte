@@ -1,6 +1,9 @@
 <script lang="ts">
   import { t } from "$lib/stores/locale.svelte";
   import CodeEditor from "$lib/components/CodeEditor.svelte";
+  import * as VolumeService from "../../../bindings/go-walis/internal/volumes/volumeservice.js";
+  import * as NetworkService from "../../../bindings/go-walis/internal/networks/networkservice.js";
+  import type { VpsServer } from "../../../bindings/go-walis/internal/core/db/models.js";
 
   interface PortMapping {
     external: string;
@@ -22,6 +25,7 @@
     image = "",
     savedConfigs = [],
     serverId = "",
+    activeVps,
     onsubmit = (config: any) => {},
     onsaveprofile = (profile: any) => {},
     ondeleteprofile = (profileId: string) => {},
@@ -30,30 +34,28 @@
     image: string;
     savedConfigs: any[];
     serverId: string;
+    activeVps?: VpsServer;
     onsubmit: (config: any) => void;
     onsaveprofile: (profile: any) => void;
     ondeleteprofile: (profileId: string) => void;
   } = $props();
 
   // Lazy fetch volumes/networks apenas quando o modal abre
-  // (usa as rotas existentes que já descobrem a VPS ativa via cookie)
   let existingVolumes = $state<string[]>([]);
   let existingNetworks = $state<string[]>([]);
 
   $effect(() => {
-    if (!show) return;
+    if (!show || !activeVps) return;
     existingVolumes = [];
     existingNetworks = [];
-    fetch("/api/volumes")
-      .then((r) => r.json())
-      .then((d) => {
-        existingVolumes = (d.volumes || []).map((v: any) => v.name);
+    VolumeService.ListVolumes(activeVps)
+      .then((vols) => {
+        existingVolumes = (vols || []).map((v) => v.name);
       })
       .catch(() => {});
-    fetch("/api/networks")
-      .then((r) => r.json())
-      .then((d) => {
-        existingNetworks = (d.networks || []).map((n: any) => n.name);
+    NetworkService.ListNetworks(activeVps)
+      .then((nets) => {
+        existingNetworks = (nets || []).map((n) => n.name);
       })
       .catch(() => {});
   });

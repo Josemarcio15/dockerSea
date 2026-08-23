@@ -8,6 +8,9 @@ import (
 	"go-walis/internal/containers"
 	"go-walis/internal/core/db"
 	"go-walis/internal/extras"
+	"go-walis/internal/images"
+	"go-walis/internal/networks"
+	"go-walis/internal/volumes"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -25,6 +28,9 @@ func main() {
 	configService := config.NewConfigService(database)
 	containerService := containers.NewContainerService(database)
 	extraService := extras.NewExtraService(database)
+	imageService := images.NewImageService(database)
+	networkService := networks.NewNetworkService(database)
+	volumeService := volumes.NewVolumeService(database)
 
 	app := application.New(application.Options{
 		Name:        "DockSea",
@@ -33,6 +39,9 @@ func main() {
 			application.NewService(configService),
 			application.NewService(containerService),
 			application.NewService(extraService),
+			application.NewService(imageService),
+			application.NewService(networkService),
+			application.NewService(volumeService),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
