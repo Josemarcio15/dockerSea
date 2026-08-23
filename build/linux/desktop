@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=My Product
+Comment=A go-walis application
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/go-walis %u
+Terminal=false
+Type=Application
+Icon=go-walis
+Categories=Utility;
+StartupWMClass=go-walis
+
+ 
