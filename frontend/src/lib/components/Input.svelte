@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
+  import type { HTMLInputAttributes } from "svelte/elements";
 
   let {
     id,
@@ -24,7 +25,7 @@
     error?: string;
     disabled?: boolean;
     required?: boolean;
-    autocomplete?: string;
+    autocomplete?: HTMLInputAttributes["autocomplete"];
     class?: string;
     trailing?: Snippet;
   } = $props();

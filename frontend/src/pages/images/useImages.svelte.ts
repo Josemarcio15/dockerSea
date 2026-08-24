@@ -230,6 +230,30 @@ export function createImagesState(
       });
   }
 
+  async function handleDeleteSingle(imageId: string) {
+    const server = getServer();
+    if (!server) {
+      notifyError("Nenhum servidor VPS ativo.");
+      return;
+    }
+
+    try {
+      const result = await removeImages(server, [imageId]);
+      if (result.success) {
+        notifySuccess("Imagem removida com sucesso!");
+        await fetchImages(true);
+      } else {
+        notifyError(
+          t("images.delete_error", { error: result.message || "Unknown" }),
+        );
+        await fetchImages(true);
+      }
+      triggerRefresh();
+    } catch (e: any) {
+      notifyError(e.message || String(e));
+    }
+  }
+
   async function handleDeleteSelected() {
     if (selectedImageIds.length === 0) {
       notifyWarning("Selecione pelo menos uma imagem para deletar.");
@@ -251,6 +275,53 @@ export function createImagesState(
         notifySuccess(
           t("images.delete_success", {
             count: result.count || selectedImageIds.length,
+          }),
+        );
+        selectedImageIds = [];
+        await fetchImages(true);
+      } else {
+        notifyError(
+          t("images.delete_error", { error: result.message || "Unknown" }),
+        );
+        await fetchImages(true);
+      }
+      triggerRefresh();
+    } catch (e: any) {
+      notifyError(e.message || String(e));
+    }
+  }
+
+  async function handlePruneUnused() {
+    const server = getServer();
+    if (!server) {
+      notifyError("Nenhum servidor VPS ativo.");
+      return;
+    }
+
+    const unusedIds = (images || [])
+      .filter(
+        (img) =>
+          !img.containersUsing ||
+          img.containersUsing.length === 0 ||
+          img.repo === "<none>",
+      )
+      .map((img) => img.id);
+
+    if (unusedIds.length === 0) {
+      notifyWarning("Não há imagens sem uso para limpar.");
+      return;
+    }
+
+    notifySuccess(
+      t("images.delete_progress", { count: unusedIds.length }),
+    );
+
+    try {
+      const result = await removeImages(server, unusedIds);
+      if (result.success) {
+        notifySuccess(
+          t("images.delete_success", {
+            count: result.count || unusedIds.length,
           }),
         );
         selectedImageIds = [];
@@ -598,7 +669,9 @@ export function createImagesState(
     handleDeleteHistorySelected,
     handleClearHistory,
     handlePull,
+    handleDeleteSingle,
     handleDeleteSelected,
+    handlePruneUnused,
     openConfig,
     fetchSourceImages,
     getTransferImageKey,

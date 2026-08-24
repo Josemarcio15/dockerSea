@@ -19,7 +19,7 @@
     loading?: boolean;
     title?: string;
     class?: string;
-    onclick?: (e: MouseEvent) => void | Promise<void>;
+    onclick?: (e: MouseEvent) => unknown;
     children?: Snippet;
     icon?: Snippet;
   } = $props();
@@ -27,13 +27,15 @@
 
 <Button
   {type}
-  variant="secondary"
   {size}
   {disabled}
   {loading}
   {title}
-  class={customClass}
+  class="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/20 border-transparent active:bg-violet-800 {customClass}"
   {onclick}
-  {children}
   {icon}
-/>
+>
+  {#if children}
+    {@render children()}
+  {/if}
+</Button>

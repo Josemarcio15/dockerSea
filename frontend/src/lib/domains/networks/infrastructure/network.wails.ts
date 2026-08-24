@@ -27,7 +27,7 @@ export const networkWailsApi = {
       driver: params.driver,
       subnet: params.subnet,
       gateway: params.gateway,
-      labels: params.labels,
+      labels: params.labels || undefined,
     });
   },
 

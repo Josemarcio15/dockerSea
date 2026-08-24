@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
+  import { getLocale, t } from "$lib/stores/locale.svelte";
+  import { ButtonOrange } from "$lib/components/buttons";
   import { tick } from "svelte";
 
   interface LayerProgress {
@@ -312,12 +313,9 @@
       <div
         class="flex justify-end px-6 py-4 border-t border-slate-200 dark:border-slate-850 bg-slate-50 dark:bg-slate-900/50"
       >
-        <button
-          class="px-5 py-2 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 transition-colors shadow-md shadow-violet-500/20"
-          onclick={() => (show = false)}
-        >
+        <ButtonOrange onclick={() => (show = false)}>
           {t("common.close")}
-        </button>
+        </ButtonOrange>
       </div>
     </div>
   </div>

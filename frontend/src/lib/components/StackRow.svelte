@@ -1,5 +1,14 @@
 <script lang="ts">
   import { t } from "$lib/stores/locale.svelte";
+  import {
+    ButtonGreen,
+    ButtonYellow,
+    ButtonCyan,
+    ButtonPurple,
+    ButtonRed,
+    ButtonOrange,
+  } from "$lib/components/buttons";
+  import type { StackItem } from "$lib/domains/stacks";
 
   let {
     stack,
@@ -7,114 +16,128 @@
     on_stop = () => {},
     on_logs = () => {},
     on_edit = () => {},
-    on_delete = () => {},
+    on_delete_local = () => {},
+    on_remove_remote = () => {},
   }: {
-    stack: {
-      id: string;
-      name: string;
-      yamlContent: string;
-      createdAt: string;
-      updatedAt: string;
-    };
+    stack: StackItem;
     on_deploy?: () => void | Promise<void>;
     on_stop?: () => void | Promise<void>;
     on_logs?: () => void | Promise<void>;
     on_edit?: () => void | Promise<void>;
-    on_delete?: () => void | Promise<void>;
+    on_delete_local?: () => void | Promise<void>;
+    on_remove_remote?: () => void | Promise<void>;
   } = $props();
 
-  // Format datetime locally
-  const formattedDate = $derived.by(() => {
-    try {
-      const d = new Date(stack.updatedAt || stack.createdAt);
-      return d.toLocaleString("pt-BR");
-    } catch (e) {
-      return stack.updatedAt || stack.createdAt;
-    }
-  });
+  let formattedDate = $derived(
+    stack.updatedAt ? new Date(stack.updatedAt).toLocaleString() : "",
+  );
 
-  // Extract project name from YAML `name:` field
-  const projectName = $derived.by(() => {
-    const match = (stack.yamlContent || "").match(/^name:\s*(.+)/m);
-    return match ? match[1].trim() : "";
-  });
+  let formattedDeployDate = $derived(
+    stack.lastDeployedAt ? new Date(stack.lastDeployedAt).toLocaleString() : "",
+  );
 </script>
 
 <div
-  data-stack-id={stack.id}
-  title={stack.yamlContent ? "YAML Configurado" : ""}
-  class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4.5 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 shadow-md dark:shadow-lg dark:shadow-black/40"
+  class="flex flex-col xl:flex-row xl:items-center justify-between p-5 bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 rounded-2xl gap-4 hover:border-violet-500/30 dark:hover:border-violet-500/30 transition-all shadow-sm"
 >
-  <!-- Stack Title & Icon -->
-  <div class="flex items-center gap-3.5 min-w-0">
+  <!-- Informações Principais da Stack -->
+  <div class="flex items-start gap-4 min-w-0 flex-1">
     <div
-      class="w-11 h-11 rounded-xl bg-linear-to-br from-rose-400 to-pink-500 flex items-center justify-center text-lg shadow-lg shadow-pink-500/20 shrink-0 text-white font-bold"
+      class="w-11 h-11 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center font-bold text-xs shrink-0 border border-violet-500/20 mt-0.5"
     >
-      {stack.name.charAt(0).toUpperCase()}
+      {stack.sourceType === "folder" ? "DIR" : "YAML"}
     </div>
-    <div class="flex flex-col min-w-0">
-      <span
-        class="font-bold text-slate-800 dark:text-slate-100 truncate text-base"
-        >{stack.name}</span
-      >
-      <div class="flex items-center gap-2 mt-0.5">
-        {#if projectName}
-          <span
-            class="text-[10px] px-1.5 py-0.5 rounded-md bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 font-mono font-semibold border border-violet-200 dark:border-violet-900/40"
-          >
-            {projectName}
+
+    <div class="min-w-0 flex-1 space-y-2">
+      <!-- Linha 1: Título e Badges de Status -->
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <h3
+          class="font-bold text-slate-900 dark:text-white text-base leading-tight m-0"
+          title={stack.name}
+        >
+          {stack.name}
+        </h3>
+
+        {#if stack.sourceType === "folder"}
+          <span class="px-2 py-0.5 text-[11px] font-semibold rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
+            {t("stacks.source_type_folder")}
+          </span>
+        {:else}
+          <span class="px-2 py-0.5 text-[11px] font-semibold rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
+            {t("stacks.source_type_editor")}
           </span>
         {/if}
+
+        {#if stack.lastDeployedAt}
+          <span class="px-2 py-0.5 text-[11px] font-semibold rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 shrink-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            {t("stacks.last_deployed_label")} {formattedDeployDate}
+          </span>
+        {:else}
+          <span class="px-2 py-0.5 text-[11px] font-medium rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-750 shrink-0">
+            {t("stacks.never_deployed")}
+          </span>
+        {/if}
+      </div>
+
+      <!-- Linha 2: Metadados da Stack -->
+      <div
+        class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-slate-500 dark:text-slate-400"
+      >
         <span
-          class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider"
+          class="font-mono bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md text-xs border border-slate-200 dark:border-slate-750 text-slate-700 dark:text-slate-300 font-medium"
         >
-          {t("stacks.updated_at")}
-          {formattedDate}
+          {stack.projectName || stack.id}
         </span>
+
+        {#if stack.folderPath}
+          <span class="text-slate-300 dark:text-slate-700">•</span>
+          <span class="font-mono text-xs text-slate-500 dark:text-slate-400" title={stack.folderPath}>
+            {stack.folderPath}
+          </span>
+        {/if}
+
+        {#if stack.createdAt}
+          <span class="text-slate-300 dark:text-slate-700">•</span>
+          <span>
+            {t("stacks.created_at")}: {new Date(stack.createdAt).toLocaleDateString()}
+          </span>
+        {/if}
+
+        {#if formattedDate}
+          <span class="text-slate-300 dark:text-slate-700">•</span>
+          <span class="text-slate-400 dark:text-slate-500">
+            {t("stacks.updated_at")}: {formattedDate}
+          </span>
+        {/if}
       </div>
     </div>
   </div>
 
-  <!-- Action buttons -->
-  <div class="flex flex-wrap items-center gap-2">
-    <button
-      type="button"
-      class="px-3.5 py-2 text-xs font-bold text-emerald-700 dark:text-white bg-emerald-50 dark:bg-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-700 border border-emerald-200 dark:border-none rounded-xl cursor-pointer transition-all duration-200 shadow-md shadow-emerald-500/5 flex items-center gap-1.5"
-      onclick={on_deploy}
-    >
+  <!-- Ações da Stack -->
+  <div class="flex flex-wrap items-center gap-2 shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-100 dark:border-slate-800/60">
+    <ButtonGreen size="sm" onclick={on_deploy}>
       {t("stacks.deploy_btn")}
-    </button>
+    </ButtonGreen>
 
-    <button
-      type="button"
-      class="px-3.5 py-2 text-xs font-bold text-amber-700 dark:text-white bg-amber-50 dark:bg-amber-600 hover:bg-amber-100 dark:hover:bg-amber-750 border border-amber-200 dark:border-none rounded-xl cursor-pointer transition-all duration-200 shadow-md shadow-amber-500/5 flex items-center gap-1.5"
-      onclick={on_stop}
-    >
+    <ButtonYellow size="sm" onclick={on_stop}>
       {t("stacks.stop_btn")}
-    </button>
+    </ButtonYellow>
 
-    <button
-      type="button"
-      class="px-3.5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 border-none rounded-xl cursor-pointer transition-all duration-200 shadow-md shadow-blue-500/20 flex items-center gap-1.5"
-      onclick={on_logs}
-    >
+    <ButtonCyan size="sm" onclick={on_logs}>
       {t("stacks.logs_btn")}
-    </button>
+    </ButtonCyan>
 
-    <button
-      type="button"
-      class="px-3.5 py-2 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 border-none rounded-xl cursor-pointer transition-all duration-200 shadow-md shadow-purple-500/20 flex items-center gap-1.5"
-      onclick={on_edit}
-    >
+    <ButtonPurple size="sm" onclick={on_edit}>
       {t("stacks.edit_btn")}
-    </button>
+    </ButtonPurple>
 
-    <button
-      type="button"
-      class="px-3.5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 border-none rounded-xl cursor-pointer transition-all duration-200 shadow-md shadow-red-500/20 flex items-center gap-1.5"
-      onclick={on_delete}
-    >
-      {t("stacks.delete_btn")}
-    </button>
+    <ButtonOrange size="sm" onclick={on_remove_remote}>
+      {t("stacks.remove_remote_btn")}
+    </ButtonOrange>
+
+    <ButtonRed size="sm" onclick={on_delete_local}>
+      {t("stacks.delete_local_btn")}
+    </ButtonRed>
   </div>
 </div>

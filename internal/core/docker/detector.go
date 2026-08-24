@@ -9,12 +9,28 @@ import (
 )
 
 type DetectResult struct {
-	Success           bool   `json:"success"`
-	Message           string `json:"message"`
-	DockerSocketPath  string `json:"dockerSocketPath"`
-	DockerPath        string `json:"dockerPath"`
-	DockerComposePath string `json:"dockerComposePath"`
-	DockerVersion     string `json:"dockerVersion"`
+	Success           bool     `json:"success"`
+	Message           string   `json:"message"`
+	DockerSocketPath  string   `json:"dockerSocketPath"`
+	DockerPath        string   `json:"dockerPath"`
+	DockerComposePath string   `json:"dockerComposePath"`
+	DockerVersion     string   `json:"dockerVersion"`
+	AvailableSockets  []string `json:"availableSockets"`
+	AvailableBins     []string `json:"availableBins"`
+	AvailableComposes []string `json:"availableComposes"`
+}
+
+func parseUniqueLines(output string) []string {
+	seen := make(map[string]bool)
+	var list []string
+	for _, line := range strings.Split(output, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed != "" && !seen[trimmed] {
+			seen[trimmed] = true
+			list = append(list, trimmed)
+		}
+	}
+	return list
 }
 
 // AutoDetectEnvironment descobre dinamicamente os caminhos e versões do Docker no servidor
@@ -30,28 +46,34 @@ func AutoDetectEnvironment(server db.VpsServer) DetectResult {
 
 	res := DetectResult{Success: true}
 
-	// 1. Detectar Binário do Docker (Systemd + PATH + Diretórios Padrão)
-	dockerPathOut, err := client.ExecCommand(connection.CmdDiscoverDockerBin, false)
-	if err == nil && strings.TrimSpace(dockerPathOut) != "" {
-		res.DockerPath = strings.TrimSpace(dockerPathOut)
+	// 1. Detectar Todos os Binários do Docker
+	dockerPathOut, _ := client.ExecCommand(connection.CmdDiscoverAllDockerBins, false)
+	res.AvailableBins = parseUniqueLines(dockerPathOut)
+	if len(res.AvailableBins) > 0 {
+		res.DockerPath = res.AvailableBins[0]
 	} else {
 		res.DockerPath = "/usr/bin/docker"
+		res.AvailableBins = []string{"/usr/bin/docker"}
 	}
 
-	// 2. Detectar Socket do Docker (Systemd ListenStream + DOCKER_HOST + Rootless + Sockets Padrão)
-	socketOut, err := client.ExecCommand(connection.CmdDiscoverSocket, false)
-	if err == nil && strings.TrimSpace(socketOut) != "" {
-		res.DockerSocketPath = strings.TrimSpace(socketOut)
+	// 2. Detectar Todos os Sockets do Docker (Rootless + Rootfull)
+	socketOut, _ := client.ExecCommand(connection.CmdDiscoverAllSockets, false)
+	res.AvailableSockets = parseUniqueLines(socketOut)
+	if len(res.AvailableSockets) > 0 {
+		res.DockerSocketPath = res.AvailableSockets[0]
 	} else {
 		res.DockerSocketPath = "/var/run/docker.sock"
+		res.AvailableSockets = []string{"/var/run/docker.sock"}
 	}
 
-	// 3. Detectar Docker Compose (Plugin V2 ou Standalone V1)
-	composeOut, err := client.ExecCommand(connection.CmdDiscoverCompose, false)
-	if err == nil && strings.TrimSpace(composeOut) != "" {
-		res.DockerComposePath = strings.TrimSpace(composeOut)
+	// 3. Detectar Todos os Docker Composes
+	composeOut, _ := client.ExecCommand(connection.CmdDiscoverAllComposes, false)
+	res.AvailableComposes = parseUniqueLines(composeOut)
+	if len(res.AvailableComposes) > 0 {
+		res.DockerComposePath = res.AvailableComposes[0]
 	} else {
 		res.DockerComposePath = "docker compose"
+		res.AvailableComposes = []string{"docker compose"}
 	}
 
 	// 4. Capturar Versão do Docker
@@ -60,6 +82,6 @@ func AutoDetectEnvironment(server db.VpsServer) DetectResult {
 		res.DockerVersion = strings.TrimSpace(versionOut)
 	}
 
-	res.Message = "Ambiente e caminhos do Docker autodetectados com sucesso!"
+	res.Message = fmt.Sprintf("Ambiente autodetectado! Encontrados %d socket(s) e %d binário(s).", len(res.AvailableSockets), len(res.AvailableBins))
 	return res
 }

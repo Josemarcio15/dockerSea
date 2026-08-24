@@ -14,13 +14,14 @@
   import PortsPanel from "$lib/components/PortsPanel.svelte";
   import NginxLogsModal from "$lib/components/NginxLogsModal.svelte";
   import {
-    BrandButton,
-    PinkButton,
-    SuccessButton,
-    WarningButton,
-    DangerButton,
-    PrimaryButton,
-    SecondaryButton,
+    ButtonPurple,
+    ButtonPink,
+    ButtonGreen,
+    ButtonYellow,
+    ButtonRed,
+    ButtonBlue,
+    ButtonCyan,
+    Button,
   } from "$lib/components/buttons";
   import * as ExtraService from "../../../bindings/go-walis/internal/extras/extraservice.js";
 
@@ -249,7 +250,7 @@
           </button>
         </div>
 
-        <PinkButton
+        <ButtonPink
           size="sm"
           title={t("common.refresh")}
           onclick={() => {
@@ -261,7 +262,7 @@
           }}
         >
           {t("common.refresh")}
-        </PinkButton>
+        </ButtonPink>
       </div>
     </div>
 
@@ -269,6 +270,7 @@
     <StatusBanner />
 
     {#if mainTab === "ports"}
+      <!-- Tab 1: Ports Manager -->
       <section
         class="w-full bg-white dark:bg-[#0b0f19] border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm"
       >
@@ -285,31 +287,29 @@
           <p class="text-xs whitespace-pre-wrap">{fetchError}</p>
         </div>
       {:else}
-        <!-- Nginx Main Section -->
+        <!-- Tab 2: Nginx Manager -->
         <section
-          class="w-full bg-white dark:bg-[#0b0f19] border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 space-y-5 shadow-sm"
+          class="space-y-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0b0f19] p-6 shadow-sm"
         >
-          <!-- Nginx Tabs & Action Toolbar -->
-          <div
-            class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3"
-          >
-            <div class="flex items-center gap-6">
+          <!-- Nginx Action Toolbar -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="inline-flex rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 p-1">
               <button
                 type="button"
-                class="pb-2 text-xs font-bold border-b-2 transition-all cursor-pointer {activeTab ===
+                class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {activeTab ===
                 'available'
-                  ? 'text-violet-600 dark:text-violet-400 border-violet-600 dark:border-violet-400'
-                  : 'text-slate-400 border-transparent hover:text-slate-600 dark:hover:text-slate-300'}"
+                  ? 'bg-violet-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}"
                 onclick={() => (activeTab = "available")}
               >
                 {t("extras.sites_available")} ({available.length})
               </button>
               <button
                 type="button"
-                class="pb-2 text-xs font-bold border-b-2 transition-all cursor-pointer {activeTab ===
+                class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {activeTab ===
                 'enabled'
-                  ? 'text-violet-600 dark:text-violet-400 border-violet-600 dark:border-violet-400'
-                  : 'text-slate-400 border-transparent hover:text-slate-600 dark:hover:text-slate-300'}"
+                  ? 'bg-violet-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}"
                 onclick={() => (activeTab = "enabled")}
               >
                 {t("extras.sites_enabled")} ({enabled.length})
@@ -317,27 +317,29 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <PrimaryButton
+              <ButtonGreen
                 size="sm"
                 loading={busy === "test"}
                 onclick={() => run("test")}
               >
                 {busy === "test" ? t("extras.testing") : t("extras.test_nginx")}
-              </PrimaryButton>
-              <WarningButton
+              </ButtonGreen>
+              <ButtonYellow
                 size="sm"
                 loading={busy === "restart"}
                 onclick={() => run("restart")}
               >
                 {busy === "restart" ? t("extras.restarting") : t("extras.restart_nginx")}
-              </WarningButton>
-              <SecondaryButton
+              </ButtonYellow>
+              <ButtonCyan
                 size="sm"
-                onclick={() => (showLogs = true)}
+                onclick={() => {
+                  showLogs = true;
+                }}
               >
                 {t("extras.view_logs")}
-              </SecondaryButton>
-              <DangerButton
+              </ButtonCyan>
+              <ButtonRed
                 size="sm"
                 disabled={!site.trim() || !!busy}
                 onclick={() => {
@@ -349,13 +351,13 @@
                 }}
               >
                 {t("extras.delete_file")}
-              </DangerButton>
-              <BrandButton
+              </ButtonRed>
+              <ButtonBlue
                 size="sm"
                 onclick={newSite}
               >
                 {t("extras.new_site")}
-              </BrandButton>
+              </ButtonBlue>
             </div>
           </div>
 
@@ -423,20 +425,20 @@
 
           <!-- Bottom Action Buttons -->
           <div class="flex flex-wrap gap-2.5 pt-2">
-            <BrandButton
+            <ButtonPurple
               size="md"
               loading={busy === "enable"}
               onclick={() => run("enable")}
             >
               {busy === "enable" ? "Executando..." : t("extras.btn_enable")}
-            </BrandButton>
-            <SuccessButton
+            </ButtonPurple>
+            <ButtonGreen
               size="md"
               loading={busy === "save"}
               onclick={() => run("save")}
             >
               {busy === "save" ? "Salvando..." : t("extras.btn_save")}
-            </SuccessButton>
+            </ButtonGreen>
           </div>
         </section>
       {/if}
@@ -460,20 +462,21 @@
         {t("extras.delete_confirm_msg", { site })}
       </p>
       <div class="flex justify-end gap-2.5 pt-2">
-        <SecondaryButton
+        <Button
           size="sm"
-          onclick={() => (showDeleteDialog = false)}
+          onclick={() => {
+            showDeleteDialog = false;
+          }}
         >
           {t("common.cancel")}
-        </SecondaryButton>
-        <DangerButton
+        </Button>
+        <ButtonRed
           size="sm"
           onclick={deleteSite}
         >
           {t("common.delete")}
-        </DangerButton>
+        </ButtonRed>
       </div>
     </div>
   </div>
 {/if}
-

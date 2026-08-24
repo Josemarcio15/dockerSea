@@ -1,6 +1,16 @@
 <script lang="ts">
   import { t } from "$lib/stores/locale.svelte";
   import CodeEditor from "$lib/components/CodeEditor.svelte";
+  import {
+    ButtonBlue,
+    ButtonGreen,
+    ButtonYellow,
+    ButtonPurple,
+    ButtonCyan,
+    ButtonRed,
+    ButtonPink,
+    ButtonOrange,
+  } from "$lib/components/buttons";
   import * as VolumeService from "../../../bindings/go-walis/internal/volumes/volumeservice.js";
   import * as NetworkService from "../../../bindings/go-walis/internal/networks/networkservice.js";
   import type { VpsServer } from "../../../bindings/go-walis/internal/core/db/models.js";
@@ -521,7 +531,7 @@
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between gap-2">
               <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("images.config_saved_profiles")}</span>
-              <button type="button" class="rounded-lg bg-violet-600 px-2.5 py-1.5 text-[10px] font-bold text-white hover:bg-violet-700" onclick={createNewProfile}>+ Novo perfil</button>
+              <ButtonBlue size="xs" onclick={createNewProfile}>+ Novo perfil</ButtonBlue>
             </div>
             <div class="flex flex-col gap-2 max-h-[calc(92vh-180px)] overflow-y-auto pr-1">
               {#each savedConfigs as cfg (cfg.id)}
@@ -550,20 +560,18 @@
                       </div>
                     {/if}
                   </div>
-                  <button
-                    type="button"
-                    class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-white bg-violet-600 hover:bg-violet-700 cursor-pointer transition-colors shadow-sm shrink-0"
+                  <ButtonPurple
+                    size="xs"
                     onclick={() => loadProfile(cfg)}
                   >
                     {t("images.config_load")}
-                  </button>
-                  <button
-                    type="button"
-                    class="px-2 py-1 text-xs rounded border-none text-white bg-red-500 hover:bg-red-600 cursor-pointer shrink-0 transition-colors"
+                  </ButtonPurple>
+                  <ButtonRed
+                    size="xs"
                     onclick={() => ondeleteprofile(cfg.id)}
                   >
                     ✕
-                  </button>
+                  </ButtonRed>
                 </div>
               {/each}
             </div>
@@ -573,7 +581,7 @@
         {#if savedConfigs.length === 0}
           <div class="flex flex-col gap-3 rounded-xl border border-slate-200 dark:border-slate-800 p-3">
             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Perfis salvos</span>
-            <button type="button" class="rounded-lg bg-violet-600 px-3 py-2 text-xs font-bold text-white hover:bg-violet-700" onclick={createNewProfile}>+ Novo perfil</button>
+            <ButtonBlue size="xs" onclick={createNewProfile}>+ Novo perfil</ButtonBlue>
           </div>
         {/if}
 
@@ -591,9 +599,9 @@
               <p class="text-[10px] text-slate-500">Selecione um perfil acima, depois edite ou cole as variáveis aqui.</p>
             </div>
             <div class="flex gap-2 shrink-0">
-              <button type="button" class="px-2.5 py-1.5 text-[10px] font-bold rounded-lg border border-violet-300 text-violet-700 dark:text-violet-300" onclick={loadExample}>Exemplo</button>
-              <button type="button" class="px-2.5 py-1.5 text-[10px] font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700" onclick={copyJson}>Copiar</button>
-              <button type="button" class="px-2.5 py-1.5 text-[10px] font-bold rounded-lg border border-violet-300 text-violet-700 dark:text-violet-300" onclick={applyJson}>Aplicar</button>
+              <ButtonCyan size="xs" onclick={loadExample}>Exemplo</ButtonCyan>
+              <ButtonBlue size="xs" onclick={copyJson}>Copiar</ButtonBlue>
+              <ButtonGreen size="xs" onclick={applyJson}>Aplicar</ButtonGreen>
             </div>
           </div>
           <CodeEditor value={jsonEditor} mode="json" onchange={(value) => { jsonEditor = value; isModified = true; }} />
@@ -659,13 +667,12 @@
               class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
               >{t("images.config_ports")}</span
             >
-            <button
-              type="button"
-              class="text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 font-bold cursor-pointer bg-transparent border-none transition-colors"
+            <ButtonBlue
+              size="xs"
               onclick={addPort}
             >
-              {t("images.config_add_port")}
-            </button>
+              + {t("images.config_add_port")}
+            </ButtonBlue>
           </div>
           {#each ports as port, i}
             <div class="flex gap-2 items-center">
@@ -684,13 +691,12 @@
                 bind:value={port.internal}
                 oninput={() => (isModified = true)}
               />
-              <button
-                type="button"
-                class="px-2.5 py-1.5 text-xs rounded-xl border-none text-white bg-red-500 hover:bg-red-600 cursor-pointer transition-colors"
+              <ButtonRed
+                size="xs"
                 onclick={() => removePort(i)}
               >
                 ✕
-              </button>
+              </ButtonRed>
             </div>
           {/each}
         </div>
@@ -702,13 +708,12 @@
               class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
               >{t("images.config_envs")}</span
             >
-            <button
-              type="button"
-              class="text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 font-bold cursor-pointer bg-transparent border-none transition-colors"
+            <ButtonBlue
+              size="xs"
               onclick={addEnv}
             >
-              {t("images.config_add_env")}
-            </button>
+              + {t("images.config_add_env")}
+            </ButtonBlue>
           </div>
           {#each envs as env, i}
             <div class="flex gap-2 items-center">
@@ -727,13 +732,12 @@
                 bind:value={env.value}
                 oninput={() => (isModified = true)}
               />
-              <button
-                type="button"
-                class="px-2.5 py-1.5 text-xs rounded-xl border-none text-white bg-red-500 hover:bg-red-600 cursor-pointer transition-colors"
+              <ButtonRed
+                size="xs"
                 onclick={() => removeEnv(i)}
               >
                 ✕
-              </button>
+              </ButtonRed>
             </div>
           {/each}
         </div>
@@ -745,13 +749,12 @@
               class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
               >{t("images.config_volumes")}</span
             >
-            <button
-              type="button"
-              class="text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 font-bold cursor-pointer bg-transparent border-none transition-colors"
+            <ButtonBlue
+              size="xs"
               onclick={addVolume}
             >
-              {t("images.config_add_volume")}
-            </button>
+              + {t("images.config_add_volume")}
+            </ButtonBlue>
           </div>
           {#each volumes as vol, i}
             <div class="flex gap-2 items-center">
@@ -773,13 +776,12 @@
                 bind:value={vol.container}
                 oninput={() => (isModified = true)}
               />
-              <button
-                type="button"
-                class="px-2.5 py-1.5 text-xs rounded-xl border-none text-white bg-red-500 hover:bg-red-600 cursor-pointer transition-colors"
+              <ButtonRed
+                size="xs"
                 onclick={() => removeVolume(i)}
               >
                 ✕
-              </button>
+              </ButtonRed>
             </div>
           {/each}
           <datalist id="volumes-datalist">
@@ -801,32 +803,28 @@
             class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
             >{t("images.config_network")}</label
           >
-          <input
+          <select
             id="config-network"
-            type="text"
             class="w-full px-3.5 py-2 text-xs border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-[#0c101b] text-slate-800 dark:text-slate-200 focus:border-violet-500 focus:outline-none transition-colors"
-            placeholder={t("images.config_placeholder_network")}
             bind:value={network}
-            oninput={() => (isModified = true)}
-            list="networks-datalist"
-          />
-          <datalist id="networks-datalist">
+            onchange={() => (isModified = true)}
+          >
             {#each existingNetworks as net}
-              <option value={net}></option>
+              <option value={net}>{net}</option>
             {/each}
-          </datalist>
+          </select>
         </div>
 
         <!-- Restart policy -->
         <div class="flex flex-col gap-1">
           <label
-            for="config-restart-policy"
+            for="config-restart"
             class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
             >{t("containers.card_restart")}</label
           >
           <select
-            id="config-restart-policy"
-            class="w-full px-3.5 py-2.5 text-xs border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-[#0c101b] text-slate-800 dark:text-slate-200 focus:border-violet-500 focus:outline-none transition-colors appearance-none"
+            id="config-restart"
+            class="w-full px-3.5 py-2 text-xs border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-[#0c101b] text-slate-800 dark:text-slate-200 focus:border-violet-500 focus:outline-none transition-colors"
             bind:value={restartPolicy}
             onchange={() => (isModified = true)}
           >
@@ -849,13 +847,12 @@
               class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
               >{t("images.config_command")}</span
             >
-            <button
-              type="button"
-              class="text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 font-bold cursor-pointer bg-transparent border-none transition-colors"
+            <ButtonBlue
+              size="xs"
               onclick={addCommand}
             >
-              {t("images.config_add_command")}
-            </button>
+              + {t("images.config_add_command")}
+            </ButtonBlue>
           </div>
 
           {#each commands as cmd, i}
@@ -867,13 +864,12 @@
                 bind:value={commands[i]}
                 oninput={() => (isModified = true)}
               />
-              <button
-                type="button"
-                class="px-2.5 py-1.5 text-xs rounded-xl border-none text-white bg-red-500 hover:bg-red-600 cursor-pointer transition-colors"
+              <ButtonRed
+                size="xs"
                 onclick={() => removeCommand(i)}
               >
                 ✕
-              </button>
+              </ButtonRed>
             </div>
           {/each}
           <span
@@ -917,18 +913,15 @@
               bind:value={profileName}
             />
             {#if profileName.trim()}
-              <button
-                type="button"
-                class="px-4 py-2.5 rounded-xl border-none cursor-pointer text-xs font-bold text-white transition-colors shadow-sm {saveDisabled
-                  ? 'bg-slate-400 cursor-not-allowed'
-                  : 'bg-green-600 hover:bg-green-700 shadow-green-500/10'}"
+              <ButtonGreen
+                size="sm"
                 disabled={saveDisabled}
                 onclick={triggerSave}
               >
                 {loadedProfileId && !isNameChanged
                   ? t("images.config_btn_update")
                   : t("images.config_btn_create_profile")}
-              </button>
+              </ButtonGreen>
             {/if}
           </div>
           {#if nameAlreadyExists}
@@ -945,23 +938,17 @@
       <div
         class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-850 bg-slate-50 dark:bg-slate-900/50"
       >
-        <button
-          type="button"
-          class="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer bg-white dark:bg-slate-900 transition-colors"
+        <ButtonOrange
           onclick={() => (show = false)}
         >
           {t("common.cancel")}
-        </button>
-        <button
-          type="button"
-          class="px-4 py-2 text-xs font-bold rounded-xl border-none text-white transition-colors shadow-md shadow-violet-500/20 {hasEmptyVolume
-            ? 'bg-slate-400 cursor-not-allowed'
-            : 'bg-violet-600 hover:bg-violet-700 cursor-pointer'}"
+        </ButtonOrange>
+        <ButtonGreen
           disabled={hasEmptyVolume}
           onclick={validateAndSubmit}
         >
           {t("images.config_create_container")}
-        </button>
+        </ButtonGreen>
       </div>
     </div>
   </div>
@@ -982,20 +969,18 @@
         {t("images.config_persistence_warning")}
       </p>
       <div class="flex gap-3 justify-end">
-        <button
-          type="button"
-          class="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-[#3f3f46] bg-slate-50 dark:bg-[#27272a] transition-colors cursor-pointer"
+        <ButtonOrange
+          size="sm"
           onclick={() => (showConfirmNoVolume = false)}
         >
           {t("images.config_no")}
-        </button>
-        <button
-          type="button"
-          class="px-4 py-2 text-xs font-bold rounded-xl border-none cursor-pointer text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
+        </ButtonOrange>
+        <ButtonGreen
+          size="sm"
           onclick={submitForm}
         >
           {t("images.config_yes")}
-        </button>
+        </ButtonGreen>
       </div>
     </div>
   </div>

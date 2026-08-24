@@ -6,25 +6,56 @@
 
   let notif = $derived(getNotification());
 
-  let bgClass = $derived(
+  let styleClasses = $derived(
     notif.type === "error"
-      ? "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900/50"
+      ? "bg-rose-950/90 text-rose-200 border-rose-500/30 shadow-rose-950/50"
       : notif.type === "warning"
-        ? "bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/50"
-        : "bg-green-50 dark:bg-emerald-950/30 text-green-700 dark:text-emerald-400 border-green-200 dark:border-emerald-900/50",
+        ? "bg-amber-950/90 text-amber-200 border-amber-500/30 shadow-amber-950/50"
+        : "bg-emerald-950/90 text-emerald-200 border-emerald-500/30 shadow-emerald-950/50",
+  );
+
+  let iconText = $derived(
+    notif.type === "error"
+      ? "✗"
+      : notif.type === "warning"
+        ? "!"
+        : "✓",
+  );
+
+  let iconBg = $derived(
+    notif.type === "error"
+      ? "bg-rose-500/20 text-rose-400 border-rose-500/30"
+      : notif.type === "warning"
+        ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
+        : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
   );
 </script>
 
 {#if notif.message}
+  <!-- Toast flutuante com z-index alto e backdrop-blur para sobrepor a tela sem empurrar layout -->
   <div
-    class="flex items-center justify-between p-4 rounded-xl border mb-4 {bgClass} text-sm transition-all duration-300 shadow-md"
+    class="fixed top-6 right-6 z-9999 max-w-md w-full pointer-events-auto animate-slideIn"
   >
-    <span class="whitespace-pre-line">{notif.message}</span>
-    <button
-      class="bg-transparent border-none cursor-pointer text-sm font-bold opacity-70 hover:opacity-100 ml-4 text-inherit"
-      onclick={dismissNotification}
+    <div
+      class="flex items-center gap-3 p-4 rounded-2xl border backdrop-blur-md {styleClasses} text-sm shadow-2xl transition-all"
     >
-      ✕
-    </button>
+      <div
+        class="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border font-bold text-xs {iconBg}"
+      >
+        {iconText}
+      </div>
+
+      <span class="flex-1 whitespace-pre-line text-xs font-semibold leading-relaxed">
+        {notif.message}
+      </span>
+
+      <button
+        type="button"
+        class="w-6 h-6 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center cursor-pointer text-xs opacity-70 hover:opacity-100 transition-opacity border-none text-inherit"
+        onclick={dismissNotification}
+      >
+        ✕
+      </button>
+    </div>
   </div>
 {/if}

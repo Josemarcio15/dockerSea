@@ -60,3 +60,40 @@ func (s *ConfigService) GetSystemUsage(server db.VpsServer) (*connection.SystemU
 
 	return client.FetchSystemUsage()
 }
+
+func (s *ConfigService) ListProfiles() ([]db.Profile, error) {
+	return s.database.ListProfiles()
+}
+
+func (s *ConfigService) GetActiveProfile() (*db.Profile, error) {
+	return s.database.GetActiveProfile()
+}
+
+func (s *ConfigService) SaveProfile(profile db.Profile) error {
+	if profile.Name == "" {
+		return fmt.Errorf("o nome do perfil é obrigatório")
+	}
+	return s.database.SaveProfile(profile)
+}
+
+func (s *ConfigService) DeleteProfile(id string) error {
+	if id == "" {
+		return fmt.Errorf("id do perfil inválido")
+	}
+	return s.database.DeleteProfile(id)
+}
+
+func (s *ConfigService) SetActiveProfile(id string) error {
+	if id == "" {
+		return fmt.Errorf("id do perfil inválido")
+	}
+	return s.database.SetActiveProfile(id)
+}
+
+func (s *ConfigService) SetProfileLocale(id string, locale string) error {
+	if id == "" || locale == "" {
+		return fmt.Errorf("parâmetros inválidos")
+	}
+	return s.database.UpdateProfileLocale(id, locale)
+}
+

@@ -8,6 +8,7 @@
 
   import ContainerToolbar from "./components/ContainerToolbar.svelte";
   import ContainerCard from "./components/ContainerCard.svelte";
+  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
   import { createContainersState } from "./useContainers.svelte.js";
 
   let { data } = $props();
@@ -21,6 +22,16 @@
       return cState.setupEventsStream();
     }
   });
+  let showRemoveConfirm = $state(false);
+
+  function handleRequestRemove() {
+    if (cState.selectedNames.length === 0) return;
+    showRemoveConfirm = true;
+  }
+
+  async function handleConfirmRemove() {
+    await cState.doActionSelected("rm");
+  }
 </script>
 
 {#if !data.activeVps}
@@ -40,7 +51,7 @@
       onStart={() => cState.doActionSelected("start")}
       onStop={() => cState.doActionSelected("stop")}
       onRestart={() => cState.doActionSelected("restart")}
-      onRemove={() => cState.doActionSelected("rm")}
+      onRemove={handleRequestRemove}
     />
 
     <!-- Status Alerts -->
@@ -64,7 +75,7 @@
           {t("containers.empty")}
         </div>
       {:else}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5">
           {#each cState.filteredContainers as container (container.id)}
             <ContainerCard
               {container}
@@ -84,5 +95,15 @@
   bind:show={cState.showLogs}
   title={cState.logsTitle}
   loading={cState.logsLoading}
-  lines={cState.logsContent}
+  logs={cState.logsContent}
+/>
+
+<!-- Modal de Confirmação de Remoção de Container(s) -->
+<ConfirmDialog
+  bind:show={showRemoveConfirm}
+  title="Remover Contêiner(es)"
+  message={`Tem certeza de que deseja remover ${cState.selectedNames.length} contêiner(es) selecionado(s)?\n[${cState.selectedNames.join(", ")}]\nEssa ação apagará os contêineres e seus dados não persistidos.`}
+  confirmText="Remover Contêiner(es)"
+  type="danger"
+  onConfirm={handleConfirmRemove}
 />

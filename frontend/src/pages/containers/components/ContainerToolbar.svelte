@@ -1,11 +1,12 @@
 <script lang="ts">
   import { t } from "$lib/stores/locale.svelte";
   import {
-    BrandButton,
-    DangerButton,
-    PinkButton,
-    SuccessButton,
-    WarningButton,
+    ButtonPurple,
+    ButtonGreen,
+    ButtonBlue,
+    ButtonYellow,
+    ButtonRed,
+    ButtonPink,
   } from "$lib/components/buttons";
 
   let {
@@ -49,17 +50,17 @@
     <div class="flex items-center gap-2">
       <input
         type="text"
-        placeholder={t("containers.search_placeholder")}
+        placeholder={t("common.search")}
         class="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] text-slate-855 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all w-60"
         bind:value={searchQuery}
       />
-      <PinkButton
+      <ButtonPink
         size="sm"
         title={t("common.refresh")}
         onclick={onRefresh}
       >
         {t("common.refresh")}
-      </PinkButton>
+      </ButtonPink>
     </div>
   </div>
 
@@ -68,61 +69,65 @@
     class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#0b0f19] border border-slate-200/80 dark:border-slate-800/80 p-3.5 rounded-2xl shadow-sm"
   >
     <div class="flex items-center gap-2">
-      <BrandButton
+      <ButtonGreen
         size="sm"
         onclick={onToggleAll}
       >
         {allSelected ? t("common.deselect_all") : t("common.select_all")}
-      </BrandButton>
+      </ButtonGreen>
 
       {#if selectedCount > 0}
         <span
           class="text-xs font-semibold text-violet-600 dark:text-violet-400 animate-pulse px-2"
         >
           {selectedCount}
-          {t("containers.selected_count")}
+          {t("common.selected")}
         </span>
       {/if}
 
       <span
         class="text-xs text-slate-400 dark:text-slate-500 px-2 font-semibold"
       >
-        {t("containers.count_found").replace("{count}", String(totalCount))}
+        {totalCount} {t("containers.title")}
       </span>
     </div>
 
     <div class="flex items-center gap-2">
-      <SuccessButton
+      <!-- Iniciar (Verde) -->
+      <ButtonGreen
         size="sm"
         disabled={selectedCount === 0}
         onclick={onStart}
       >
-        {t("containers.action_start")}
-      </SuccessButton>
+        {t("containers.start")}
+      </ButtonGreen>
 
-      <WarningButton
+      <!-- Reiniciar (Azul) -->
+      <ButtonBlue
         size="sm"
         disabled={selectedCount === 0}
         onclick={onRestart}
       >
-        {t("containers.action_restart")}
-      </WarningButton>
+        {t("containers.restart")}
+      </ButtonBlue>
 
-      <DangerButton
+      <!-- Parar (Amarelo) -->
+      <ButtonYellow
         size="sm"
         disabled={selectedCount === 0}
         onclick={onStop}
       >
-        {t("containers.action_stop")}
-      </DangerButton>
+        {t("containers.stop")}
+      </ButtonYellow>
 
-      <DangerButton
+      <!-- Remover (Vermelho) -->
+      <ButtonRed
         size="sm"
         disabled={selectedCount === 0}
         onclick={onRemove}
       >
-        {t("containers.action_delete")}
-      </DangerButton>
+        {t("containers.delete")}
+      </ButtonRed>
     </div>
   </div>
 </div>

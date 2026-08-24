@@ -1,6 +1,7 @@
 <script lang="ts">
   import { statsState, subscribeToStats, reconnectStats } from "$lib/stores/stats.svelte";
   import { t } from "$lib/stores/locale.svelte";
+  import { ButtonRed } from "$lib/components/buttons";
 
   let { vps = null }: { vps?: { name: string; id: string } | null } = $props();
 
@@ -98,12 +99,13 @@
       </div>
     </div>
     {#if !isOnline && !isChecking}
-      <button
-        class="w-full py-1.5 text-[11px] font-bold rounded-lg bg-rose-500/20 hover:bg-rose-500/35 text-white border border-rose-500/30 cursor-pointer transition-colors mt-0.5"
+      <ButtonRed
+        size="xs"
+        class="w-full mt-0.5"
         onclick={reconnectStats}
       >
         🔌 {t("app.reconnect")}
-      </button>
+      </ButtonRed>
     {/if}
   </div>
 {/if}

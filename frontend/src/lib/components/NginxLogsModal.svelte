@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { PinkButton } from "$lib/components/buttons";
+  import { ButtonPink } from "$lib/components/buttons";
   import * as ExtraService from "../../../bindings/go-walis/internal/extras/extraservice.js";
 
   let {
@@ -52,9 +52,9 @@
           <p class="text-xs text-slate-400">/var/log/nginx/access.log e error.log</p>
         </div>
         <div class="flex items-center gap-2">
-          <PinkButton size="xs" onclick={refresh} loading={loading}>
+          <ButtonPink size="xs" onclick={refresh} loading={loading}>
             Atualizar
-          </PinkButton>
+          </ButtonPink>
           <button type="button" class="px-2 text-xl text-slate-400 hover:text-white cursor-pointer" onclick={() => (show = false)}>×</button>
         </div>
       </div>

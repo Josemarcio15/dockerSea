@@ -1,9 +1,21 @@
 <script lang="ts">
-  import { tick } from "svelte";
+  import { onMount, tick } from "svelte";
   import { t, getLocale } from "$lib/stores/locale.svelte";
   import StatusBanner from "$lib/components/StatusBanner.svelte";
   import VpsSelectWarning from "$lib/components/VpsSelectWarning.svelte";
-  import { notifySuccess } from "$lib/stores/notification.svelte";
+  import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
+  import { Events } from "@wailsio/runtime";
+  import {
+    ButtonBlue,
+    ButtonGreen,
+    ButtonYellow,
+    ButtonPurple,
+    ButtonCyan,
+    ButtonRed,
+    ButtonPink,
+    ButtonOrange,
+  } from "$lib/components/buttons";
+  import * as BuilderService from "../../../bindings/go-walis/internal/builder/service.js";
 
   let { data } = $props();
 
@@ -19,10 +31,11 @@
   let logs = $state<string[]>([]);
   let builtImage = $state("");
   let errorMsg = $state("");
-  let eventSource: EventSource | null = null;
   let savedPaths = $state<string[]>([]);
   let logContainer = $state<HTMLDivElement | null>(null);
   let copied = $state(false);
+  let unsubscribeProgress: (() => void) | null = null;
+  let unsubscribeComplete: (() => void) | null = null;
 
   // Auto scroll logs when new entries arrive
   $effect(() => {
@@ -63,9 +76,8 @@
 
   async function loadSavedPaths() {
     try {
-      const res = await fetch("/api/build/paths");
-      const data = await res.json();
-      savedPaths = (data || []).map((p: any) => p.path);
+      const paths = await BuilderService.ListSavedPaths();
+      savedPaths = (paths || []).map((p) => p.path);
     } catch {
       /* ignore */
     }
@@ -75,25 +87,24 @@
     if (!currentPath || savedPaths.includes(currentPath)) return;
     const label = currentPath.split("/").pop()!.split("\\").pop()!;
     try {
-      await fetch("/api/build/paths", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path: currentPath, label }),
-      });
+      await BuilderService.SavePath(currentPath, label);
       savedPaths = [...savedPaths, currentPath];
-    } catch {
-      /* ignore */
+      notifySuccess("Pasta salva com sucesso!");
+    } catch (e: any) {
+      notifyError(`Erro ao salvar pasta: ${e?.message || e}`);
     }
   }
 
-  async function removeSavedPath(path: string) {
+  async function removeSavedPath(path: string, e?: Event) {
+    if (e) {
+      e.stopPropagation();
+    }
     try {
-      await fetch(`/api/build/paths?path=${encodeURIComponent(path)}`, {
-        method: "DELETE",
-      });
+      await BuilderService.RemoveSavedPath(path);
       savedPaths = savedPaths.filter((p) => p !== path);
-    } catch {
-      /* ignore */
+      notifySuccess("Pasta removida dos favoritos!");
+    } catch (e: any) {
+      notifyError(`Erro ao remover pasta: ${e?.message || e}`);
     }
   }
 
@@ -135,16 +146,10 @@
     status = "idle";
     customTag = "";
     try {
-      const params = path ? `?path=${encodeURIComponent(path)}` : "";
-      const res = await fetch(`/api/build/folders${params}`);
-      const data = await res.json();
-      if (data.error) {
-        errorMsg = data.error;
-        return;
-      }
+      const data = await BuilderService.Browse(path);
       currentPath = data.currentPath;
       parentPath = data.parentPath;
-      folders = data.folders;
+      folders = data.folders || [];
       hasDockerfile = data.hasDockerfile;
       hasDockerignore = data.hasDockerignore;
       status = data.hasDockerfile ? "ready" : "idle";
@@ -165,57 +170,21 @@
     browse(path);
   }
 
-  function doBuild() {
+  async function doBuild() {
     if (!canBuild) return;
     status = "building";
     logs = [];
     errorMsg = "";
     builtImage = "";
-    closeEventSource();
-    const url = `/api/build?projectName=${encodeURIComponent(effectiveTag)}&folderPath=${encodeURIComponent(currentPath)}&locale=${encodeURIComponent(getLocale())}`;
-    eventSource = new EventSource(url);
-    eventSource.addEventListener("progress", (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.line) logs.push(data.line);
-      } catch {
-        /* ignore */
-      }
-    });
-    eventSource.addEventListener("complete", (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-        closeEventSource();
-        if (data.success) {
-          builtImage = data.image || effectiveTag;
-          status = "success";
-        } else {
-          errorMsg = data.message || "Build falhou";
-          status = "error";
-        }
-      } catch {
-        status = "error";
-        errorMsg = "Erro ao processar resposta do build";
-      }
-    });
-    eventSource.onerror = () => {
-      if (status === "building") {
-        closeEventSource();
-        errorMsg = "Erro de conexão com o servidor.";
-        status = "error";
-      }
-    };
-  }
-
-  function closeEventSource() {
-    if (eventSource) {
-      eventSource.close();
-      eventSource = null;
+    try {
+      await BuilderService.Build(currentPath, effectiveTag, getLocale());
+    } catch (error: any) {
+      status = "error";
+      errorMsg = error?.message || "Build falhou";
     }
   }
 
   function reset() {
-    closeEventSource();
     currentPath = "";
     parentPath = null;
     folders = [];
@@ -229,13 +198,30 @@
   }
 
   function goToImages() {
-    closeEventSource();
     window.location.href = `/images?highlight=${encodeURIComponent(builtImage)}`;
   }
 
-  $effect(() => {
+  onMount(() => {
+    unsubscribeProgress = Events.On("builder:progress", (event) => {
+      if (event.data?.line) logs.push(event.data.line);
+    });
+    unsubscribeComplete = Events.On("builder:complete", (event) => {
+      const result = event.data as { success?: boolean; image?: string; message?: string };
+      if (result.success) {
+        builtImage = result.image || effectiveTag;
+        status = "success";
+      } else {
+        errorMsg = result.message || "Build falhou";
+        status = "error";
+      }
+    });
     loadSavedPaths();
     browse();
+
+    return () => {
+      unsubscribeProgress?.();
+      unsubscribeComplete?.();
+    };
   });
 </script>
 
@@ -271,41 +257,44 @@
 
           <!-- Navigation Buttons -->
           <div class="flex items-center gap-2 flex-wrap">
-            <button
-              type="button"
-              class="px-2.5 py-1.5 text-[10px] font-bold rounded-lg border-none cursor-pointer text-white bg-violet-600 hover:bg-violet-700 shadow-md shadow-violet-500/20 transition-colors"
+            <ButtonPurple
+              size="xs"
               onclick={goHome}
             >
               {t("builder.nav_home")}
-            </button>
+            </ButtonPurple>
             {#if parentPath}
-              <button
-                type="button"
-                class="px-2.5 py-1.5 text-[10px] font-bold rounded-lg border-none cursor-pointer text-white bg-amber-500 hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-colors"
+              <ButtonYellow
+                size="xs"
                 onclick={goUp}
               >
                 {t("builder.nav_up")}
-              </button>
+              </ButtonYellow>
             {/if}
             {#each savedPaths as path}
-              <button
-                type="button"
-                class="group relative px-2.5 py-1.5 text-[10px] font-bold rounded-lg border-none cursor-pointer text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-500/20 transition-colors"
-                onclick={() => browse(path)}
-                title={path}
-              >
-                <span class="mr-1">📌</span>{folderNameFromPath(path)}
+              <div class="relative inline-block group">
+                <ButtonGreen
+                  size="xs"
+                  onclick={() => browse(path)}
+                  title={path}
+                >
+                  <span class="mr-1">📌</span>{folderNameFromPath(path)}
+                </ButtonGreen>
                 <span
-                  class="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  class="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10"
                   role="button"
                   tabindex="0"
-                  onclick={() => removeSavedPath(path)}
+                  onclick={(e) => removeSavedPath(path, e)}
                   onkeydown={(e) => {
-                    if (e.key === "Enter" || e.key === " ")
-                      removeSavedPath(path);
-                  }}>✕</span
+                    if (e.key === "Enter" || e.key === " ") {
+                      removeSavedPath(path, e);
+                    }
+                  }}
+                  title="Remover atalho"
                 >
-              </button>
+                  ✕
+                </span>
+              </div>
             {/each}
           </div>
 
@@ -390,14 +379,13 @@
               />
               <span class="text-xs font-mono text-slate-400 select-none">:latest</span>
               {#if customTag.trim()}
-                <button
-                  type="button"
-                  class="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 transition-colors"
+                <ButtonYellow
+                  size="xs"
                   onclick={() => (customTag = "")}
                   title="Restaurar nome padrão da pasta"
                 >
                   Restaurar
-                </button>
+                </ButtonYellow>
               {/if}
             </div>
           {:else if currentPath && !loading}
@@ -408,9 +396,18 @@
             </span>
           {/if}
 
-          {#if errorMsg}
+          <!-- Feedback messages -->
+          {#if status === "building"}
             <span
-              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-500/15 text-red-500 border border-red-500/20"
+              class="text-xs text-amber-500 font-semibold flex items-center gap-1.5"
+            >
+              <span
+                class="animate-spin inline-block w-3.5 h-3.5 border-2 border-amber-500 border-t-transparent rounded-full"
+              ></span>
+              {t("builder.building")}
+            </span>
+          {:else if errorMsg}
+            <span class="text-xs text-red-500 font-semibold"
             >
               {errorMsg}</span
             >
@@ -418,38 +415,24 @@
 
           <!-- Build + Save Path Buttons -->
           <div class="flex items-center gap-2">
-            <button
-              type="button"
-              class="flex-1 py-3 text-sm font-bold rounded-xl border-none cursor-pointer transition-all shadow-md disabled:cursor-not-allowed {canBuild
-                ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20'
-                : 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600'}"
+            <ButtonGreen
+              size="md"
+              class="flex-1"
               disabled={!canBuild}
+              loading={status === "building"}
               onclick={doBuild}
             >
-              {#if status === "building"}
-                <span class="flex items-center justify-center gap-2">
-                  <span
-                    class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-                  ></span>
-                  {t("builder.building")}
-                </span>
-              {:else}
-                {t("builder.build_btn")}
-              {/if}
-            </button>
+              {t("builder.build_btn")}
+            </ButtonGreen>
+
             {#if currentPath}
-              <button
-                type="button"
-                class="px-4 py-3 text-xs font-bold rounded-xl border-none cursor-pointer transition-all shadow-md {savedPaths.includes(
-                  currentPath,
-                )
-                  ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                  : 'bg-violet-600 hover:bg-violet-700 text-white shadow-violet-500/20'}"
+              <ButtonPurple
+                size="md"
                 disabled={savedPaths.includes(currentPath)}
                 onclick={saveCurrentPath}
               >
                 {t("builder.save_path")}
-              </button>
+              </ButtonPurple>
             {/if}
           </div>
 
@@ -461,13 +444,13 @@
                 {t("builder.image_ready", { name: builtImage })}
               </p>
             </div>
-            <button
-              type="button"
-              class="w-full py-3 text-sm font-bold rounded-xl border-none cursor-pointer text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-md shadow-blue-500/20"
+            <ButtonBlue
+              size="md"
+              class="w-full"
               onclick={goToImages}
             >
               {t("builder.transfer_btn")}
-            </button>
+            </ButtonBlue>
           {/if}
 
           {#if status === "error" && errorMsg}

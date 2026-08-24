@@ -3,7 +3,7 @@
   import { t } from "$lib/stores/locale.svelte";
   import StatusBanner from "$lib/components/StatusBanner.svelte";
   import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
-  import { WarningButton, BrandButton } from "$lib/components/buttons";
+  import { ButtonPurple, ButtonBlue, ButtonPink } from "$lib/components/buttons";
   import * as ConfigService from "../../../bindings/go-walis/internal/config/configservice.js";
 
   let {
@@ -100,12 +100,12 @@
       </h1>
     </div>
 
-    <BrandButton
+    <ButtonPurple
       size="sm"
       onclick={() => navigate && navigate("config")}
     >
       {t("devices.manage_vps")}
-    </BrandButton>
+    </ButtonPurple>
   </div>
 
   <!-- Status Banner -->
@@ -122,11 +122,11 @@
       <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-md">
         {t("devices.empty_desc")}
       </p>
-      <BrandButton
+      <ButtonPurple
         onclick={() => navigate && navigate("config")}
       >
         {t("devices.add_first")}
-      </BrandButton>
+      </ButtonPurple>
     </div>
   {:else}
     <!-- Servers Grid -->
@@ -157,17 +157,17 @@
               {/if}
 
               {#if isActive}
-                <button
-                  type="button"
+                <ButtonPink
+                  size="xs"
                   title="Atualizar estatísticas de hardware"
-                  class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 active:bg-blue-500/30 dark:bg-blue-500/15 dark:hover:bg-blue-500/25 border border-blue-500/30 hover:border-blue-500/50 backdrop-blur-md rounded-xl cursor-pointer flex items-center justify-center p-2 transition-all shadow-sm shadow-blue-500/10 active:scale-95"
+                  loading={isLoading}
                   onclick={() => fetchServerUsage(server, true)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
-                    class="w-3.5 h-3.5 {isLoading ? 'animate-spin text-blue-500' : ''}"
+                    class="w-3.5 h-3.5"
                   >
                     <path
                       fill-rule="evenodd"
@@ -175,7 +175,7 @@
                       clip-rule="evenodd"
                     />
                   </svg>
-                </button>
+                </ButtonPink>
               {/if}
             </div>
 
@@ -273,20 +273,16 @@
             class="flex items-center gap-2.5 border-t border-slate-100 dark:border-slate-900 pt-4"
           >
             {#if isActive}
-              <button
-                type="button"
-                class="flex-1 py-2 text-xs font-bold text-center rounded-xl bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/20 transition-all cursor-pointer border-none"
-                onclick={() => navigate && navigate("containers")}
-              >
+              <ButtonBlue size="sm" onclick={() => navigate && navigate("containers")}>
                 {t("devices.view_containers")}
-              </button>
+              </ButtonBlue>
             {:else}
-              <WarningButton
+              <ButtonPurple
                 class="flex-1"
                 onclick={() => doSelectVps(server)}
               >
                 {t("devices.activate")}
-              </WarningButton>
+              </ButtonPurple>
             {/if}
           </div>
         </div>

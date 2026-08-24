@@ -1,9 +1,10 @@
 <script lang="ts">
   import { t } from "$lib/stores/locale.svelte";
   import {
-    WarningButton,
-    SecondaryButton,
-    DangerButton,
+    ButtonBlue,
+    ButtonPurple,
+    EditButtonIcon,
+    TrashButtonIcon,
   } from "$lib/components/buttons";
 
   let {
@@ -22,7 +23,6 @@
     onDelete: (server: any) => void;
   } = $props();
 </script>
-
 <div
   class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all gap-4 {isActive
     ? 'border-violet-500/80 bg-violet-500/5 dark:bg-violet-950/20 shadow-xs'
@@ -71,31 +71,25 @@
   <!-- Actions Row -->
   <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
     {#if !isActive}
-      <WarningButton size="sm" onclick={() => onSelect(server)}>
+      <ButtonPurple size="sm" onclick={() => onSelect(server)}>
         {t("devices.activate")}
-      </WarningButton>
+      </ButtonPurple>
     {/if}
 
-    <SecondaryButton size="sm" onclick={() => onTest(server)}>
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-      </svg>
+    <ButtonBlue size="sm" onclick={() => onTest(server)}>
       {t("config.test_conn_btn")}
-    </SecondaryButton>
+    </ButtonBlue>
 
-    <SecondaryButton
+    <EditButtonIcon
       size="sm"
       title={t("common.edit")}
-      class="px-2.5"
       onclick={() => onEdit(server)}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-      </svg>
-    </SecondaryButton>
+    />
 
-    <DangerButton size="sm" onclick={() => onDelete(server)}>
-      {t("common.delete")}
-    </DangerButton>
+    <TrashButtonIcon
+      size="sm"
+      title={t("common.delete")}
+      onclick={() => onDelete(server)}
+    />
   </div>
 </div>

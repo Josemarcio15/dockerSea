@@ -19,7 +19,7 @@ export const volumeWailsApi = {
     return await VolumeService.CreateVolume(server, {
       name: params.name,
       driver: params.driver,
-      labels: params.labels,
+      labels: params.labels || undefined,
     });
   },
 

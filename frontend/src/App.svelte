@@ -17,9 +17,9 @@
   import Profiles from "./pages/profiles/Profiles.svelte";
   import * as ConfigService from "../bindings/go-walis/internal/config/configservice.js";
 
-  let { data } = $props();
+  let { data = {} }: { data?: any } = $props();
 
-  let appData = $state({
+  let appData = $state<Record<string, any>>({
     locale: "pt-BR",
     theme: "dark",
     servers: [],
@@ -28,7 +28,12 @@
       name: "Perfil Padrão",
       locale: "pt-BR",
     },
-    ...data,
+  });
+
+  $effect(() => {
+    if (data && typeof data === "object") {
+      Object.assign(appData, data);
+    }
   });
 
   let currentRoute = $state<string>("dashboard");
@@ -65,8 +70,20 @@
           appData.activeVps = active;
         }
       }
+
+      const profiles = await ConfigService.ListProfiles();
+      if (profiles && profiles.length > 0) {
+        appData.profiles = profiles;
+        const activeProf = profiles.find((p: any) => p.isActive) || profiles[0];
+        if (activeProf) {
+          appData.activeProfile = activeProf;
+          if (activeProf.locale) {
+            appData.locale = activeProf.locale;
+          }
+        }
+      }
     } catch (e: any) {
-      console.warn("Erro ao buscar servidores do SQLite no App:", e);
+      console.warn("Erro ao buscar servidores/perfis do SQLite no App:", e);
     }
   });
 
@@ -388,10 +405,10 @@
         </div>
         <div class="flex flex-col min-w-0 flex-1">
           <span class="text-sm text-violet-200 font-semibold truncate"
-            >{data?.activeProfile?.name || "Perfil Default"}</span
+            >{appData?.activeProfile?.name || "Perfil Default"}</span
           >
           <span class="text-[10px] text-violet-300/70 truncate"
-            >{data?.activeProfile?.locale || "en-US"}</span
+            >{appData?.activeProfile?.locale || "pt-BR"}</span
           >
         </div>
       </div>

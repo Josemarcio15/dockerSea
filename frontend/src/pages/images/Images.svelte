@@ -11,6 +11,17 @@
 
   import ImageToolbar from "./components/ImageToolbar.svelte";
   import ImageCard from "./components/ImageCard.svelte";
+  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+  import {
+    ButtonBlue,
+    ButtonGreen,
+    ButtonYellow,
+    ButtonPurple,
+    ButtonCyan,
+    ButtonRed,
+    ButtonPink,
+    ButtonOrange,
+  } from "$lib/components/buttons";
   import { createImagesState } from "./useImages.svelte.js";
 
   let { data } = $props();
@@ -37,8 +48,37 @@
     notifySuccess("Perfil salvo com sucesso!");
   }
 
-  async function handleDeleteProfile(profileId: string) {
-    notifySuccess("Perfil deletado com sucesso!");
+  // Deletion confirm states
+  let showDeleteImagesConfirm = $state(false);
+  let showDeleteSingleImageConfirm = $state(false);
+  let showPruneImagesConfirm = $state(false);
+  let imageToDelete = $state<any>(null);
+
+  function requestDeleteSelectedImages() {
+    if (imgState.selectedImageIds.length === 0) return;
+    showDeleteImagesConfirm = true;
+  }
+
+  async function confirmDeleteSelectedImages() {
+    await imgState.handleDeleteSelected();
+  }
+
+  function requestPruneUnusedImages() {
+    showPruneImagesConfirm = true;
+  }
+
+  async function confirmPruneUnusedImages() {
+    await imgState.handlePruneUnused();
+  }
+
+  function requestDeleteSingleImage(img: any) {
+    imageToDelete = img;
+    showDeleteSingleImageConfirm = true;
+  }
+
+  async function confirmDeleteSingleImage() {
+    if (!imageToDelete) return;
+    await imgState.handleDeleteSingle(imageToDelete.id);
   }
 </script>
 
@@ -124,7 +164,8 @@
             countUnused={imgState.countUnused}
             countDangling={imgState.countDangling}
             onToggleAll={imgState.toggleAll}
-            onDeleteSelected={imgState.handleDeleteSelected}
+            onPrune={requestPruneUnusedImages}
+            onDeleteSelected={requestDeleteSelectedImages}
           />
 
           <!-- Images Cards Grid -->
@@ -136,7 +177,7 @@
             </div>
           {:else}
             <div
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5"
             >
               {#each imgState.filteredImages as img (img.id + "_" + img.repo + "_" + img.tag)}
                 <ImageCard
@@ -144,10 +185,6 @@
                   checked={imgState.selectedImageIds.includes(img.id)}
                   on_toggle={() => imgState.toggleChecked(img.id)}
                   on_build={() => imgState.openConfig(img.repo, img.tag)}
-                  on_delete={() => {
-                    imgState.selectedImageIds = [img.id];
-                    imgState.handleDeleteSelected();
-                  }}
                 />
               {/each}
             </div>
@@ -177,13 +214,12 @@
                   e.key === "Enter" &&
                   imgState.handlePull(imgState.downloadQuery)}
               />
-              <button
-                type="button"
-                class="px-5 py-2.5 rounded-xl border-none cursor-pointer text-sm font-bold text-white bg-violet-600 hover:bg-violet-700 transition-colors shadow-md shadow-violet-500/20 shrink-0"
+              <ButtonGreen
+                size="md"
                 onclick={() => imgState.handlePull(imgState.downloadQuery)}
               >
                 {t("images.pull_btn")}
-              </button>
+              </ButtonGreen>
             </div>
           </div>
 
@@ -196,16 +232,15 @@
             >
               <div class="flex items-center gap-3">
                 {#if imgState.imageHistory && imgState.imageHistory.length > 0}
-                  <button
-                    type="button"
-                    class="px-3 py-1.5 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 transition-colors shadow-md shadow-amber-500/20"
+                  <ButtonYellow
+                    size="xs"
                     onclick={imgState.toggleAllHistory}
                   >
                     {imgState.selectedHistoryIds.length ===
                     imgState.imageHistory.length
                       ? t("common.deselect_all")
                       : t("common.select_all")}
-                  </button>
+                  </ButtonYellow>
                   {#if imgState.selectedHistoryIds.length > 0}
                     <span
                       class="text-xs font-semibold text-red-500 px-1 animate-pulse"
@@ -223,22 +258,20 @@
 
               <div class="flex items-center gap-2">
                 {#if imgState.selectedHistoryIds.length > 0}
-                  <button
-                    type="button"
-                    class="text-xs text-red-500 hover:text-red-650 font-bold bg-transparent border-none cursor-pointer transition-colors"
+                  <ButtonRed
+                    size="xs"
                     onclick={imgState.handleDeleteHistorySelected}
                   >
                     {t("common.delete")}
-                  </button>
+                  </ButtonRed>
                 {/if}
                 {#if imgState.imageHistory && imgState.imageHistory.length > 0}
-                  <button
-                    type="button"
-                    class="text-xs text-red-500 hover:text-red-650 font-bold bg-transparent border-none cursor-pointer transition-colors"
+                  <ButtonRed
+                    size="xs"
                     onclick={imgState.handleClearHistory}
                   >
                     {t("images.clear_history")}
-                  </button>
+                  </ButtonRed>
                 {/if}
               </div>
             </div>
@@ -284,13 +317,12 @@
                         </span>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors shrink-0 bg-white dark:bg-slate-900"
+                    <ButtonCyan
+                      size="xs"
                       onclick={() => imgState.handlePull(hist.imageName)}
                     >
                       {t("images.repull_btn")}
-                    </button>
+                    </ButtonCyan>
                   </div>
                 {/each}
               </div>
@@ -382,16 +414,15 @@
                     {t("images.transfer_select_images")}
                   </span>
                   {#if imgState.sourceImages.length > 0}
-                    <button
-                      type="button"
-                      class="px-3 py-1.5 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 transition-colors shadow-md shadow-amber-500/20"
+                    <ButtonYellow
+                      size="xs"
                       onclick={imgState.toggleAllTransfer}
                     >
                       {imgState.selectedTransferIds.length ===
                       imgState.sourceImages.length
                         ? t("common.deselect_all")
                         : t("common.select_all")}
-                    </button>
+                    </ButtonYellow>
                   {/if}
                 </div>
 
@@ -453,21 +484,19 @@
                         {imgState.selectedTransferIds.length}
                         {t("images.selected_count")}
                       </span>
-                      <button
-                        type="button"
-                        class="px-5 py-2.5 rounded-xl border-none cursor-pointer text-sm font-bold text-white bg-violet-600 hover:bg-violet-700 transition-colors shadow-md shadow-violet-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      <ButtonPurple
+                        size="md"
                         disabled={!imgState.transferDestId ||
                           imgState.transferSourceId ===
                             imgState.transferDestId ||
                           imgState.transferInProgress}
+                        loading={imgState.transferInProgress}
                         onclick={imgState.handleTransfer}
                       >
-                        {#if imgState.transferInProgress}
-                          {t("common.loading")}
-                        {:else}
-                          {t("images.transfer_btn")}
-                        {/if}
-                      </button>
+                        {imgState.transferInProgress
+                          ? t("images.transferring")
+                          : t("images.transfer_action_btn")}
+                      </ButtonPurple>
                     </div>
                   {/if}
                 {/if}
@@ -485,7 +514,7 @@
   bind:show={imgState.showTerminal}
   title={imgState.terminalTitle}
   loading={imgState.terminalLoading}
-  lines={imgState.terminalLogs}
+  logs={imgState.terminalLogs}
 />
 
 <!-- Config Modal to start container -->
@@ -497,7 +526,37 @@
   activeVps={data.activeVps}
   onsubmit={handleCreateContainer}
   onsaveprofile={handleSaveProfile}
-  ondeleteprofile={handleDeleteProfile}
+  ondeleteprofile={(id) => notifySuccess("Perfil excluído.")}
+/>
+
+<!-- Modal Confirmação Limpar Não Usadas (Prune) -->
+<ConfirmDialog
+  bind:show={showPruneImagesConfirm}
+  title="Limpar Imagens Não Utilizadas"
+  message={`Tem certeza de que deseja remover todas as imagens não utilizadas (${imgState.countUnused + imgState.countDangling})?\nImagens associadas a contêineres ativos ou parados serão mantidas.`}
+  confirmText="Limpar Imagens"
+  type="danger"
+  onConfirm={confirmPruneUnusedImages}
+/>
+
+<!-- Modal Confirmação Exclusão em Lote -->
+<ConfirmDialog
+  bind:show={showDeleteImagesConfirm}
+  title="Remover Imagens"
+  message={`Tem certeza de que deseja remover as ${imgState.selectedImageIds.length} imagem(ns) selecionada(s)?\nEssa ação liberará o espaço em disco correspondente.`}
+  confirmText="Remover Imagens"
+  type="danger"
+  onConfirm={confirmDeleteSelectedImages}
+/>
+
+<!-- Modal Confirmação Exclusão Individual -->
+<ConfirmDialog
+  bind:show={showDeleteSingleImageConfirm}
+  title="Remover Imagem"
+  message={`Tem certeza de que deseja remover a imagem '${imageToDelete?.repo || ""}:${imageToDelete?.tag || ""}'?`}
+  confirmText="Remover Imagem"
+  type="danger"
+  onConfirm={confirmDeleteSingleImage}
 />
 
 <!-- Pull Progress modal -->

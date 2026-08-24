@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from "$lib/stores/locale.svelte";
   import Modal from "$lib/components/Modal.svelte";
-  import { DangerButton, SecondaryButton } from "$lib/components/buttons";
+  import { ButtonRed, Button } from "$lib/components/buttons";
 
   let {
     show = $bindable(false),
@@ -24,7 +24,7 @@
 
 <Modal
   bind:show
-  title={t("volumes.create_title")}
+  title={t("volumes.modal_title")}
   buttons={[
     {
       label: t("volumes.create_btn"),
@@ -76,12 +76,12 @@
       >
         {t("volumes.field_labels")}
       </span>
-      <SecondaryButton
+      <Button
         size="xs"
         onclick={onAddLabel}
       >
-        {t("volumes.add_label_btn")}
-      </SecondaryButton>
+        {t("volumes.add_label")}
+      </Button>
     </div>
 
     {#if labelEntries.length === 0}
@@ -104,12 +104,12 @@
           class="flex-1 px-3 py-2 text-xs border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/40 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
           bind:value={entry.value}
         />
-        <DangerButton
+        <ButtonRed
           size="xs"
           onclick={() => onRemoveLabel(i)}
         >
           ✕
-        </DangerButton>
+        </ButtonRed>
       </div>
     {/each}
   </div>

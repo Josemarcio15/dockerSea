@@ -17,7 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "$lib/*": ["src/lib/*"]
-    }
+    },
+    "noEmit": true
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "bindings"]
 }

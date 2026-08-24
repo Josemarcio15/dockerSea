@@ -1,6 +1,14 @@
 <script lang="ts">
   import { t } from "$lib/stores/locale.svelte";
   import type { Snippet } from "svelte";
+  import {
+    ButtonOrange,
+    ButtonGreen,
+    ButtonRed,
+    ButtonYellow,
+    ButtonBlue,
+    Button,
+  } from "$lib/components/buttons";
 
   export interface ModalButton {
     label: string;
@@ -21,23 +29,6 @@
     buttons?: ModalButton[];
     children: Snippet;
   } = $props();
-
-  function getButtonClass(variant: string = "primary") {
-    switch (variant) {
-      case "primary":
-        return "px-4 py-2.5 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-500/20 disabled:bg-slate-400 dark:disabled:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-450";
-      case "secondary":
-        return "px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-850 bg-white dark:bg-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
-      case "danger":
-        return "px-4 py-2.5 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-md shadow-red-500/20 disabled:bg-slate-450 disabled:cursor-not-allowed";
-      case "success":
-        return "px-4 py-2.5 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-500/20 disabled:bg-slate-450 disabled:cursor-not-allowed";
-      case "warning":
-        return "px-4 py-2.5 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 transition-colors shadow-md shadow-amber-500/20 disabled:bg-slate-450 disabled:cursor-not-allowed";
-      default:
-        return "px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-850 bg-white dark:bg-transparent transition-colors";
-    }
-  }
 </script>
 
 {#if show}
@@ -74,24 +65,45 @@
       <div
         class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-800 shrink-0"
       >
-        <!-- Cancel Button (Standard for all modals) -->
-        <button
-          type="button"
-          class="px-4 py-2.5 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-md shadow-red-500/20"
-          onclick={() => (show = false)}
-        >
+        <!-- Cancel/Close Button -->
+        <ButtonOrange onclick={() => (show = false)}>
           {t("common.cancel")}
-        </button>
+        </ButtonOrange>
 
         {#each buttons as btn}
-          <button
-            type={btn.type || "button"}
-            class={getButtonClass(btn.variant)}
-            disabled={btn.disabled}
-            onclick={btn.onclick}
-          >
-            {btn.label}
-          </button>
+          {#if btn.variant === "danger"}
+            <ButtonRed
+              type={btn.type || "button"}
+              disabled={btn.disabled}
+              onclick={btn.onclick}
+            >
+              {btn.label}
+            </ButtonRed>
+          {:else if btn.variant === "warning"}
+            <ButtonYellow
+              type={btn.type || "button"}
+              disabled={btn.disabled}
+              onclick={btn.onclick}
+            >
+              {btn.label}
+            </ButtonYellow>
+          {:else if btn.variant === "success" || btn.variant === "primary"}
+            <ButtonGreen
+              type={btn.type || "button"}
+              disabled={btn.disabled}
+              onclick={btn.onclick}
+            >
+              {btn.label}
+            </ButtonGreen>
+          {:else}
+            <ButtonBlue
+              type={btn.type || "button"}
+              disabled={btn.disabled}
+              onclick={btn.onclick}
+            >
+              {btn.label}
+            </ButtonBlue>
+          {/if}
         {/each}
       </div>
     </div>

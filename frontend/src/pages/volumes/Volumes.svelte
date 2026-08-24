@@ -62,7 +62,7 @@
           {t("volumes.empty")}
         </div>
       {:else}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5">
           {#each vState.filteredVolumes as vol (vol.name)}
             <VolumeCard
               {vol}

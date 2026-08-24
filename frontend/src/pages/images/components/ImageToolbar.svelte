@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from "$lib/stores/locale.svelte";
+  import { ButtonGreen, ButtonYellow, ButtonRed } from "$lib/components/buttons";
 
   let {
     diskUsage = "0 B",
@@ -12,6 +13,7 @@
     countUnused = 0,
     countDangling = 0,
     onToggleAll = () => {},
+    onPrune = () => {},
     onDeleteSelected = () => {},
   }: {
     diskUsage?: string;
@@ -24,44 +26,63 @@
     countUnused?: number;
     countDangling?: number;
     onToggleAll?: () => void;
+    onPrune?: () => void;
     onDeleteSelected?: () => void;
   } = $props();
 </script>
 
 <div
-  class="flex flex-col gap-3 bg-white dark:bg-[#0b0f19] border border-slate-200/80 dark:border-slate-800/80 p-4 rounded-2xl shadow-sm"
+  class="flex flex-col gap-3 bg-white dark:bg-[#0b0f19] border border-slate-200/80 dark:border-slate-800/80 p-3.5 rounded-2xl shadow-sm"
 >
-  <!-- Top Row: Disk usage stats & Main actions -->
+  <!-- Top Row: Seleção (Esquerda como em Containers) & Ações/Disk stats (Direita) -->
   <div class="flex flex-wrap items-center justify-between gap-3">
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2">
+      <!-- Botão Marcar Todos (Verde) -->
+      <ButtonGreen
+        size="sm"
+        onclick={onToggleAll}
+      >
+        {allSelected ? t("common.deselect_all") : t("common.select_all")}
+      </ButtonGreen>
+
+      {#if selectedCount > 0}
+        <span
+          class="text-xs font-semibold text-violet-600 dark:text-violet-400 animate-pulse px-2"
+        >
+          {selectedCount}
+          {t("common.selected")}
+        </span>
+      {/if}
+
+      <span
+        class="text-xs text-slate-400 dark:text-slate-500 px-2 font-semibold"
+      >
+        {t("images.registered_images", { count: String(totalCount) })}
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2">
       <div
         class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-400 text-xs font-bold"
       >
         <span>📊 {t("images.disk_space")}</span>
         <span class="font-mono text-sm">{diskUsage}</span>
       </div>
-      <span class="text-xs text-slate-400">
-        {t("images.registered_images", { count: String(totalCount) })}
-      </span>
-    </div>
 
-    <div class="flex items-center gap-2">
-      <button
-        type="button"
-        class="px-3.5 py-2 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 transition-colors shadow-md shadow-amber-500/20"
-        onclick={onToggleAll}
+      <ButtonYellow
+        size="sm"
+        onclick={onPrune}
       >
-        {allSelected ? t("common.deselect_all") : t("common.select_all")}
-      </button>
-      {#if selectedCount > 0}
-        <button
-          type="button"
-          class="px-3.5 py-2 rounded-xl border-none cursor-pointer text-xs font-bold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-md shadow-red-500/20"
-          onclick={onDeleteSelected}
-        >
-          {t("images.delete_selected")} ({selectedCount})
-        </button>
-      {/if}
+        {t("volumes.prune_btn")}
+      </ButtonYellow>
+
+      <ButtonRed
+        size="sm"
+        disabled={selectedCount === 0}
+        onclick={onDeleteSelected}
+      >
+        {t("images.delete_selected")}
+      </ButtonRed>
     </div>
   </div>
 

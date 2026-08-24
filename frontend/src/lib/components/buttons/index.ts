@@ -1,8 +1,17 @@
+// Componente Base
 export { default as Button } from "./Button.svelte";
-export { default as BrandButton } from "./BrandButton.svelte";
-export { default as PrimaryButton } from "./PrimaryButton.svelte";
-export { default as PinkButton } from "./PinkButton.svelte";
-export { default as SuccessButton } from "./SuccessButton.svelte";
-export { default as WarningButton } from "./WarningButton.svelte";
-export { default as DangerButton } from "./DangerButton.svelte";
-export { default as SecondaryButton } from "./SecondaryButton.svelte";
+
+// Botões por Cor
+export { default as ButtonPurple } from "./ButtonPurple.svelte";
+export { default as ButtonCyan } from "./ButtonCyan.svelte";
+export { default as ButtonBlue } from "./ButtonBlue.svelte";
+export { default as ButtonGreen } from "./ButtonGreen.svelte";
+export { default as ButtonYellow } from "./ButtonYellow.svelte";
+export { default as ButtonRed } from "./ButtonRed.svelte";
+export { default as ButtonPink } from "./ButtonPink.svelte";
+export { default as ButtonOrange } from "./ButtonOrange.svelte";
+
+// Botões com Ícone
+export { default as EditButtonIcon } from "./EditButtonIcon.svelte";
+export { default as TrashButtonIcon } from "./TrashButtonIcon.svelte";
+

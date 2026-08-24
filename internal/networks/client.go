@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strings"
 
+	"go-walis/internal/containers"
 	"go-walis/internal/core/connection"
 )
 
@@ -35,6 +36,24 @@ func ListNetworks(client *connection.Client) ([]DockerNetwork, error) {
 		return nil, fmt.Errorf("falha ao decodificar lista de redes: %w", err)
 	}
 
+	// Também consulta containers para garantir associação caso o endpoint /networks retorne containers vazio (modo summary)
+	containerList, _ := containers.ListContainers(client, true)
+	networkContainersMap := make(map[string][]DockerNetworkContainer)
+	for _, c := range containerList {
+		cName := c.Name
+		if cName == "" && len(c.Names) > 0 {
+			cName = strings.TrimPrefix(c.Names[0], "/")
+		}
+		for netName, netEndpoint := range c.Networks {
+			networkContainersMap[netName] = append(networkContainersMap[netName], DockerNetworkContainer{
+				Name:        cName,
+				EndpointID:  netEndpoint.NetworkID,
+				MacAddress:  netEndpoint.MacAddress,
+				IPv4Address: netEndpoint.IPAddress,
+			})
+		}
+	}
+
 	var result []DockerNetwork
 	for _, raw := range rawList {
 		var subnet, gateway string
@@ -56,6 +75,15 @@ func ListNetworks(client *connection.Client) ([]DockerNetwork, error) {
 				IPv4Address: ip,
 				IPv6Address: c.IPv6Address,
 			})
+		}
+
+		// Se a Docker API não retornou containers no payload resumido de /networks, usa o mapa correlacionado
+		if len(connectedContainers) == 0 {
+			if list, exists := networkContainersMap[raw.Name]; exists {
+				connectedContainers = list
+			} else if list, exists := networkContainersMap[raw.ID]; exists {
+				connectedContainers = list
+			}
 		}
 
 		result = append(result, DockerNetwork{

@@ -7,13 +7,17 @@ const translations: Record<string, any> = {
 };
 
 // Reactive locale state — Svelte 5 $state rune via .svelte.ts extension
-let currentLocale = $state("pt-BR");
+let storedLocale = "pt-BR";
+if (typeof localStorage !== "undefined") {
+  storedLocale = localStorage.getItem("locale") || "pt-BR";
+}
+let currentLocale = $state(translations[storedLocale] ? storedLocale : "pt-BR");
 
 export function setLocale(locale: string) {
-  if (translations[locale]) {
-    currentLocale = locale;
-  } else {
-    currentLocale = "en-US";
+  const chosen = translations[locale] ? locale : "en-US";
+  currentLocale = chosen;
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("locale", chosen);
   }
 }
 

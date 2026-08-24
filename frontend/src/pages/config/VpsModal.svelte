@@ -1,7 +1,7 @@
 <script lang="ts">
   import Modal from "$lib/components/Modal.svelte";
   import Input from "$lib/components/Input.svelte";
-  import { SecondaryButton } from "$lib/components/buttons";
+  import { ButtonYellow, ButtonPink } from "$lib/components/buttons";
   import { t } from "$lib/stores/locale.svelte";
   import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
   import * as ConfigService from "../../../bindings/go-walis/internal/config/configservice.js";
@@ -35,22 +35,39 @@
     onTest: (data: VpsFormData) => void;
   } = $props();
 
-  import { Dialogs } from "@wailsio/runtime";
-
   let modalTab = $state<"connection" | "docker">("connection");
   let isDetecting = $state(false);
 
+  // Lista de caminhos descobertos
+  let discoveredSockets = $state<string[]>([]);
+  let discoveredBins = $state<string[]>([]);
+  let discoveredComposes = $state<string[]>([]);
+
+  // Limpa o estado temporário e opções descobertas quando o modal abre ou fecha
+  $effect(() => {
+    if (!show) {
+      discoveredSockets = [];
+      discoveredBins = [];
+      discoveredComposes = [];
+      modalTab = "connection";
+      isDetecting = false;
+    }
+  });
+
   async function pickSshKey() {
     try {
-      const selected = await Dialogs.OpenFile({
-        title: "Selecione a chave privada SSH",
-        canChooseFiles: true,
-        canChooseDirectories: false,
-        allowsMultipleSelection: false,
-      });
-      if (selected && typeof selected === "string") {
-        form.sshKeyPath = selected;
-        return;
+      const Dialogs = (window as any).wails?.dialogs || (window as any).Dialogs;
+      if (Dialogs?.OpenFile) {
+        const selected = await Dialogs.OpenFile({
+          title: "Selecione a chave privada SSH",
+          canChooseFiles: true,
+          canChooseDirectories: false,
+          allowsMultipleSelection: false,
+        });
+        if (selected && typeof selected === "string") {
+          form.sshKeyPath = selected;
+          return;
+        }
       }
     } catch (e) {
       console.warn("Wails runtime dialog fallback:", e);
@@ -81,11 +98,21 @@
         updatedAt: new Date().toISOString(),
       };
 
-      const res = await ConfigService.AutoDetectDocker(payload);
+      const res: any = await ConfigService.AutoDetectDocker(payload);
       if (res && res.success) {
-        form.dockerSocketPath = res.dockerSocketPath || "/var/run/docker.sock";
-        form.dockerPath = res.dockerPath || "/usr/bin/docker";
-        form.dockerComposePath = res.dockerComposePath || "docker compose";
+        discoveredSockets = res.availableSockets || [res.dockerSocketPath || "/var/run/docker.sock"];
+        discoveredBins = res.availableBins || [res.dockerPath || "/usr/bin/docker"];
+        discoveredComposes = res.availableComposes || [res.dockerComposePath || "docker compose"];
+
+        if (!form.dockerSocketPath || !discoveredSockets.includes(form.dockerSocketPath)) {
+          form.dockerSocketPath = res.dockerSocketPath || discoveredSockets[0] || "/var/run/docker.sock";
+        }
+        if (!form.dockerPath || !discoveredBins.includes(form.dockerPath)) {
+          form.dockerPath = res.dockerPath || discoveredBins[0] || "/usr/bin/docker";
+        }
+        if (!form.dockerComposePath || !discoveredComposes.includes(form.dockerComposePath)) {
+          form.dockerComposePath = res.dockerComposePath || discoveredComposes[0] || "docker compose";
+        }
         notifySuccess(res.message || "Ambiente Docker detectado!");
       } else {
         notifyError(res?.message || "Não foi possível autodetectar. Verifique a conexão.");
@@ -103,7 +130,7 @@
   title={form.id ? t("config.edit_title") : t("config.new_title")}
   buttons={[
     {
-      label: "🔍 " + t("config.test_conn_btn"),
+      label: t("config.test_conn_btn"),
       variant: "secondary",
       onclick: () => onTest(form),
       disabled: !form.name.trim() || (form.connectionType === "ssh" && !form.host.trim()),
@@ -211,13 +238,12 @@
           bind:value={form.sshKeyPath}
         >
           {#snippet trailing()}
-            <button
-              type="button"
-              class="px-3.5 py-2.5 text-xs font-bold rounded-xl border border-violet-200 dark:border-violet-800/60 text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-900/60 cursor-pointer transition-colors shrink-0"
+            <ButtonYellow
+              size="sm"
               onclick={pickSshKey}
             >
               {t("config.select_btn")}
-            </button>
+            </ButtonYellow>
             <input
               id="modal-file-ssh-key"
               type="file"
@@ -225,18 +251,17 @@
               onchange={(e) => {
                 const file = (e.target as HTMLInputElement).files?.[0];
                 if (file) {
-                  const fullPath = (file as any).path;
-                  form.sshKeyPath = fullPath || `~/.ssh/${file.name}`;
+                  form.sshKeyPath = (file as any).path || file.name;
                 }
-                (e.target as HTMLInputElement).value = "";
               }}
             />
           {/snippet}
         </Input>
 
-        {#if form.sshKeyPath.trim()}
+        {#if form.authType === "key"}
+          <!-- Passphrase -->
           <Input
-            label={t("config.ssh_key_pass")}
+            label={t("config.ssh_key_passphrase")}
             type="password"
             placeholder={t("config.placeholder_pass")}
             help="Preencha apenas se a chave privada tiver passphrase."
@@ -277,7 +302,7 @@
         </p>
       </div>
 
-      <SecondaryButton
+      <ButtonPink
         size="sm"
         loading={isDetecting}
         disabled={form.connectionType === "ssh" && !form.host.trim()}
@@ -287,28 +312,139 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
         </svg>
         Autodetectar
-      </SecondaryButton>
+      </ButtonPink>
     </div>
 
-    <Input
-      label={t("config.docker_socket")}
-      placeholder={t("config.placeholder_socket")}
-      help="Caminho do socket UNIX (Padrão: /var/run/docker.sock)"
-      bind:value={form.dockerSocketPath}
-    />
+    <!-- Socket Selector -->
+    <div class="space-y-1.5">
+      <Input
+        label={t("config.docker_socket")}
+        placeholder={t("config.placeholder_socket")}
+        help="Caminho do socket UNIX (Padrão: /var/run/docker.sock)"
+        bind:value={form.dockerSocketPath}
+      />
+      {#if discoveredSockets.length > 1}
+        <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-1.5">
+          <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+            Selecione o socket desejado ({discoveredSockets.length} encontrados):
+          </span>
+          <div class="flex flex-col gap-1.5">
+            {#each discoveredSockets as sock}
+              {@const isSelected = form.dockerSocketPath === sock}
+              <button
+                type="button"
+                class="w-full px-3 py-2 text-left rounded-lg border transition-all cursor-pointer flex items-center justify-between gap-2 {isSelected
+                  ? 'bg-violet-500/15 border-violet-500 text-violet-700 dark:text-violet-300 font-bold shadow-xs'
+                  : 'bg-white dark:bg-[#0c1220] border-slate-200 dark:border-slate-800 hover:border-violet-300 text-slate-700 dark:text-slate-300'}"
+                onclick={() => (form.dockerSocketPath = sock)}
+              >
+                <div class="flex items-center gap-2 min-w-0 flex-1">
+                  <span class="text-xs shrink-0">{sock.includes("/user/") ? "👤" : "⚙️"}</span>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                      {sock.includes("/user/") ? "Rootless (Ambiente de Usuário)" : "Root / Sistema (Ambiente Padrão)"}
+                    </span>
+                    <span class="text-xs font-mono truncate">{sock}</span>
+                  </div>
+                </div>
+                <div class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 {isSelected ? 'border-violet-500 bg-violet-500 text-white' : 'border-slate-300 dark:border-slate-700'}">
+                  {#if isSelected}
+                    <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                  {/if}
+                </div>
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
 
-    <Input
-      label={t("config.docker_path")}
-      placeholder={t("config.placeholder_docker_path")}
-      help={t("config.help_docker_path")}
-      bind:value={form.dockerPath}
-    />
+    <!-- Docker Bin Selector -->
+    <div class="space-y-1.5">
+      <Input
+        label={t("config.docker_path")}
+        placeholder={t("config.placeholder_docker_path")}
+        help={t("config.help_docker_path")}
+        bind:value={form.dockerPath}
+      />
+      {#if discoveredBins.length > 1}
+        <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-1.5">
+          <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+            Selecione o binário do Docker ({discoveredBins.length} encontrados):
+          </span>
+          <div class="flex flex-col gap-1.5">
+            {#each discoveredBins as bin}
+              {@const isSelected = form.dockerPath === bin}
+              <button
+                type="button"
+                class="w-full px-3 py-2 text-left rounded-lg border transition-all cursor-pointer flex items-center justify-between gap-2 {isSelected
+                  ? 'bg-violet-500/15 border-violet-500 text-violet-700 dark:text-violet-300 font-bold shadow-xs'
+                  : 'bg-white dark:bg-[#0c1220] border-slate-200 dark:border-slate-800 hover:border-violet-300 text-slate-700 dark:text-slate-300'}"
+                onclick={() => (form.dockerPath = bin)}
+              >
+                <div class="flex items-center gap-2 min-w-0 flex-1">
+                  <span class="text-xs shrink-0">{bin.includes("/home/") ? "👤" : "⚙️"}</span>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                      {bin.includes("/home/") ? "Binário do Usuário (Rootless)" : "Binário do Sistema"}
+                    </span>
+                    <span class="text-xs font-mono truncate">{bin}</span>
+                  </div>
+                </div>
+                <div class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 {isSelected ? 'border-violet-500 bg-violet-500 text-white' : 'border-slate-300 dark:border-slate-700'}">
+                  {#if isSelected}
+                    <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                  {/if}
+                </div>
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
 
-    <Input
-      label={t("config.docker_compose_path")}
-      placeholder={t("config.placeholder_docker_compose_path")}
-      help={t("config.help_docker_compose_path")}
-      bind:value={form.dockerComposePath}
-    />
+    <!-- Docker Compose Selector -->
+    <div class="space-y-1.5">
+      <Input
+        label={t("config.docker_compose_path")}
+        placeholder={t("config.placeholder_docker_compose_path")}
+        help={t("config.help_docker_compose_path")}
+        bind:value={form.dockerComposePath}
+      />
+      {#if discoveredComposes.length > 1}
+        <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-1.5">
+          <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+            Selecione o Compose ({discoveredComposes.length} encontrados):
+          </span>
+          <div class="flex flex-col gap-1.5">
+            {#each discoveredComposes as comp}
+              {@const isSelected = form.dockerComposePath === comp}
+              <button
+                type="button"
+                class="w-full px-3 py-2 text-left rounded-lg border transition-all cursor-pointer flex items-center justify-between gap-2 {isSelected
+                  ? 'bg-violet-500/15 border-violet-500 text-violet-700 dark:text-violet-300 font-bold shadow-xs'
+                  : 'bg-white dark:bg-[#0c1220] border-slate-200 dark:border-slate-800 hover:border-violet-300 text-slate-700 dark:text-slate-300'}"
+                onclick={() => (form.dockerComposePath = comp)}
+              >
+                <div class="flex items-center gap-2 min-w-0 flex-1">
+                  <span class="text-xs shrink-0">📦</span>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                      {comp.includes("compose") && !comp.includes("docker-compose") ? "Plugin V2" : "Executável Standalone"}
+                    </span>
+                    <span class="text-xs font-mono truncate">{comp}</span>
+                  </div>
+                </div>
+                <div class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 {isSelected ? 'border-violet-500 bg-violet-500 text-white' : 'border-slate-300 dark:border-slate-700'}">
+                  {#if isSelected}
+                    <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                  {/if}
+                </div>
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
   {/if}
 </Modal>

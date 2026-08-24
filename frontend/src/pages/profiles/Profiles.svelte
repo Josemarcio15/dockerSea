@@ -2,7 +2,28 @@
   import StatusBanner from "$lib/components/StatusBanner.svelte";
   import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
   import { t } from "$lib/stores/locale.svelte";
+  import { triggerRefresh } from "$lib/stores/refresh.svelte";
   import Modal from "$lib/components/Modal.svelte";
+  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+  import {
+    ButtonBlue,
+    ButtonPurple,
+    ButtonRed,
+    EditButtonIcon,
+    TrashButtonIcon,
+  } from "$lib/components/buttons";
+
+  function deserialize(text: string): any {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { success: false, message: text };
+    }
+  }
+
+  async function invalidateAll() {
+    triggerRefresh();
+  }
 
   let { data } = $props();
 
@@ -65,11 +86,19 @@
     await runAction("save", formData);
   }
 
-  async function doDelete(id: string, name: string) {
-    if (!confirm(t("profiles.delete_confirm").replace("{name}", name))) return;
+  // Delete Profile confirmation
+  let showDeleteConfirm = $state(false);
+  let profileToDelete = $state<{ id: string; name: string } | null>(null);
 
+  function doDelete(id: string, name: string) {
+    profileToDelete = { id, name };
+    showDeleteConfirm = true;
+  }
+
+  async function confirmDeleteProfile() {
+    if (!profileToDelete) return;
     const formData = new FormData();
-    formData.append("id", id);
+    formData.append("id", profileToDelete.id);
     await runAction("delete", formData);
   }
 
@@ -105,13 +134,9 @@
       </h1>
     </div>
 
-    <button
-      type="button"
-      class="px-4 py-2 text-xs rounded-xl border-none cursor-pointer font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20 whitespace-nowrap"
-      onclick={openCreateModal}
-    >
+    <ButtonBlue size="sm" onclick={openCreateModal}>
       {t("profiles.new_profile")}
-    </button>
+    </ButtonBlue>
   </div>
 
   <!-- Status Alerts -->
@@ -148,31 +173,29 @@
           class="flex items-center gap-2 mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 shrink-0"
         >
           {#if data.activeProfile?.id !== profile.id}
-            <button
-              type="button"
-              class="px-3.5 py-1.5 text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 hover:bg-violet-100 dark:hover:bg-violet-950/50 border border-violet-200 dark:border-violet-900/50 rounded-xl cursor-pointer transition-colors flex-1 shadow-xs"
+            <ButtonPurple
+              size="xs"
+              class="flex-1"
               onclick={() => doSelect(profile.id)}
             >
               {t("profiles.select_btn")}
-            </button>
+            </ButtonPurple>
           {/if}
 
-          <button
-            type="button"
-            class="px-3.5 py-1.5 text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/30 hover:bg-violet-100 dark:hover:bg-violet-900/50 border border-violet-200 dark:border-violet-900/50 rounded-xl cursor-pointer transition-colors shadow-xs"
+          <ButtonPurple
+            size="xs"
             onclick={() => openEditModal(profile)}
           >
             {t("common.edit")}
-          </button>
+          </ButtonPurple>
 
           {#if data.profiles.length > 1}
-            <button
-              type="button"
-              class="px-3.5 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200/60 dark:border-red-900/50 rounded-xl cursor-pointer transition-colors shadow-xs"
+            <ButtonRed
+              size="xs"
               onclick={() => doDelete(profile.id, profile.name)}
             >
               {t("common.delete")}
-            </button>
+            </ButtonRed>
           {/if}
         </div>
       </div>
@@ -209,3 +232,13 @@
     />
   </div>
 </Modal>
+
+<!-- Modal de Confirmação de Exclusão de Perfil -->
+<ConfirmDialog
+  bind:show={showDeleteConfirm}
+  title="Remover Perfil"
+  message={`Tem certeza de que deseja remover o perfil '${profileToDelete?.name || ""}'?\nEssa ação não poderá ser desfeita.`}
+  confirmText="Remover Perfil"
+  type="danger"
+  onConfirm={confirmDeleteProfile}
+/>

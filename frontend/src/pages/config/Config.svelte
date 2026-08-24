@@ -7,7 +7,8 @@
   import VpsCard from "./VpsCard.svelte";
   import VpsModal, { type VpsFormData } from "./VpsModal.svelte";
   import DiagnosticModal from "./DiagnosticModal.svelte";
-  import { BrandButton } from "$lib/components/buttons";
+  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+  import { ButtonPurple } from "$lib/components/buttons";
   import * as ConfigService from "../../../bindings/go-walis/internal/config/configservice.js";
 
   let { data } = $props();
@@ -177,13 +178,21 @@
     showVpsModal = false;
   }
 
-  async function handleDeleteVps(server: any) {
-    if (!confirm(`Tem certeza de que deseja remover a VPS '${server.name}'?`)) return;
+  // Delete VPS confirmation
+  let showDeleteConfirm = $state(false);
+  let serverToDelete = $state<any>(null);
 
+  function handleDeleteVps(server: any) {
+    serverToDelete = server;
+    showDeleteConfirm = true;
+  }
+
+  async function confirmDeleteVps() {
+    if (!serverToDelete) return;
     try {
-      await ConfigService.DeleteServer(server.id);
+      await ConfigService.DeleteServer(serverToDelete.id);
       await loadServers();
-      notifySuccess(`Servidor '${server.name}' removido.`);
+      notifySuccess(`Servidor '${serverToDelete.name}' removido.`);
     } catch (e: any) {
       notifyError(`Erro ao remover: ${e.message || e}`);
     }
@@ -242,10 +251,10 @@
           </p>
         </div>
 
-        <BrandButton onclick={openCreateModal}>
+        <ButtonPurple onclick={openCreateModal}>
           <span class="text-sm font-normal">+</span>
           {t("config.add_server_btn")}
-        </BrandButton>
+        </ButtonPurple>
       </div>
 
       <!-- Servers List (Rows) -->
@@ -325,4 +334,14 @@
   title={diagnosticTitle}
   loading={diagnosticLoading}
   result={diagnosticResult}
+/>
+
+<!-- Modal de Confirmação de Exclusão -->
+<ConfirmDialog
+  bind:show={showDeleteConfirm}
+  title="Remover VPS"
+  message={`Tem certeza de que deseja remover o servidor '${serverToDelete?.name || ""}'?\nEssa ação não poderá ser desfeita.`}
+  confirmText="Remover Servidor"
+  type="danger"
+  onConfirm={confirmDeleteVps}
 />
