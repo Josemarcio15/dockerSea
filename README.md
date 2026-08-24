@@ -34,29 +34,6 @@ The application can be used as a native desktop application or built in server m
 
 For production use, create a dedicated Linux user with the minimum permissions required to manage Docker. Protect SSH with key-based authentication, disable password authentication where possible, and restrict access with your firewall or VPN.
 
-## Architecture
-
-The backend follows a domain-oriented, package-by-feature structure:
-
-```text
-go-walis/
-├── internal/
-│   ├── core/           # Shared SSH, SQLite, Docker, and connection infrastructure
-│   ├── config/         # VPS and connection configuration
-│   ├── containers/     # Container lifecycle and event streaming
-│   ├── extras/         # Nginx and listening-port tools
-│   ├── dashboard/      # Host metrics and dashboard data
-│   ├── images/         # Docker image domain
-│   ├── volumes/        # Docker volume domain
-│   ├── networks/       # Docker network domain
-│   ├── stacks/         # Docker Compose / stack domain
-│   └── builder/        # Image builder domain
-├── frontend/           # Svelte 5 and Tailwind CSS frontend
-│   ├── src/pages/      # Application screens
-│   ├── src/lib/        # Components, stores, and translations
-│   └── bindings/       # Wails-generated TypeScript bindings
-└── main.go             # Application entry point and service registration
-```
 
 ## Requirements
 
