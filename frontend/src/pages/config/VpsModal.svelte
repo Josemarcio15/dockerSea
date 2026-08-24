@@ -6,6 +6,8 @@
   import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
   import * as ConfigService from "../../../bindings/go-walis/internal/config/configservice.js";
 
+  import { Dialogs } from "@wailsio/runtime";
+
   export interface VpsFormData {
     id: string;
     name: string;
@@ -56,21 +58,21 @@
 
   async function pickSshKey() {
     try {
-      const Dialogs = (window as any).wails?.dialogs || (window as any).Dialogs;
-      if (Dialogs?.OpenFile) {
-        const selected = await Dialogs.OpenFile({
-          title: "Selecione a chave privada SSH",
-          canChooseFiles: true,
-          canChooseDirectories: false,
-          allowsMultipleSelection: false,
-        });
-        if (selected && typeof selected === "string") {
-          form.sshKeyPath = selected;
+      const selected = await Dialogs.OpenFile({
+        Title: "Selecione a chave privada SSH",
+        CanChooseFiles: true,
+        CanChooseDirectories: false,
+        AllowsMultipleSelection: false,
+      });
+      if (selected) {
+        const path = Array.isArray(selected) ? selected[0] : selected;
+        if (path && typeof path === "string") {
+          form.sshKeyPath = path;
           return;
         }
       }
     } catch (e) {
-      console.warn("Wails runtime dialog fallback:", e);
+      console.warn("Wails Dialogs.OpenFile fallback:", e);
     }
     document.getElementById("modal-file-ssh-key")?.click();
   }
