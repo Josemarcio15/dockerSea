@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=1.0
-Name=My Product
-Comment=A go-walis application
+Name=DockSea
+Comment=docker sea
 # The Exec line includes %u to pass the URL to the application
-Exec=/usr/local/bin/go-walis %u
+Exec=/usr/local/bin/DockSea %u
 Terminal=false
 Type=Application
-Icon=go-walis
+Icon=DockSea
 Categories=Utility;
-StartupWMClass=go-walis
+StartupWMClass=DockSea
 
  

@@ -1,15 +1,15 @@
 {
 	"fixed": {
-		"file_version": "0.0.2"
+		"file_version": "0.0.2-alpha"
 	},
 	"info": {
 		"0000": {
-			"ProductVersion": "0.0.2",
-			"CompanyName": "My Company",
-			"FileDescription": "A go-walis application",
-			"LegalCopyright": "© 2026, My Company",
-			"ProductName": "My Product",
-			"Comments": "This is a comment"
+			"ProductVersion": "0.0.2-alpha",
+			"CompanyName": "Samabe",
+			"FileDescription": "docker sea",
+			"LegalCopyright": "(c) 2026, Samabe",
+			"ProductName": "DockSea",
+			"Comments": "docker sea"
 		}
 	}
 }

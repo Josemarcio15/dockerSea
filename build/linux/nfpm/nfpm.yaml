@@ -3,26 +3,26 @@
 #
 # The lines below are called `modelines`. See `:help modeline`
 
-name: "go-walis"
+name: "DockSea"
 arch: ${GOARCH}
 platform: "linux"
-version: "0.1.0"
+version: "0.0.2-alpha"
 section: "default"
 priority: "extra"
 maintainer: ${GIT_COMMITTER_NAME} <${GIT_COMMITTER_EMAIL}>
-description: "A go-walis application"
-vendor: "My Company"
+description: "docker sea"
+vendor: "Samabe"
 homepage: "https://wails.io"
 license: "MIT"
 release: "1"
 
 contents:
-  - src: "./bin/go-walis"
-    dst: "/usr/local/bin/go-walis"
+  - src: "./bin/DockSea"
+    dst: "/usr/local/bin/DockSea"
   - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/128x128/apps/go-walis.png"
-  - src: "./build/linux/go-walis.desktop"
-    dst: "/usr/share/applications/go-walis.desktop"
+    dst: "/usr/share/icons/hicolor/128x128/apps/DockSea.png"
+  - src: "./build/linux/DockSea.desktop"
+    dst: "/usr/share/applications/DockSea.desktop"
 
 # Default dependencies for the GTK4 + WebKitGTK 6.0 stack (Ubuntu 24.04+ / Debian 13+)
 depends:
