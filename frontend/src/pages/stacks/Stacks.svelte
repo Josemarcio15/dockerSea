@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
-  import StackRow from "$lib/components/StackRow.svelte";
-  import VpsSelectWarning from "$lib/components/VpsSelectWarning.svelte";
-  import { t } from "$lib/stores/locale.svelte";
-  import { triggerRefresh } from "$lib/stores/refresh.svelte";
-  import { ButtonBlue } from "$lib/components/buttons";
+  import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
+  import StackRow from "$shared/components/StackRow.svelte";
+  import VpsSelectWarning from "$shared/components/VpsSelectWarning.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import { triggerRefresh } from "$shared/stores/refresh.svelte";
+  import { ButtonBlue } from "$shared/components/buttons";
   import {
     type StackItem,
     type ServerCapabilities,

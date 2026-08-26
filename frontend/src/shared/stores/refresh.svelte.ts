@@ -6,7 +6,7 @@
  *
  * @example
  * ```svelte
- * import { useRefreshKey, triggerRefresh } from "$lib/stores/refresh.svelte";
+ * import { useRefreshKey, triggerRefresh } from "$shared/stores/refresh.svelte";
  *
  * $effect(() => {
  *   useRefreshKey(); // creates reactive dependency

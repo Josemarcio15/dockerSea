@@ -1,0 +1,84 @@
+files = """
+src/
+├── App.svelte
+├── main.ts
+├── app.css
+│
+├── pages/
+│   ├── containers/
+│   │   ├── Page.svelte
+│   │   ├── types.ts                 # Container, ContainerActionType
+│   │   ├── service.ts               # regras e operações de containers
+│   │   ├── api.ts                   # comunicação com Wails/Docker exclusivo da page
+│   │   ├── store.svelte.ts          # estado reativo da página
+│   │   └── components/
+│   │
+│   ├── images/
+│   │   ├── Page.svelte
+│   │   ├── types.ts                 # DockerImage
+│   │   ├── service.ts               # regras e operações de imagens
+│   │   ├── api.ts                   # comunicação com Wails/Docker exclusivo da page
+│   │   ├── store.svelte.ts          # estado reativo da página
+│   │   └── components/
+│   │
+│   ├── networks/
+│   │   ├── Page.svelte
+│   │   ├── types.ts                 # DockerNetwork
+│   │   ├── service.ts               # regras e operações de redes
+│   │   ├── api.ts                   # comunicação com Wails/Docker exclusivo da page
+│   │   ├── store.svelte.ts          # estado reativo da página
+│   │   └── components/
+│   │
+│   ├── stacks/
+│   │   ├── Page.svelte
+│   │   ├── types.ts                 # StackItem
+│   │   ├── service.ts               # regras e operações de stacks
+│   │   ├── api.ts                   # comunicação com Wails/Docker exclusivo da page
+│   │   ├── store.svelte.ts          # estado reativo da página
+│   │   └── components/
+│   │
+│   ├── volumes/
+│   │   ├── Page.svelte
+│   │   ├── types.ts                 # DockerVolume
+│   │   ├── service.ts               # regras e operações de volumes
+│   │   ├── api.ts                   # comunicação com Wails/Docker exclusivo da page
+│   │   ├── store.svelte.ts          # estado reativo da página
+│   │   └── components/
+│   │
+│   ├── dashboard/
+│   ├── builder/
+│   ├── config/
+│   ├── extras/
+│   └── profiles/
+│
+├── shared/
+│   ├── components/
+│   │   ├── Button.svelte
+│   │   ├── Modal.svelte
+│   │   ├── Loading.svelte
+│   │   └── dialogs/
+│   ├── stores/
+│   │   ├── locale.svelte.ts
+│   │   ├── notification.svelte.ts
+│   │   ├── refresh.svelte.ts
+│   │   └── stats.svelte.ts
+│   ├── types/
+│   │   ├── api.types.ts
+│   │   └── pagination.types.ts
+│   ├── utils/
+│   │   ├── formatBytes.ts
+│   │   └── formatDate.ts
+│   └── api/
+│       └── client.ts
+│
+├── session/
+│   ├── session.svelte.ts
+│   └── session.types.ts
+│
+├── navigation/
+│   ├── navigation.svelte.ts
+│   └── navigation.types.ts
+│
+├── locales/
+└── assets/
+"""

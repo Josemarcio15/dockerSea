@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import Modal from "$lib/components/Modal.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import Modal from "$shared/components/Modal.svelte";
 
   let {
     show = $bindable(false),

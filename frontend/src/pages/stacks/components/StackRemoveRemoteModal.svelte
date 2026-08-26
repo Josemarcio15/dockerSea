@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import { ButtonOrange, ButtonRed } from "$lib/components/buttons";
+  import { t } from "$shared/stores/locale.svelte";
+  import { ButtonOrange, ButtonRed } from "$shared/components/buttons";
 
   let {
     show = $bindable(false),

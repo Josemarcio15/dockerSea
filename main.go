@@ -8,6 +8,7 @@ import (
 	"go-walis/internal/config"
 	"go-walis/internal/containers"
 	"go-walis/internal/core/db"
+	"go-walis/internal/dashboard"
 	"go-walis/internal/extras"
 	"go-walis/internal/images"
 	"go-walis/internal/networks"
@@ -29,6 +30,7 @@ func main() {
 
 	configService := config.NewConfigService(database)
 	builderService := builder.NewService(database)
+	dashboardService := dashboard.NewService(database)
 	containerService := containers.NewContainerService(database)
 	extraService := extras.NewExtraService(database)
 	imageService := images.NewImageService(database)
@@ -41,6 +43,7 @@ func main() {
 		Description: "DockSea Container Manager",
 		Services: []application.Service{
 			application.NewService(builderService),
+			application.NewService(dashboardService),
 			application.NewService(configService),
 			application.NewService(containerService),
 			application.NewService(extraService),

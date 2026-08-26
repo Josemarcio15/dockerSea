@@ -97,3 +97,15 @@ func (s *ConfigService) SetProfileLocale(id string, locale string) error {
 	return s.database.UpdateProfileLocale(id, locale)
 }
 
+func (s *ConfigService) ListContainerConfigs(profileID string) ([]db.ContainerConfig, error) {
+	return s.database.ListContainerConfigs(profileID)
+}
+
+func (s *ConfigService) SaveContainerConfig(config db.ContainerConfig) error {
+	return s.database.SaveContainerConfig(config)
+}
+
+func (s *ConfigService) DeleteContainerConfig(id string) error {
+	return s.database.DeleteContainerConfig(id)
+}
+

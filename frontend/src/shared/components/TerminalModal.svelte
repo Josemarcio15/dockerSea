@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { getLocale, t } from "$lib/stores/locale.svelte";
-  import { ButtonOrange } from "$lib/components/buttons";
+  import { getLocale, t } from "$shared/stores/locale.svelte";
+  import { ButtonOrange } from "$shared/components/buttons";
   import { tick } from "svelte";
 
   interface LayerProgress {

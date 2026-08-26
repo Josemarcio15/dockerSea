@@ -6,7 +6,7 @@
  *
  * @example
  * ```svelte
- * import { notifySuccess, notifyWarning, notifyError } from "$lib/stores/notification.svelte";
+ * import { notifySuccess, notifyWarning, notifyError } from "$shared/stores/notification.svelte";
  *
  * notifySuccess("VPS selecionada com sucesso");
  * notifyWarning("Nenhuma imagem selecionada");

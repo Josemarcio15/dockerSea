@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
+  import { t } from "$shared/stores/locale.svelte";
   import {
     ButtonGreen,
     ButtonYellow,
@@ -7,7 +7,7 @@
     ButtonPurple,
     ButtonRed,
     ButtonOrange,
-  } from "$lib/components/buttons";
+  } from "$shared/components/buttons";
   import type { StackItem } from "$lib/domains/stacks";
 
   let {

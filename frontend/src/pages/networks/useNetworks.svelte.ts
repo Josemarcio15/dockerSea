@@ -1,6 +1,6 @@
-import { t } from "$lib/stores/locale.svelte";
-import { triggerRefresh } from "$lib/stores/refresh.svelte";
-import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
+import { t } from "$shared/stores/locale.svelte";
+import { triggerRefresh } from "$shared/stores/refresh.svelte";
+import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
 import type { VpsServer } from "../../../bindings/go-walis/internal/core/db/models.js";
 import type { Container } from "../../../bindings/go-walis/internal/containers/models.js";
 import {

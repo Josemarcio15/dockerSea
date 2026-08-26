@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { t, getLocale } from "$lib/stores/locale.svelte";
-  import StatusBanner from "$lib/components/StatusBanner.svelte";
-  import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
+  import { t, getLocale } from "$shared/stores/locale.svelte";
+  import StatusBanner from "$shared/components/StatusBanner.svelte";
+  import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
 
   import VpsCard from "./VpsCard.svelte";
   import VpsModal, { type VpsFormData } from "./VpsModal.svelte";
   import DiagnosticModal from "./DiagnosticModal.svelte";
-  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-  import { ButtonPurple } from "$lib/components/buttons";
+  import ConfirmDialog from "$shared/components/ConfirmDialog.svelte";
+  import { ButtonPurple } from "$shared/components/buttons";
   import * as ConfigService from "../../../bindings/go-walis/internal/config/configservice.js";
 
   let { data } = $props();

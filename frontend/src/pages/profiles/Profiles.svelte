@@ -1,17 +1,17 @@
 <script lang="ts">
-  import StatusBanner from "$lib/components/StatusBanner.svelte";
-  import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
-  import { t } from "$lib/stores/locale.svelte";
-  import { triggerRefresh } from "$lib/stores/refresh.svelte";
-  import Modal from "$lib/components/Modal.svelte";
-  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+  import StatusBanner from "$shared/components/StatusBanner.svelte";
+  import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import { triggerRefresh } from "$shared/stores/refresh.svelte";
+  import Modal from "$shared/components/Modal.svelte";
+  import ConfirmDialog from "$shared/components/ConfirmDialog.svelte";
   import {
     ButtonBlue,
     ButtonPurple,
     ButtonRed,
     EditButtonIcon,
     TrashButtonIcon,
-  } from "$lib/components/buttons";
+  } from "$shared/components/buttons";
 
   function deserialize(text: string): any {
     try {

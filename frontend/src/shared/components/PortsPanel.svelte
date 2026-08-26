@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import { useRefreshKey } from "$lib/stores/refresh.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import { useRefreshKey } from "$shared/stores/refresh.svelte";
   import * as ExtraService from "../../../bindings/go-walis/internal/extras/extraservice.js";
 
   let { activeVps }: { activeVps: any } = $props();

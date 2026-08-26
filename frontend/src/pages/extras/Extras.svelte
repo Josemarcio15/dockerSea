@@ -1,18 +1,18 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { t } from "$lib/stores/locale.svelte";
-  import { useRefreshKey, triggerRefresh } from "$lib/stores/refresh.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import { useRefreshKey, triggerRefresh } from "$shared/stores/refresh.svelte";
   import {
     notifySuccess,
     notifyWarning,
     notifyError,
-  } from "$lib/stores/notification.svelte";
-  import DockerseaLoading from "$lib/components/DockerseaLoading.svelte";
-  import StatusBanner from "$lib/components/StatusBanner.svelte";
-  import VpsSelectWarning from "$lib/components/VpsSelectWarning.svelte";
-  import CodeEditor from "$lib/components/CodeEditor.svelte";
-  import PortsPanel from "$lib/components/PortsPanel.svelte";
-  import NginxLogsModal from "$lib/components/NginxLogsModal.svelte";
+  } from "$shared/stores/notification.svelte";
+  import DockerseaLoading from "$shared/components/DockerseaLoading.svelte";
+  import StatusBanner from "$shared/components/StatusBanner.svelte";
+  import VpsSelectWarning from "$shared/components/VpsSelectWarning.svelte";
+  import CodeEditor from "$shared/components/CodeEditor.svelte";
+  import PortsPanel from "$shared/components/PortsPanel.svelte";
+  import NginxLogsModal from "$shared/components/NginxLogsModal.svelte";
   import {
     ButtonPurple,
     ButtonPink,
@@ -22,7 +22,7 @@
     ButtonBlue,
     ButtonCyan,
     Button,
-  } from "$lib/components/buttons";
+  } from "$shared/components/buttons";
   import * as ExtraService from "../../../bindings/go-walis/internal/extras/extraservice.js";
 
   let { data } = $props();

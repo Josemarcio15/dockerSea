@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import Modal from "$lib/components/Modal.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import Modal from "$shared/components/Modal.svelte";
   import type { Container } from "../../../../bindings/go-walis/internal/containers/models.js";
 
   let {

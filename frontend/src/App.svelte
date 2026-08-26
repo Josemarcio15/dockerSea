@@ -1,33 +1,32 @@
 <script lang="ts">
-  import SidebarItem from "$lib/components/SidebarItem.svelte";
-  import ActiveServerWidget from "$lib/components/ActiveServerWidget.svelte";
-  import { setLocale, t } from "$lib/stores/locale.svelte";
+  import SidebarItem from "$shared/components/SidebarItem.svelte";
+  import ActiveServerWidget from "$shared/components/ActiveServerWidget.svelte";
+  import { setLocale, t } from "$shared/stores/locale.svelte";
   import { onMount } from "svelte";
 
   // Importar componentes de páginas
-  import Dashboard from "./pages/dashboard/Dashboard.svelte";
+  import Servers from "./pages/servers/Page.svelte";
   import Containers from "./pages/containers/Containers.svelte";
   import Images from "./pages/images/Images.svelte";
   import Volumes from "./pages/volumes/Volumes.svelte";
   import Networks from "./pages/networks/Networks.svelte";
   import Stacks from "./pages/stacks/Stacks.svelte";
-  import Builder from "./pages/builder/Builder.svelte";
+  import Builder from "./pages/builder/Page.svelte";
   import Config from "./pages/config/Config.svelte";
   import Extras from "./pages/extras/Extras.svelte";
   import Profiles from "./pages/profiles/Profiles.svelte";
-  import * as ConfigService from "../bindings/go-walis/internal/config/configservice.js";
+  import { loadSession, session } from "./session/session.svelte";
+  import { navigation, navigate } from "./navigation/navigation.svelte";
 
   let { data = {} }: { data?: any } = $props();
 
   let appData = $state<Record<string, any>>({
     locale: "pt-BR",
     theme: "dark",
-    servers: [],
-    activeVps: null,
-    activeProfile: {
-      name: "Perfil Padrão",
-      locale: "pt-BR",
-    },
+    servers: session.servers,
+    activeVps: session.activeVps,
+    profiles: session.profiles,
+    activeProfile: session.activeProfile,
   });
 
   $effect(() => {
@@ -36,7 +35,12 @@
     }
   });
 
-  let currentRoute = $state<string>("dashboard");
+  $effect(() => {
+    appData.servers = session.servers;
+    appData.activeVps = session.activeVps;
+    appData.profiles = session.profiles;
+    appData.activeProfile = session.activeProfile;
+  });
 
   // Sync locale
   $effect(() => {
@@ -62,25 +66,9 @@
     }
 
     try {
-      const servers = await ConfigService.ListServers();
-      if (servers) {
-        appData.servers = servers;
-        const active = servers.find((s: any) => s.isActive);
-        if (active) {
-          appData.activeVps = active;
-        }
-      }
-
-      const profiles = await ConfigService.ListProfiles();
-      if (profiles && profiles.length > 0) {
-        appData.profiles = profiles;
-        const activeProf = profiles.find((p: any) => p.isActive) || profiles[0];
-        if (activeProf) {
-          appData.activeProfile = activeProf;
-          if (activeProf.locale) {
-            appData.locale = activeProf.locale;
-          }
-        }
+      await loadSession();
+      if (session.activeProfile?.locale) {
+        appData.locale = session.activeProfile.locale;
       }
     } catch (e: any) {
       console.warn("Erro ao buscar servidores/perfis do SQLite no App:", e);
@@ -185,7 +173,19 @@
 {/snippet}
 
 {#snippet iconPorts()}
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h7.5M8.25 12h7.5m-7.5 5.25h7.5M5.25 3.75h13.5A2.25 2.25 0 0 1 21 6v12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18V6a2.25 2.25 0 0 1 2.25-2.25Z" /></svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    class="w-5 h-5"
+    ><path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M8.25 6.75h7.5M8.25 12h7.5m-7.5 5.25h7.5M5.25 3.75h13.5A2.25 2.25 0 0 1 21 6v12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18V6a2.25 2.25 0 0 1 2.25-2.25Z"
+    /></svg
+  >
 {/snippet}
 
 {#snippet iconStacks()}
@@ -296,81 +296,81 @@
         icon={iconHome}
         iconBg="from-emerald-400 to-teal-400"
         label={t("sidebar.devices")}
-        active={currentRoute === "dashboard"}
+        active={navigation.currentRoute === "servers"}
         disabled={!hasProfile}
-        onclick={() => (currentRoute = "dashboard")}
+        onclick={() => navigate("servers")}
       />
       <SidebarItem
         icon={iconContainers}
         iconBg="from-blue-400 to-cyan-400"
         label={t("sidebar.containers")}
-        active={currentRoute === "containers"}
+        active={navigation.currentRoute === "containers"}
         disabled={!hasProfile}
-        onclick={() => (currentRoute = "containers")}
+        onclick={() => navigate("containers")}
       />
       <SidebarItem
         icon={iconImages}
         iconBg="from-amber-400 to-orange-400"
         label={t("sidebar.images")}
-        active={currentRoute === "images"}
+        active={navigation.currentRoute === "images"}
         disabled={!hasProfile}
-        onclick={() => (currentRoute = "images")}
+        onclick={() => navigate("images")}
       />
       <SidebarItem
         icon={iconVolumes}
         iconBg="from-cyan-400 to-teal-400"
         label={t("sidebar.volumes")}
-        active={currentRoute === "volumes"}
+        active={navigation.currentRoute === "volumes"}
         disabled={!hasProfile}
-        onclick={() => (currentRoute = "volumes")}
+        onclick={() => navigate("volumes")}
       />
       <SidebarItem
         icon={iconNetworks}
         iconBg="from-green-400 to-teal-400"
         label={t("sidebar.networks")}
-        active={currentRoute === "networks"}
+        active={navigation.currentRoute === "networks"}
         disabled={!hasProfile}
-        onclick={() => (currentRoute = "networks")}
+        onclick={() => navigate("networks")}
       />
       <SidebarItem
         icon={iconStacks}
         iconBg="from-rose-400 to-pink-400"
         label={t("sidebar.stacks")}
-        active={currentRoute === "stacks"}
+        active={navigation.currentRoute === "stacks"}
         disabled={!hasProfile}
-        onclick={() => (currentRoute = "stacks")}
+        onclick={() => navigate("stacks")}
       />
       <SidebarItem
         icon={iconBuilder}
         iconBg="from-amber-400 to-orange-400"
         label={t("sidebar.builder")}
-        active={currentRoute === "builder"}
+        active={navigation.currentRoute === "builder"}
         disabled={!hasProfile}
-        onclick={() => (currentRoute = "builder")}
+        onclick={() => navigate("builder")}
       />
       <SidebarItem
         icon={iconConfig}
         iconBg="from-slate-400 to-slate-500"
         label={t("sidebar.configs")}
-        active={currentRoute === "config"}
+        active={navigation.currentRoute === "config"}
         disabled={!hasProfile}
-        onclick={() => (currentRoute = "config")}
+        onclick={() => navigate("config")}
       />
       <SidebarItem
         icon={iconConfig}
         iconBg="from-cyan-400 to-blue-500"
         label="Extras"
-        active={currentRoute === "extras"}
+        active={navigation.currentRoute === "extras"}
         disabled={!hasProfile}
-        onclick={() => (currentRoute = "extras")}
+        onclick={() => navigate("extras")}
       />
       <SidebarItem
         icon={iconProfile}
         iconBg="from-fuchsia-400 to-violet-500"
         label={t("sidebar.profiles")}
-        active={currentRoute === "profiles"}
+        active={navigation.currentRoute === "profiles"}
         disabled={false}
-        onclick={() => (currentRoute = "profiles")}
+        onclick={() => navigate("profiles")}
       />
     </div>
 
@@ -435,25 +435,25 @@
   <div
     class="flex-1 p-6 bg-slate-200 dark:from-slate-900 dark:to-indigo-950 dark:bg-gradient-to-br overflow-y-auto"
   >
-    {#if currentRoute === "dashboard"}
-      <Dashboard data={appData} navigate={(r) => (currentRoute = r)} />
-    {:else if currentRoute === "containers"}
+    {#if navigation.currentRoute === "servers"}
+      <Servers data={appData} {navigate} />
+    {:else if navigation.currentRoute === "containers"}
       <Containers data={appData} />
-    {:else if currentRoute === "images"}
+    {:else if navigation.currentRoute === "images"}
       <Images data={appData} />
-    {:else if currentRoute === "volumes"}
+    {:else if navigation.currentRoute === "volumes"}
       <Volumes data={appData} />
-    {:else if currentRoute === "networks"}
+    {:else if navigation.currentRoute === "networks"}
       <Networks data={appData} />
-    {:else if currentRoute === "stacks"}
+    {:else if navigation.currentRoute === "stacks"}
       <Stacks data={appData} />
-    {:else if currentRoute === "builder"}
+    {:else if navigation.currentRoute === "builder"}
       <Builder data={appData} />
-    {:else if currentRoute === "config"}
+    {:else if navigation.currentRoute === "config"}
       <Config data={appData} />
-    {:else if currentRoute === "extras"}
+    {:else if navigation.currentRoute === "extras"}
       <Extras data={appData} />
-    {:else if currentRoute === "profiles"}
+    {:else if navigation.currentRoute === "profiles"}
       <Profiles data={appData} />
     {/if}
   </div>

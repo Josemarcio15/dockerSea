@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
+  import { t } from "$shared/stores/locale.svelte";
   import type { DockerImage } from "$lib/domains/images";
-  import { ButtonBlue } from "$lib/components/buttons";
+  import { ButtonBlue } from "$shared/components/buttons";
 
   let {
     img,

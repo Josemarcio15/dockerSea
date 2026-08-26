@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import { ButtonGreen, ButtonYellow, ButtonRed } from "$lib/components/buttons";
+  import { t } from "$shared/stores/locale.svelte";
+  import { ButtonGreen, ButtonYellow, ButtonRed } from "$shared/components/buttons";
 
   let {
     diskUsage = "0 B",

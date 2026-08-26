@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import { ButtonOrange, ButtonGreen, ButtonBlue } from "$lib/components/buttons";
-  import CodeEditor from "$lib/components/CodeEditor.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import { ButtonOrange, ButtonGreen, ButtonBlue } from "$shared/components/buttons";
+  import CodeEditor from "$shared/components/CodeEditor.svelte";
 
   let {
     show = $bindable(false),

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import { ButtonGreen, ButtonRed } from "$lib/components/buttons";
+  import { t } from "$shared/stores/locale.svelte";
+  import { ButtonGreen, ButtonRed } from "$shared/components/buttons";
   import type { DockerNetwork } from "$lib/domains/networks";
   import { isDefaultNetwork as checkIsDefault } from "$lib/domains/networks";
 

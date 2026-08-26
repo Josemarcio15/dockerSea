@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import { useRefreshKey, triggerRefresh } from "$lib/stores/refresh.svelte";
-  import { notifySuccess } from "$lib/stores/notification.svelte";
-  import DockerseaLoading from "$lib/components/DockerseaLoading.svelte";
-  import StatusBanner from "$lib/components/StatusBanner.svelte";
-  import TerminalModal from "$lib/components/TerminalModal.svelte";
-  import ConfigModal from "$lib/components/ConfigModal.svelte";
-  import PullProgressModal from "$lib/components/PullProgressModal.svelte";
-  import VpsSelectWarning from "$lib/components/VpsSelectWarning.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import { useRefreshKey, triggerRefresh } from "$shared/stores/refresh.svelte";
+  import { notifySuccess } from "$shared/stores/notification.svelte";
+  import DockerseaLoading from "$shared/components/DockerseaLoading.svelte";
+  import StatusBanner from "$shared/components/StatusBanner.svelte";
+  import TerminalModal from "$shared/components/TerminalModal.svelte";
+  import ConfigModal from "$shared/components/ConfigModal.svelte";
+  import PullProgressModal from "$shared/components/PullProgressModal.svelte";
+  import VpsSelectWarning from "$shared/components/VpsSelectWarning.svelte";
 
   import ImageToolbar from "./components/ImageToolbar.svelte";
   import ImageCard from "./components/ImageCard.svelte";
-  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+  import ConfirmDialog from "$shared/components/ConfirmDialog.svelte";
   import {
     ButtonBlue,
     ButtonGreen,
@@ -21,10 +21,12 @@
     ButtonRed,
     ButtonPink,
     ButtonOrange,
-  } from "$lib/components/buttons";
+  } from "$shared/components/buttons";
   import { createImagesState } from "./useImages.svelte.js";
+  import * as ConfigService from "../../../bindings/go-walis/internal/config/configservice.js";
 
   let { data } = $props();
+  let savedConfigs = $state<any[]>([]);
 
   const imgState = createImagesState(
     () => data?.activeVps,
@@ -40,12 +42,37 @@
     }
   });
 
+  $effect(() => {
+    const profileId = data?.activeProfile?.id || "default";
+    (ConfigService as any)
+      .ListContainerConfigs?.(profileId)
+      .then((items: any[]) => {
+        savedConfigs = items || [];
+      })
+      .catch(() => {
+        savedConfigs = [];
+      });
+  });
+
   async function handleCreateContainer(config: any) {
     notifySuccess(`Configuração para '${config.containerName}' preparada.`);
   }
 
   async function handleSaveProfile(profile: any) {
+    await (ConfigService as any).SaveContainerConfig({
+      ...profile,
+      profileId: data?.activeProfile?.id || "default",
+    });
+    savedConfigs = await (ConfigService as any).ListContainerConfigs(
+      data?.activeProfile?.id || "default",
+    );
     notifySuccess("Perfil salvo com sucesso!");
+  }
+
+  async function handleDeleteProfile(id: string) {
+    await (ConfigService as any).DeleteContainerConfig(id);
+    savedConfigs = savedConfigs.filter((config) => config.id !== id);
+    notifySuccess("Perfil excluído.");
   }
 
   // Deletion confirm states
@@ -87,7 +114,9 @@
 {:else}
   <div class="space-y-6">
     <!-- Top Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+    >
       <div
         class="inline-flex items-center px-5 py-2.5 rounded-2xl bg-linear-to-br from-violet-100 to-fuchsia-100 dark:from-violet-950/40 dark:to-fuchsia-950/40 border border-violet-200/50 dark:border-violet-800/50 self-start shadow-sm"
       >
@@ -232,10 +261,7 @@
             >
               <div class="flex items-center gap-3">
                 {#if imgState.imageHistory && imgState.imageHistory.length > 0}
-                  <ButtonYellow
-                    size="xs"
-                    onclick={imgState.toggleAllHistory}
-                  >
+                  <ButtonYellow size="xs" onclick={imgState.toggleAllHistory}>
                     {imgState.selectedHistoryIds.length ===
                     imgState.imageHistory.length
                       ? t("common.deselect_all")
@@ -266,10 +292,7 @@
                   </ButtonRed>
                 {/if}
                 {#if imgState.imageHistory && imgState.imageHistory.length > 0}
-                  <ButtonRed
-                    size="xs"
-                    onclick={imgState.handleClearHistory}
-                  >
+                  <ButtonRed size="xs" onclick={imgState.handleClearHistory}>
                     {t("images.clear_history")}
                   </ButtonRed>
                 {/if}
@@ -283,8 +306,9 @@
             {:else}
               <div class="divide-y divide-slate-100 dark:divide-slate-900">
                 {#each imgState.imageHistory as hist (hist.id)}
-                  {@const isHistChecked =
-                    imgState.selectedHistoryIds.includes(hist.id)}
+                  {@const isHistChecked = imgState.selectedHistoryIds.includes(
+                    hist.id,
+                  )}
                   <div
                     class="flex items-center justify-between py-3 text-xs gap-3"
                   >
@@ -521,12 +545,12 @@
 <ConfigModal
   bind:show={imgState.showConfig}
   image={imgState.configTargetImage}
-  savedConfigs={data.savedConfigs}
+  {savedConfigs}
   serverId={data.activeVps?.id || ""}
   activeVps={data.activeVps}
   onsubmit={handleCreateContainer}
   onsaveprofile={handleSaveProfile}
-  ondeleteprofile={(id) => notifySuccess("Perfil excluído.")}
+  ondeleteprofile={handleDeleteProfile}
 />
 
 <!-- Modal Confirmação Limpar Não Usadas (Prune) -->

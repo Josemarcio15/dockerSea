@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import { useRefreshKey } from "$lib/stores/refresh.svelte";
-  import DockerseaLoading from "$lib/components/DockerseaLoading.svelte";
-  import StatusBanner from "$lib/components/StatusBanner.svelte";
-  import VpsSelectWarning from "$lib/components/VpsSelectWarning.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import { useRefreshKey } from "$shared/stores/refresh.svelte";
+  import DockerseaLoading from "$shared/components/DockerseaLoading.svelte";
+  import StatusBanner from "$shared/components/StatusBanner.svelte";
+  import VpsSelectWarning from "$shared/components/VpsSelectWarning.svelte";
 
   import NetworkToolbar from "./components/NetworkToolbar.svelte";
   import NetworkCard from "./components/NetworkCard.svelte";

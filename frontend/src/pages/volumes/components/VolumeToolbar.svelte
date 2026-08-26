@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
+  import { t } from "$shared/stores/locale.svelte";
   import {
     ButtonPink,
     ButtonGreen,
     ButtonYellow,
     ButtonRed,
-  } from "$lib/components/buttons";
+  } from "$shared/components/buttons";
 
   let {
     searchQuery = $bindable(""),

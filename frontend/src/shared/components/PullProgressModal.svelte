@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { t } from "$lib/stores/locale.svelte";
+  import { t } from "$shared/stores/locale.svelte";
   import { Events } from "@wailsio/runtime";
-  import { ButtonOrange } from "$lib/components/buttons";
+  import { ButtonOrange } from "$shared/components/buttons";
 
   let {
     show = $bindable(false),

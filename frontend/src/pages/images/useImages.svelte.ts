@@ -1,10 +1,10 @@
-import { t } from "$lib/stores/locale.svelte";
-import { triggerRefresh } from "$lib/stores/refresh.svelte";
+import { t } from "$shared/stores/locale.svelte";
+import { triggerRefresh } from "$shared/stores/refresh.svelte";
 import {
   notifySuccess,
   notifyWarning,
   notifyError,
-} from "$lib/stores/notification.svelte";
+} from "$shared/stores/notification.svelte";
 import type {
   VpsServer,
   ImageHistoryItem,

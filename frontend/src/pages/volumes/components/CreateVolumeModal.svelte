@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import Modal from "$lib/components/Modal.svelte";
-  import { ButtonRed, Button } from "$lib/components/buttons";
+  import { t } from "$shared/stores/locale.svelte";
+  import Modal from "$shared/components/Modal.svelte";
+  import { ButtonRed, Button } from "$shared/components/buttons";
 
   let {
     show = $bindable(false),

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Modal from "$lib/components/Modal.svelte";
-  import Input from "$lib/components/Input.svelte";
-  import { ButtonYellow, ButtonPink } from "$lib/components/buttons";
-  import { t } from "$lib/stores/locale.svelte";
-  import { notifySuccess, notifyError } from "$lib/stores/notification.svelte";
+  import Modal from "$shared/components/Modal.svelte";
+  import Input from "$shared/components/Input.svelte";
+  import { ButtonYellow, ButtonPink } from "$shared/components/buttons";
+  import { t } from "$shared/stores/locale.svelte";
+  import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
   import * as ConfigService from "../../../bindings/go-walis/internal/config/configservice.js";
 
   import { Dialogs } from "@wailsio/runtime";

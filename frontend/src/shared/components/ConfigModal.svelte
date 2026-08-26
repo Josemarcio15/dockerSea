@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import CodeEditor from "$lib/components/CodeEditor.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import CodeEditor from "$shared/components/CodeEditor.svelte";
   import {
     ButtonBlue,
     ButtonGreen,
@@ -10,7 +10,7 @@
     ButtonRed,
     ButtonPink,
     ButtonOrange,
-  } from "$lib/components/buttons";
+  } from "$shared/components/buttons";
   import * as VolumeService from "../../../bindings/go-walis/internal/volumes/volumeservice.js";
   import * as NetworkService from "../../../bindings/go-walis/internal/networks/networkservice.js";
   import type { VpsServer } from "../../../bindings/go-walis/internal/core/db/models.js";

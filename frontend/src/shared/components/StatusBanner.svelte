@@ -2,7 +2,7 @@
   import {
     getNotification,
     dismissNotification,
-  } from "$lib/stores/notification.svelte";
+  } from "$shared/stores/notification.svelte";
 
   let notif = $derived(getNotification());
 

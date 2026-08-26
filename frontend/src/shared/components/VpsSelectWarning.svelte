@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
+  import { t } from "$shared/stores/locale.svelte";
 </script>
 
 <div

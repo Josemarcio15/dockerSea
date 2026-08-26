@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
+  import { t } from "$shared/stores/locale.svelte";
   import {
     ButtonBlue,
     ButtonPurple,
     EditButtonIcon,
     TrashButtonIcon,
-  } from "$lib/components/buttons";
+  } from "$shared/components/buttons";
 
   let {
     server,

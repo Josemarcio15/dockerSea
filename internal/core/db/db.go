@@ -1,17 +1,57 @@
 package db
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"golang.org/x/crypto/argon2"
 	_ "modernc.org/sqlite"
 )
 
 type DB struct {
 	conn *sql.DB
+}
+
+const temporaryEncryptionKey = "docksea-temporary-key-change-before-release"
+
+func encryptionCipher() (cipher.AEAD, error) {
+	salt := sha256.Sum256([]byte("docksea-v1-salt"))
+	key := argon2.IDKey([]byte(temporaryEncryptionKey), salt[:], 1, 64*1024, 4, 32)
+	block, err := aes.NewCipher(key)
+	if err != nil { return nil, err }
+	return cipher.NewGCM(block)
+}
+
+func encryptSecret(value string) (string, error) {
+	if value == "" { return "", nil }
+	aead, err := encryptionCipher()
+	if err != nil { return "", err }
+	nonce := make([]byte, aead.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil { return "", err }
+	ciphertext := aead.Seal(nil, nonce, []byte(value), nil)
+	encoded := append(nonce, ciphertext...)
+	return "enc:v1:" + base64.RawStdEncoding.EncodeToString(encoded), nil
+}
+
+func decryptSecret(value string) (string, error) {
+	if value == "" || !strings.HasPrefix(value, "enc:v1:") { return value, nil }
+	aead, err := encryptionCipher()
+	if err != nil { return "", err }
+	data, err := base64.RawStdEncoding.DecodeString(strings.TrimPrefix(value, "enc:v1:"))
+	if err != nil || len(data) < aead.NonceSize() { return "", fmt.Errorf("segredo criptografado inválido") }
+	plaintext, err := aead.Open(nil, data[:aead.NonceSize()], data[aead.NonceSize():], nil)
+	if err != nil { return "", fmt.Errorf("não foi possível descriptografar segredo: %w", err) }
+	return string(plaintext), nil
 }
 
 type VpsServer struct {
@@ -41,6 +81,24 @@ type Profile struct {
 	IsActive  bool      `json:"isActive"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type ContainerConfig struct {
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	ProfileID     string    `json:"profileId"`
+	Image         string    `json:"image"`
+	ContainerName string    `json:"containerName"`
+	Ports         *string   `json:"ports"`
+	Env           *string   `json:"env"`
+	Volumes       *string   `json:"volumes"`
+	Network       *string   `json:"network"`
+	RestartPolicy string    `json:"restartPolicy"`
+	ProjectName   string    `json:"projectName"`
+	Description   *string   `json:"description"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+	Command       *string   `json:"command"`
 }
 
 func InitDB() (*DB, error) {
@@ -135,6 +193,23 @@ func (d *DB) migrate() error {
 			last_deployed_at DATETIME,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL
+		);`,
+		`CREATE TABLE IF NOT EXISTS container_configs (
+			id TEXT PRIMARY KEY,
+			name TEXT NOT NULL,
+			profile_id TEXT NOT NULL,
+			image TEXT NOT NULL,
+			container_name TEXT NOT NULL,
+			ports TEXT,
+			env TEXT,
+			network TEXT,
+			volumes TEXT,
+			restart_policy TEXT,
+			project_name TEXT,
+			description TEXT,
+			created_at DATETIME NOT NULL,
+			updated_at DATETIME NOT NULL,
+			command TEXT
 		);`,
 	}
 
@@ -342,6 +417,9 @@ func (d *DB) ListVpsServers() ([]VpsServer, error) {
 		if err != nil {
 			return nil, err
 		}
+		if s.SshKeyPassphrase, err = decryptSecret(s.SshKeyPassphrase); err != nil { return nil, err }
+		if s.SshPassword, err = decryptSecret(s.SshPassword); err != nil { return nil, err }
+		if s.SudoPassword, err = decryptSecret(s.SudoPassword); err != nil { return nil, err }
 		s.IsActive = isActiveInt == 1
 		servers = append(servers, s)
 	}
@@ -367,8 +445,12 @@ func (d *DB) SaveVpsServer(s VpsServer) error {
 	if s.DockerPath == "" {
 		s.DockerPath = "/usr/bin/docker"
 	}
+	var err error
+	if s.SshKeyPassphrase, err = encryptSecret(s.SshKeyPassphrase); err != nil { return err }
+	if s.SshPassword, err = encryptSecret(s.SshPassword); err != nil { return err }
+	if s.SudoPassword, err = encryptSecret(s.SudoPassword); err != nil { return err }
 
-	_, err := d.conn.Exec(`
+	_, err = d.conn.Exec(`
 		INSERT INTO vps_servers (
 			id, name, connection_type, host, port, username, auth_type,
 			ssh_key_path, ssh_key_passphrase, ssh_password, sudo_password,
@@ -501,6 +583,38 @@ func (d *DB) ClearImageHistory(profileID string) error {
 		profileID = "default"
 	}
 	_, err := d.conn.Exec(`DELETE FROM image_history WHERE profile_id = ?`, profileID)
+	return err
+}
+
+func (d *DB) ListContainerConfigs(profileID string) ([]ContainerConfig, error) {
+	if profileID == "" {
+		p, _ := d.GetActiveProfile()
+		if p != nil { profileID = p.ID } else { profileID = "default" }
+	}
+	rows, err := d.conn.Query(`SELECT id,name,profile_id,image,container_name,ports,env,volumes,network,restart_policy,project_name,description,created_at,updated_at,command FROM container_configs WHERE profile_id = ? ORDER BY name ASC`, profileID)
+	if err != nil { return nil, err }
+	defer rows.Close()
+	var items []ContainerConfig
+	for rows.Next() {
+		var item ContainerConfig
+		if err := rows.Scan(&item.ID, &item.Name, &item.ProfileID, &item.Image, &item.ContainerName, &item.Ports, &item.Env, &item.Volumes, &item.Network, &item.RestartPolicy, &item.ProjectName, &item.Description, &item.CreatedAt, &item.UpdatedAt, &item.Command); err != nil { return nil, err }
+		items = append(items, item)
+	}
+	return items, rows.Err()
+}
+
+func (d *DB) SaveContainerConfig(item ContainerConfig) error {
+	if item.Name == "" || item.Image == "" { return fmt.Errorf("nome e imagem são obrigatórios") }
+	if item.ProfileID == "" { p, _ := d.GetActiveProfile(); if p != nil { item.ProfileID = p.ID } else { item.ProfileID = "default" } }
+	if item.ID == "" { item.ID = fmt.Sprintf("cfg-%d", time.Now().UnixNano()) }
+	now := time.Now().UTC()
+	_, err := d.conn.Exec(`INSERT INTO container_configs (id,name,profile_id,image,container_name,ports,env,volumes,network,restart_policy,project_name,description,created_at,updated_at,command) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,profile_id=excluded.profile_id,image=excluded.image,container_name=excluded.container_name,ports=excluded.ports,env=excluded.env,volumes=excluded.volumes,network=excluded.network,restart_policy=excluded.restart_policy,project_name=excluded.project_name,description=excluded.description,updated_at=excluded.updated_at,command=excluded.command`, item.ID,item.Name,item.ProfileID,item.Image,item.ContainerName,item.Ports,item.Env,item.Volumes,item.Network,item.RestartPolicy,item.ProjectName,item.Description,now,now,item.Command)
+	return err
+}
+
+func (d *DB) DeleteContainerConfig(id string) error {
+	if id == "" { return fmt.Errorf("id inválido") }
+	_, err := d.conn.Exec(`DELETE FROM container_configs WHERE id = ?`, id)
 	return err
 }
 

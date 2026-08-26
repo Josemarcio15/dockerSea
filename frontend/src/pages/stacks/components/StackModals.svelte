@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
-  import Modal from "$lib/components/Modal.svelte";
-  import TerminalModal from "$lib/components/TerminalModal.svelte";
-  import PullProgressModal from "$lib/components/PullProgressModal.svelte";
-  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+  import { t } from "$shared/stores/locale.svelte";
+  import Modal from "$shared/components/Modal.svelte";
+  import TerminalModal from "$shared/components/TerminalModal.svelte";
+  import PullProgressModal from "$shared/components/PullProgressModal.svelte";
+  import ConfirmDialog from "$shared/components/ConfirmDialog.svelte";
   import StackEditorModal from "./StackEditorModal.svelte";
   import StackFolderBrowserModal from "./StackFolderBrowserModal.svelte";
   import StackRemoveRemoteModal from "./StackRemoveRemoteModal.svelte";

@@ -14,6 +14,7 @@ export default defineConfig({
   resolve: {
     alias: {
       $lib: path.resolve(__dirname, "./src/lib"),
+      $shared: path.resolve(__dirname, "./src/shared"),
     },
   },
   plugins: [tailwindcss(), svelte(), wails("./bindings")],

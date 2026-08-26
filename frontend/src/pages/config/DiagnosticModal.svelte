@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Modal from "$lib/components/Modal.svelte";
+  import Modal from "$shared/components/Modal.svelte";
 
   let {
     show = $bindable(false),

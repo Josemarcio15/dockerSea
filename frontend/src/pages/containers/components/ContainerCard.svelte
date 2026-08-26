@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { t } from "$lib/stores/locale.svelte";
+  import { t } from "$shared/stores/locale.svelte";
   import type { Container } from "$lib/domains/containers";
-  import { statsState } from "$lib/stores/stats.svelte";
-  import { ButtonPurple, Button } from "$lib/components/buttons";
+  import { statsState } from "$shared/stores/stats.svelte";
+  import { ButtonPurple, Button } from "$shared/components/buttons";
 
   let {
     container,

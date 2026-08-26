@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { ButtonPink } from "$lib/components/buttons";
+  import { ButtonPink } from "$shared/components/buttons";
   import * as ExtraService from "../../../bindings/go-walis/internal/extras/extraservice.js";
 
   let {
