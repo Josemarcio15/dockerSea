@@ -6,9 +6,7 @@ export async function removeVolumes(
   server: VpsServer,
   names: string[],
 ): Promise<VolumeActionResult> {
-  const filtered = names
-    .map((n) => n.trim())
-    .filter((n) => n.length > 0);
+  const filtered = names.map((n) => n.trim()).filter((n) => n.length > 0);
 
   if (filtered.length === 0) {
     return {

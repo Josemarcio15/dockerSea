@@ -6,15 +6,15 @@
 
   // Importar componentes de páginas
   import Servers from "./pages/servers/Page.svelte";
-  import Containers from "./pages/containers/Containers.svelte";
-  import Images from "./pages/images/Images.svelte";
-  import Volumes from "./pages/volumes/Volumes.svelte";
-  import Networks from "./pages/networks/Networks.svelte";
-  import Stacks from "./pages/stacks/Stacks.svelte";
+  import Containers from "./pages/containers/Page.svelte";
+  import Images from "./pages/images/Page.svelte";
+  import Volumes from "./pages/volumes/Page.svelte";
+  import Networks from "./pages/networks/Page.svelte";
+  import Stacks from "./pages/stacks/Page.svelte";
   import Builder from "./pages/builder/Page.svelte";
-  import Config from "./pages/config/Config.svelte";
-  import Extras from "./pages/extras/Extras.svelte";
-  import Profiles from "./pages/profiles/Profiles.svelte";
+  import Config from "./pages/config/Page.svelte";
+  import Extras from "./pages/extras/Page.svelte";
+  import Profiles from "./pages/profiles/Page.svelte";
   import { loadSession, session } from "./session/session.svelte";
   import { navigation, navigate } from "./navigation/navigation.svelte";
 
@@ -50,7 +50,7 @@
   });
 
   let isDark = $state(true);
-  let appVersion = "0.0.2-alpha";
+  let appVersion = "0.0.3-alpha";
   let hasProfile = $state(true);
 
   let darkClass = $derived(isDark ? "dark" : "");
@@ -375,7 +375,7 @@
     </div>
 
     <!-- Active Server Widget -->
-    <ActiveServerWidget vps={data?.activeVps} />
+    <ActiveServerWidget vps={appData.activeVps} />
 
     <div
       class="mx-3 mt-2 p-3.5 rounded-xl bg-white/4 border border-white/10 backdrop-blur-md shadow-lg flex flex-col gap-2"

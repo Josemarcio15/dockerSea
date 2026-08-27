@@ -59,6 +59,15 @@
     (container.status || "").includes("Up") ? "animate-pulse" : "",
   );
 
+  const statusLabel = $derived.by(() => {
+    const rawStatus = (container.status || "").trim();
+    if (rawStatus.includes("Up")) {
+      const uptime = rawStatus.replace(/^Up\s*/i, "").trim();
+      return uptime ? `Ativo (${uptime})` : "Ativo";
+    }
+    return rawStatus.includes("Exited") ? "Parado" : rawStatus.includes("Paused") ? "Pausado" : "Indisponível";
+  });
+
   const statusBg = $derived(
     (container.status || "").includes("Up")
       ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/60"
@@ -196,7 +205,7 @@
     <!-- Nome + Imagem + Status -->
     <div class="flex flex-col min-w-0 flex-1">
       <span
-        class="font-bold text-xs text-slate-900 dark:text-white truncate"
+        class="font-bold text-sm leading-5 text-slate-900 dark:text-white whitespace-normal break-words line-clamp-2"
         title={container.name}
       >
         {container.name}
@@ -204,15 +213,15 @@
 
       <div class="flex items-center gap-1.5 mt-0.5 min-w-0">
         <span
-          class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border border-slate-200/60 dark:border-slate-700/50 truncate max-w-[90px]"
+          class="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border border-slate-200/60 dark:border-slate-700/50 truncate max-w-[130px]"
           title={container.image}
         >
           {container.image}
         </span>
 
-        <span class="text-[10px] font-medium flex items-center gap-1 shrink-0 {statusColor}">
+        <span class="text-xs font-medium flex items-center gap-1 shrink-0 {statusColor}">
           <span class="w-1.5 h-1.5 rounded-full {statusDotColor} {pulseClass} shrink-0"></span>
-          {(container.status || "").includes("Up") ? "Ativo" : "Parado"}
+          {statusLabel}
         </span>
       </div>
     </div>

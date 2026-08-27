@@ -38,13 +38,13 @@ func TestValidateProjectName(t *testing.T) {
 
 func TestShellQuote(t *testing.T) {
 	cases := map[string]string{
-		"simple":                 "simple",
-		"path/to/file.txt":       "path/to/file.txt",
-		"with spaces":            "'with spaces'",
-		"with'quote":             "'with'\\''quote'",
-		"complex; rm -rf /; echo": "'complex; rm -rf /; echo'",
+		"simple":                   "simple",
+		"path/to/file.txt":         "path/to/file.txt",
+		"with spaces":              "'with spaces'",
+		"with'quote":               "'with'\\''quote'",
+		"complex; rm -rf /; echo":  "'complex; rm -rf /; echo'",
 		"$HOME/.docksea/deploys/1": "$HOME/.docksea/deploys/1",
-		"":                       "''",
+		"":                         "''",
 	}
 
 	for input, expected := range cases {

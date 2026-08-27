@@ -3,6 +3,9 @@ export { default as Button } from "./Button.svelte";
 
 // Botões por Cor
 export { default as ButtonPurple } from "./ButtonPurple.svelte";
+export { default as ButtonIndigo } from "./ButtonIndigo.svelte";
+export { default as ButtonFuchsia } from "./ButtonFuchsia.svelte";
+export { default as ButtonSky } from "./ButtonSky.svelte";
 export { default as ButtonCyan } from "./ButtonCyan.svelte";
 export { default as ButtonBlue } from "./ButtonBlue.svelte";
 export { default as ButtonGreen } from "./ButtonGreen.svelte";
@@ -14,4 +17,3 @@ export { default as ButtonOrange } from "./ButtonOrange.svelte";
 // Botões com Ícone
 export { default as EditButtonIcon } from "./EditButtonIcon.svelte";
 export { default as TrashButtonIcon } from "./TrashButtonIcon.svelte";
-

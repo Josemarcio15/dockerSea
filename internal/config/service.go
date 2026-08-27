@@ -5,6 +5,7 @@ import (
 	"go-walis/internal/core/connection"
 	"go-walis/internal/core/db"
 	"go-walis/internal/core/docker"
+	sharedDocker "go-walis/internal/shared/docker"
 )
 
 type ConfigService struct {
@@ -20,11 +21,9 @@ func (s *ConfigService) ListServers() ([]db.VpsServer, error) {
 }
 
 func (s *ConfigService) SaveServer(server db.VpsServer) error {
-	if server.Name == "" {
-		return fmt.Errorf("o nome do servidor é obrigatório")
-	}
-	if server.ConnectionType == "ssh" && server.Host == "" {
-		return fmt.Errorf("o host/IP é obrigatório para conexões SSH")
+	server.Name = NormalizeServerName(server.Name)
+	if message := ValidateServerInput(server.Name, server.ConnectionType, server.Host); message != "" {
+		return fmt.Errorf("%s", message)
 	}
 	return s.database.SaveVpsServer(server)
 }
@@ -52,7 +51,7 @@ func (s *ConfigService) AutoDetectDocker(server db.VpsServer) docker.DetectResul
 }
 
 func (s *ConfigService) GetSystemUsage(server db.VpsServer) (*connection.SystemUsage, error) {
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return nil, fmt.Errorf("falha ao conectar no servidor: %w", err)
 	}
@@ -108,4 +107,3 @@ func (s *ConfigService) SaveContainerConfig(config db.ContainerConfig) error {
 func (s *ConfigService) DeleteContainerConfig(id string) error {
 	return s.database.DeleteContainerConfig(id)
 }
-

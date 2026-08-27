@@ -12,6 +12,8 @@ import (
 	"go-walis/internal/extras"
 	"go-walis/internal/images"
 	"go-walis/internal/networks"
+	"go-walis/internal/profiles"
+	"go-walis/internal/servers"
 	"go-walis/internal/stacks"
 	"go-walis/internal/volumes"
 
@@ -35,6 +37,8 @@ func main() {
 	extraService := extras.NewExtraService(database)
 	imageService := images.NewImageService(database)
 	networkService := networks.NewNetworkService(database)
+	profileService := profiles.NewService(database)
+	serverService := servers.NewService(database)
 	stackService := stacks.NewStackService(database)
 	volumeService := volumes.NewVolumeService(database)
 
@@ -49,6 +53,8 @@ func main() {
 			application.NewService(extraService),
 			application.NewService(imageService),
 			application.NewService(networkService),
+			application.NewService(profileService),
+			application.NewService(serverService),
 			application.NewService(stackService),
 			application.NewService(volumeService),
 		},

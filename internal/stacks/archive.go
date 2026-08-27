@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // PackProjectDir compacta todo o conteúdo de um diretório de projeto em stream tar.gz.
@@ -15,6 +16,14 @@ import (
 // de runtime/compose (.env, configs, volumes) cheguem à VPS intactos.
 // O .dockerignore será interpretado exclusivamente pelo BuildKit remoto no momento do build.
 func PackProjectDir(ctx context.Context, folderPath string, writer io.Writer) error {
+	return packProjectDir(ctx, folderPath, writer, nil)
+}
+
+func PackProjectDirWithIgnore(ctx context.Context, folderPath string, writer io.Writer, ignored []string) error {
+	return packProjectDir(ctx, folderPath, writer, ignored)
+}
+
+func packProjectDir(ctx context.Context, folderPath string, writer io.Writer, ignored []string) error {
 	folderPath = filepath.Clean(folderPath)
 	info, err := os.Stat(folderPath)
 	if err != nil {
@@ -49,6 +58,14 @@ func PackProjectDir(ctx context.Context, folderPath string, writer io.Writer) er
 
 		if relPath == "." {
 			return nil
+		}
+		for _, pattern := range ignored {
+			if matchedIgnore(relPath, pattern) {
+				if fileInfo.IsDir() {
+					return filepath.SkipDir
+				}
+				return nil
+			}
 		}
 
 		// Prepara cabeçalho Tar com permissões e metadados
@@ -85,6 +102,26 @@ func PackProjectDir(ctx context.Context, folderPath string, writer io.Writer) er
 
 	return nil
 }
+
+func matchedIgnore(path, pattern string) bool {
+	pattern = strings.TrimSpace(strings.TrimPrefix(pattern, "!"))
+	pattern = strings.TrimPrefix(pattern, "/")
+	path = filepath.ToSlash(path)
+	if strings.HasSuffix(pattern, "/") {
+		pattern = strings.TrimSuffix(pattern, "/")
+	}
+	if ok, _ := filepath.Match(pattern, path); ok {
+		return true
+	}
+	if !strings.Contains(pattern, "/") {
+		if ok, _ := filepath.Match(pattern, filepath.Base(path)); ok {
+			return true
+		}
+	}
+	return strings.HasPrefix(path, pattern+"/") || strings.Contains(path, "/"+pattern+"/") || strings.HasSuffix(path, "/"+pattern)
+}
+
+func IsIgnoredPath(path, pattern string) bool { return matchedIgnore(path, pattern) }
 
 // PackSingleYaml compacta um arquivo Compose YAML em memória para envio via SSH
 func PackSingleYaml(yamlContent string, writer io.Writer) error {

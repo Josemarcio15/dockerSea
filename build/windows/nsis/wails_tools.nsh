@@ -14,7 +14,7 @@
     !define INFO_PRODUCTNAME "DockSea"
 !endif
 !ifndef INFO_PRODUCTVERSION
-    !define INFO_PRODUCTVERSION "0.0.2-alpha"
+    !define INFO_PRODUCTVERSION "0.0.3-alpha"
 !endif
 !ifndef INFO_COPYRIGHT
     !define INFO_COPYRIGHT "(c) 2026, Samabe"

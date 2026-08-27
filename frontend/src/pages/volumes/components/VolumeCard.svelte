@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
   import type { DockerVolume } from "$lib/domains/volumes";
-  import type { VpsServer } from "../../../../bindings/go-walis/internal/core/db/models.js";
+  import type { VpsServer } from "../api";
   import { getVolumeSize } from "$lib/domains/volumes";
 
   let {

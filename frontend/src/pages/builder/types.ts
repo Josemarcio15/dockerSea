@@ -11,6 +11,7 @@ export interface BrowseResult {
   folders?: BuilderFolder[];
   hasDockerfile: boolean;
   hasDockerignore: boolean;
+  ignoredFiles?: string[];
 }
 
 export interface SavedPath {
@@ -29,6 +30,7 @@ export interface BuilderStore {
   readonly folders: BuilderFolder[];
   readonly hasDockerfile: boolean;
   readonly hasDockerignore: boolean;
+  readonly ignoredFiles: string[];
   readonly loading: boolean;
   readonly status: BuilderStatus;
   readonly logs: string[];

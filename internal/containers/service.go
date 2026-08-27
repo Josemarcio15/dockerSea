@@ -6,8 +6,9 @@ import (
 	"strings"
 	"sync"
 
-	"go-walis/internal/core/connection"
 	"go-walis/internal/core/db"
+	sharedDocker "go-walis/internal/shared/docker"
+	sharedevents "go-walis/internal/shared/events"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -35,7 +36,7 @@ func (s *ContainerService) StartEventsStream(server db.VpsServer) error {
 		delete(s.cancelFn, server.ID)
 	}
 
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return fmt.Errorf("falha ao conectar no servidor para eventos: %w", err)
 	}
@@ -50,7 +51,7 @@ func (s *ContainerService) StartEventsStream(server db.VpsServer) error {
 			fmt.Printf("[DockerEvents] Evento recebido: action=%s name=%s id=%s\n", ev.Action, ev.Actor.Attributes["name"], ev.Actor.ID)
 			app := application.Get()
 			if app != nil && app.Event != nil {
-				app.Event.Emit("docker:container:event", map[string]interface{}{
+				app.Event.Emit(sharedevents.ContainerEvent, map[string]interface{}{
 					"serverId": server.ID,
 					"type":     ev.Type,
 					"action":   ev.Action,
@@ -82,7 +83,7 @@ func (s *ContainerService) StopEventsStream(serverId string) {
 
 // ListContainers obtém a lista de containers da VPS
 func (s *ContainerService) ListContainers(server db.VpsServer, all bool) ([]Container, error) {
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return nil, fmt.Errorf("falha ao conectar no servidor: %w", err)
 	}
@@ -93,7 +94,10 @@ func (s *ContainerService) ListContainers(server db.VpsServer, all bool) ([]Cont
 
 // ExecuteAction executa ações em lote: "start" | "stop" | "restart" | "rm"
 func (s *ContainerService) ExecuteAction(server db.VpsServer, actionType string, containerNames []string) ContainerActionResult {
-	client, err := connection.NewClient(server)
+	if message := ValidateContainerAction(actionType); message != "" {
+		return ContainerActionResult{Success: false, Message: message}
+	}
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return ContainerActionResult{
 			Success: false,
@@ -104,7 +108,7 @@ func (s *ContainerService) ExecuteAction(server db.VpsServer, actionType string,
 
 	var errList []string
 	for _, name := range containerNames {
-		trimmed := strings.TrimSpace(name)
+		trimmed := NormalizeContainerName(name)
 		if trimmed == "" {
 			continue
 		}
@@ -119,8 +123,6 @@ func (s *ContainerService) ExecuteAction(server db.VpsServer, actionType string,
 			opErr = RestartContainer(client, trimmed)
 		case "rm":
 			opErr = RemoveContainer(client, trimmed, true)
-		default:
-			opErr = fmt.Errorf("ação desconhecida '%s'", actionType)
 		}
 
 		if opErr != nil {
@@ -144,7 +146,7 @@ func (s *ContainerService) ExecuteAction(server db.VpsServer, actionType string,
 
 // GetLogs obtém os logs do container especificado
 func (s *ContainerService) GetLogs(server db.VpsServer, containerName string, tail int) (string, error) {
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return "", fmt.Errorf("falha ao conectar no servidor: %w", err)
 	}

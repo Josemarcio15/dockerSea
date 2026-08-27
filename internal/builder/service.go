@@ -11,8 +11,8 @@ import (
 	"sync"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
-	"go-walis/internal/core/connection"
 	"go-walis/internal/core/db"
+	sharedDocker "go-walis/internal/shared/docker"
 	"go-walis/internal/stacks"
 )
 
@@ -27,6 +27,7 @@ type FolderListing struct {
 	Folders         []Folder `json:"folders"`
 	HasDockerfile   bool     `json:"hasDockerfile"`
 	HasDockerignore bool     `json:"hasDockerignore"`
+	IgnoredFiles    []string `json:"ignoredFiles"`
 }
 
 type SavedPath struct {
@@ -72,6 +73,7 @@ func (s *Service) Browse(path string) (FolderListing, error) {
 	sort.Slice(listing.Folders, func(i, j int) bool { return listing.Folders[i].Name < listing.Folders[j].Name })
 	listing.HasDockerfile = fileExists(filepath.Join(path, "Dockerfile"))
 	listing.HasDockerignore = fileExists(filepath.Join(path, ".dockerignore"))
+	listing.IgnoredFiles = ignoredFiles(path)
 	return listing, nil
 }
 
@@ -133,8 +135,8 @@ func (s *Service) Build(folderPath, projectName, locale string) error {
 	if !fileExists(filepath.Join(folderPath, "Dockerfile")) {
 		return fmt.Errorf("Dockerfile não encontrado na pasta selecionada: %s", folderPath)
 	}
-	tag := strings.TrimSpace(projectName)
-	if tag == "" {
+	tag := NormalizeProjectName(projectName)
+	if message := ValidateProjectName(tag); message != "" {
 		return fmt.Errorf("nome/tag da imagem não informado")
 	}
 	if !strings.Contains(tag, ":") {
@@ -171,7 +173,7 @@ func (s *Service) Build(folderPath, projectName, locale string) error {
 		}
 
 		emitProgress("→ [PREPARING] Conectando à VPS remota...")
-		client, err := connection.NewClient(*srv)
+		client, err := sharedDocker.NewClient(*srv)
 		if err != nil {
 			emitProgress(fmt.Sprintf("✗ Erro de conexão com a VPS: %v", err))
 			emitComplete(false, err.Error())
@@ -200,7 +202,7 @@ func (s *Service) Build(folderPath, projectName, locale string) error {
 			return
 		}
 
-		if err := stacks.PackProjectDir(ctx, folderPath, stdinPipe); err != nil {
+		if err := stacks.PackProjectDirWithIgnore(ctx, folderPath, stdinPipe, readIgnorePatterns(folderPath)); err != nil {
 			_ = stdinPipe.Close()
 			emitProgress(fmt.Sprintf("✗ Falha ao empacotar projeto: %v", err))
 			emitComplete(false, err.Error())
@@ -244,6 +246,55 @@ func (s *Service) Build(folderPath, projectName, locale string) error {
 	}()
 
 	return nil
+}
+
+func readIgnorePatterns(folderPath string) []string {
+	data, err := os.ReadFile(filepath.Join(folderPath, ".dockerignore"))
+	if err != nil {
+		return nil
+	}
+	var patterns []string
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" && !strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "!") {
+			patterns = append(patterns, line)
+		}
+	}
+	return patterns
+}
+
+func ignoredFiles(folderPath string) []string {
+	patterns := readIgnorePatterns(folderPath)
+	if len(patterns) == 0 {
+		return nil
+	}
+	var files []string
+	_ = filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, _ := filepath.Rel(folderPath, path)
+		if rel == "." {
+			return nil
+		}
+		for _, p := range patterns {
+			if stacks.IsIgnoredPath(rel, p) {
+				if info.IsDir() {
+					// Diretórios ignorados são apresentados uma única vez,
+					// evitando uma lista enorme com todos os seus arquivos.
+					if strings.HasSuffix(strings.TrimSpace(p), "/") || strings.Contains(strings.TrimSpace(p), "/") {
+						files = append(files, filepath.ToSlash(rel)+"/")
+						return filepath.SkipDir
+					}
+				} else {
+					files = append(files, filepath.ToSlash(rel))
+				}
+				return nil
+			}
+		}
+		return nil
+	})
+	return files
 }
 
 func fileExists(path string) bool {

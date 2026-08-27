@@ -104,7 +104,7 @@
         class="w-full mt-0.5"
         onclick={reconnectStats}
       >
-        🔌 {t("app.reconnect")}
+        {t("app.reconnect")}
       </ButtonRed>
     {/if}
   </div>

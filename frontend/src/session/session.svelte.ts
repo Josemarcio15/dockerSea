@@ -1,4 +1,5 @@
-import * as ConfigService from "../../bindings/go-walis/internal/config/configservice.js";
+import * as ProfileService from "../../bindings/go-walis/internal/profiles/service.js";
+import * as ServerService from "../../bindings/go-walis/internal/servers/service.js";
 import type { SessionState } from "./session.types";
 
 export const session = $state<SessionState>({
@@ -12,13 +13,13 @@ export const session = $state<SessionState>({
 });
 
 export async function loadSession(): Promise<void> {
-  const servers = await ConfigService.ListServers();
+  const servers = await ServerService.ListServers();
   if (servers) {
     session.servers = servers;
     session.activeVps = servers.find((server: any) => server.isActive) || null;
   }
 
-  const profiles = await ConfigService.ListProfiles();
+  const profiles = await ProfileService.ListProfiles();
   if (profiles && profiles.length > 0) {
     session.profiles = profiles;
     session.activeProfile =

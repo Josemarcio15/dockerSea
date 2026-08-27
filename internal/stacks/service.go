@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"go-walis/internal/core/connection"
 	"go-walis/internal/core/db"
+	sharedDocker "go-walis/internal/shared/docker"
 )
 
 // StackService gerencia todas as operações de Stacks para o frontend Wails
@@ -158,7 +158,7 @@ func (s *StackService) StopStack(profileID string, stackID string) StackActionRe
 		return StackActionResult{Success: false, Message: fmt.Sprintf("falha ao resolver servidor VPS: %v", err)}
 	}
 
-	client, err := connection.NewClient(*server)
+	client, err := sharedDocker.NewClient(*server)
 	if err != nil {
 		return StackActionResult{Success: false, Message: fmt.Sprintf("falha na conexão com VPS: %v", err)}
 	}
@@ -184,7 +184,7 @@ func (s *StackService) RemoveStackRemote(profileID string, stackID string, delet
 		return StackActionResult{Success: false, Message: fmt.Sprintf("falha ao resolver servidor VPS: %v", err)}
 	}
 
-	client, err := connection.NewClient(*server)
+	client, err := sharedDocker.NewClient(*server)
 	if err != nil {
 		return StackActionResult{Success: false, Message: fmt.Sprintf("falha na conexão com VPS: %v", err)}
 	}
@@ -210,7 +210,7 @@ func (s *StackService) GetStackLogs(profileID string, stackID string, tail int) 
 		return "", fmt.Errorf("falha ao resolver servidor VPS: %w", err)
 	}
 
-	client, err := connection.NewClient(*server)
+	client, err := sharedDocker.NewClient(*server)
 	if err != nil {
 		return "", fmt.Errorf("falha na conexão com VPS: %w", err)
 	}
@@ -231,7 +231,7 @@ func (s *StackService) GetServerCapabilities(profileID string) (ServerCapabiliti
 		return caps, err
 	}
 
-	client, err := connection.NewClient(*server)
+	client, err := sharedDocker.NewClient(*server)
 	if err != nil {
 		return caps, fmt.Errorf("falha na conexão com VPS: %w", err)
 	}

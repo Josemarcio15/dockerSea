@@ -6,9 +6,13 @@ import type {
   ContainerActionType,
 } from "../domain/container.types.js";
 import { Events } from "@wailsio/runtime";
+import { EVENTS } from "$shared/events";
 
 export const containerWailsApi = {
-  async listContainers(server: VpsServer, all: boolean = true): Promise<Container[]> {
+  async listContainers(
+    server: VpsServer,
+    all: boolean = true,
+  ): Promise<Container[]> {
     const list = await ContainerService.ListContainers(server, all);
     return (list as Container[]) || [];
   },
@@ -18,10 +22,18 @@ export const containerWailsApi = {
     actionType: ContainerActionType,
     containerNames: string[],
   ): Promise<ContainerActionResult> {
-    return await ContainerService.ExecuteAction(server, actionType, containerNames);
+    return await ContainerService.ExecuteAction(
+      server,
+      actionType,
+      containerNames,
+    );
   },
 
-  async getLogs(server: VpsServer, containerName: string, tail: number = 200): Promise<string> {
+  async getLogs(
+    server: VpsServer,
+    containerName: string,
+    tail: number = 200,
+  ): Promise<string> {
     return await ContainerService.GetLogs(server, containerName, tail);
   },
 
@@ -34,6 +46,6 @@ export const containerWailsApi = {
   },
 
   subscribeToEvents(callback: (event: any) => void): () => void {
-    return Events.On("docker:container:event", callback);
+    return Events.On(EVENTS.container, callback);
   },
 };

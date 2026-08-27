@@ -83,10 +83,10 @@ task build:docker TAG=docksea:latest
 Run the service
 
 docker run -d \
-  --name docksea \
-  --restart unless-stopped \
-  -p 8080:8080 \
-  docksea:latest
+--name docksea \
+--restart unless-stopped \
+-p 8080:8080 \
+docksea:latest
 
 To use another host port, change only the host-side mapping:
 
@@ -111,8 +111,8 @@ For a public deployment, place DockSea behind Nginx, Caddy, or another TLS-termi
 Example Nginx location:
 
 server {
-    listen 443 ssl http2;
-    server_name docksea.example.com;
+listen 443 ssl http2;
+server_name docksea.example.com;
 
     # Configure ssl_certificate and ssl_certificate_key here.
 
@@ -123,6 +123,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
+
 }
 
 Configuration and Data
@@ -143,12 +144,12 @@ Security Checklist
 
 Useful Commands
 
-task dev             # Start Wails development mode
-task build           # Build the native desktop application
-task build:server    # Build a server-mode binary
-task build:docker    # Build the production Docker image
-task run:docker      # Build and run the Docker image
-task package         # Package the native application for the current platform
+task dev # Start Wails development mode
+task build # Build the native desktop application
+task build:server # Build a server-mode binary
+task build:docker # Build the production Docker image
+task run:docker # Build and run the Docker image
+task package # Package the native application for the current platform
 
 License
 

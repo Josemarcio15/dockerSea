@@ -33,11 +33,5 @@ func (s *Service) SetActiveServer(id string) error {
 }
 
 func (s *Service) GetSystemUsage(server db.VpsServer) (*connection.SystemUsage, error) {
-	client, err := connection.NewClient(server)
-	if err != nil {
-		return nil, fmt.Errorf("falha ao conectar no servidor: %w", err)
-	}
-	defer client.Close()
-
-	return client.FetchSystemUsage()
+	return CollectSystemUsage(server)
 }

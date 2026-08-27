@@ -21,12 +21,12 @@ func TestPackProjectDir_Success(t *testing.T) {
 
 	// Cria arquivos diversos: compose.yaml, Dockerfile, .env, .dockerignore, subpastas com binários e arquivos Unicode
 	files := map[string]string{
-		"compose.yaml":             "services:\n  app:\n    image: test",
-		"Dockerfile":               "FROM alpine\nCMD [\"echo\", \"hello\"]",
-		".dockerignore":            "node_modules\n.env*\n",
-		".env.production":          "DATABASE_URL=postgres://...",
-		"config/app.json":          "{\"port\": 8080}",
-		"src/index.js":             "console.log('test');",
+		"compose.yaml":                 "services:\n  app:\n    image: test",
+		"Dockerfile":                   "FROM alpine\nCMD [\"echo\", \"hello\"]",
+		".dockerignore":                "node_modules\n.env*\n",
+		".env.production":              "DATABASE_URL=postgres://...",
+		"config/app.json":              "{\"port\": 8080}",
+		"src/index.js":                 "console.log('test');",
 		"nested/deep/arquivo_ação.txt": "conteúdo com acentuação e caracteres especiais UTF-8",
 	}
 

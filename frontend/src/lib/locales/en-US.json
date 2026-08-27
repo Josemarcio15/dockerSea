@@ -16,6 +16,7 @@
     "no_vps": "No server selected",
     "select_all": "Select All",
     "deselect_all": "Deselect All",
+    "selected": "selected",
     "no_vps_title": "No Server Selected",
     "no_vps_desc": "To view and manage Docker resources (Containers, Images, Volumes, Networks, Stacks, or Image Builder), select or activate a VPS in the Servers menu.",
     "go_to_servers": "Go to Servers"
@@ -98,7 +99,7 @@
     "filter_all": "All ({count})",
     "filter_in_use": "🟢 In Use ({count})",
     "filter_unused": "⚪ Unused ({count})",
-    "filter_dangling": "⚠️ Dangling (<none>) ({count})",
+    "filter_dangling": "⚠️ Dangling ({count})",
     "status_in_use": "In use",
     "status_unused": "Unused",
     "status_dangling": "Dangling",
@@ -178,6 +179,8 @@
     "transfer_no_servers": "You need at least 2 servers configured to transfer images.",
     "transfer_select_images": "Select images to transfer",
     "transfer_btn": "Transfer Selected Images",
+    "transfer_action_btn": "Transfer Images",
+    "transferring": "Transferring...",
     "transfer_same_server": "Source and destination must be different servers.",
     "transfer_no_selection": "Select at least one image and a destination server.",
     "transfer_in_progress": "Transferring {count} image(s)...",
@@ -320,6 +323,7 @@
     "executing": "Executing..."
   },
   "config": {
+    "language_changed": "Language changed to {language}",
     "title": "Configuration",
     "connections_tab": "Servers / Connections",
     "install_tab": "Install Docker",
@@ -612,12 +616,17 @@
     "close": "Close"
   },
   "extras": {
+    "tab_deploy_temp": "Temporary files",
+    "deploy_temp_title": "Temporary deploy files",
+    "deploy_temp_desc": "Files left behind by deploy operations on the VPS.",
+    "deploy_temp_clean": "Clean files",
+    "deploy_temp_empty": "No temporary files found.",
     "title": "Extras",
     "tab_nginx": "Nginx",
     "tab_ports": "Ports",
     "sites_available": "sites-available",
     "sites_enabled": "sites-enabled",
-    "test_nginx": "Test nginx -t",
+    "test_nginx": "Validate Nginx",
     "testing": "Testing...",
     "restart_nginx": "Restart Nginx",
     "restarting": "Restarting...",

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"go-walis/internal/core/connection"
 	"go-walis/internal/core/db"
+	sharedDocker "go-walis/internal/shared/docker"
 )
 
 type VolumeService struct {
@@ -20,7 +20,7 @@ func NewVolumeService(database *db.DB) *VolumeService {
 
 // ListVolumes obtém a lista de volumes da VPS e correlaciona os containers em uso
 func (s *VolumeService) ListVolumes(server db.VpsServer) ([]DockerVolume, error) {
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return nil, fmt.Errorf("falha ao conectar no servidor: %w", err)
 	}
@@ -31,15 +31,15 @@ func (s *VolumeService) ListVolumes(server db.VpsServer) ([]DockerVolume, error)
 
 // CreateVolume cria um novo volume Docker na VPS
 func (s *VolumeService) CreateVolume(server db.VpsServer, req VolumeCreateRequest) VolumeActionResult {
-	req.Name = strings.TrimSpace(req.Name)
-	if req.Name == "" {
+	req = NormalizeVolumeCreateRequest(req)
+	if message := ValidateVolumeCreateRequest(req); message != "" {
 		return VolumeActionResult{
 			Success: false,
-			Message: "Nome do volume não informado",
+			Message: message,
 		}
 	}
 
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return VolumeActionResult{
 			Success: false,
@@ -70,7 +70,7 @@ func (s *VolumeService) DeleteVolumes(server db.VpsServer, names []string) Volum
 		}
 	}
 
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return VolumeActionResult{
 			Success: false,
@@ -113,7 +113,7 @@ func (s *VolumeService) DeleteVolumes(server db.VpsServer, names []string) Volum
 
 // PruneVolumes remove volumes não utilizados na VPS
 func (s *VolumeService) PruneVolumes(server db.VpsServer) VolumeActionResult {
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return VolumeActionResult{
 			Success: false,
@@ -140,7 +140,7 @@ func (s *VolumeService) PruneVolumes(server db.VpsServer) VolumeActionResult {
 
 // GetVolumeSize calcula o tamanho ocupado pelo volume
 func (s *VolumeService) GetVolumeSize(server db.VpsServer, name string) (string, error) {
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return "—", fmt.Errorf("falha ao conectar no servidor: %w", err)
 	}

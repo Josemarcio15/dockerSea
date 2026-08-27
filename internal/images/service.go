@@ -5,25 +5,28 @@ import (
 	"fmt"
 	"strings"
 
-	"go-walis/internal/core/connection"
 	"go-walis/internal/core/db"
+	sharedDocker "go-walis/internal/shared/docker"
+	sharedevents "go-walis/internal/shared/events"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 type ImageService struct {
 	database *db.DB
+	history  *HistoryRepository
 }
 
 func NewImageService(database *db.DB) *ImageService {
 	return &ImageService{
 		database: database,
+		history:  NewHistoryRepository(database),
 	}
 }
 
 // ListImages obtém a lista de imagens da VPS e correlaciona os containers em uso
 func (s *ImageService) ListImages(server db.VpsServer) ([]DockerImage, error) {
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return nil, fmt.Errorf("falha ao conectar no servidor: %w", err)
 	}
@@ -34,7 +37,7 @@ func (s *ImageService) ListImages(server db.VpsServer) ([]DockerImage, error) {
 
 // DeleteImages remove uma ou mais imagens pelo ID ou nome
 func (s *ImageService) DeleteImages(server db.VpsServer, imageIds []string) ImageActionResult {
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return ImageActionResult{
 			Success: false,
@@ -77,15 +80,15 @@ func (s *ImageService) DeleteImages(server db.VpsServer, imageIds []string) Imag
 
 // PullImage inicia o download de uma imagem emitindo eventos via Wails Runtime
 func (s *ImageService) PullImage(server db.VpsServer, imageName string, profileId string) ImageActionResult {
-	trimmed := strings.TrimSpace(imageName)
-	if trimmed == "" {
+	trimmed := NormalizeImageName(imageName)
+	if message := ValidateImageName(trimmed); message != "" {
 		return ImageActionResult{
 			Success: false,
-			Message: "Nome da imagem não informado",
+			Message: message,
 		}
 	}
 
-	client, err := connection.NewClient(server)
+	client, err := sharedDocker.NewClient(server)
 	if err != nil {
 		return ImageActionResult{
 			Success: false,
@@ -102,7 +105,7 @@ func (s *ImageService) PullImage(server db.VpsServer, imageName string, profileI
 	ctx := context.Background()
 	err = PullImageStream(ctx, client, trimmed, func(progress DockerPullProgress) {
 		if app != nil && app.Event != nil {
-			app.Event.Emit("docker:image:pull:progress", map[string]interface{}{
+			app.Event.Emit(sharedevents.ImagePullProgress, map[string]interface{}{
 				"serverId":       server.ID,
 				"imageName":      trimmed,
 				"id":             progress.ID,
@@ -117,7 +120,7 @@ func (s *ImageService) PullImage(server db.VpsServer, imageName string, profileI
 
 	if err != nil {
 		if app != nil && app.Event != nil {
-			app.Event.Emit("docker:image:pull:complete", map[string]interface{}{
+			app.Event.Emit(sharedevents.ImagePullComplete, map[string]interface{}{
 				"serverId":  server.ID,
 				"imageName": trimmed,
 				"success":   false,
@@ -131,7 +134,7 @@ func (s *ImageService) PullImage(server db.VpsServer, imageName string, profileI
 	}
 
 	if app != nil && app.Event != nil {
-		app.Event.Emit("docker:image:pull:complete", map[string]interface{}{
+		app.Event.Emit(sharedevents.ImagePullComplete, map[string]interface{}{
 			"serverId":  server.ID,
 			"imageName": trimmed,
 			"success":   true,
@@ -160,7 +163,7 @@ func (s *ImageService) TransferImages(srcServer, dstServer db.VpsServer, imageId
 		}
 	}
 
-	srcClient, err := connection.NewClient(srcServer)
+	srcClient, err := sharedDocker.NewClient(srcServer)
 	if err != nil {
 		return ImageActionResult{
 			Success: false,
@@ -169,7 +172,7 @@ func (s *ImageService) TransferImages(srcServer, dstServer db.VpsServer, imageId
 	}
 	defer srcClient.Close()
 
-	dstClient, err := connection.NewClient(dstServer)
+	dstClient, err := sharedDocker.NewClient(dstServer)
 	if err != nil {
 		return ImageActionResult{
 			Success: false,
@@ -183,7 +186,7 @@ func (s *ImageService) TransferImages(srcServer, dstServer db.VpsServer, imageId
 
 	err = TransferImages(ctx, srcClient, dstClient, imageIds, func(progress DockerTransferProgress) {
 		if app != nil && app.Event != nil {
-			app.Event.Emit("docker:image:transfer:progress", map[string]interface{}{
+			app.Event.Emit(sharedevents.ImageTransferProgress, map[string]interface{}{
 				"srcServerId":         srcServer.ID,
 				"dstServerId":         dstServer.ID,
 				"stage":               progress.Stage,
@@ -200,7 +203,7 @@ func (s *ImageService) TransferImages(srcServer, dstServer db.VpsServer, imageId
 
 	if err != nil {
 		if app != nil && app.Event != nil {
-			app.Event.Emit("docker:image:transfer:complete", map[string]interface{}{
+			app.Event.Emit(sharedevents.ImageTransferComplete, map[string]interface{}{
 				"srcServerId": srcServer.ID,
 				"dstServerId": dstServer.ID,
 				"success":     false,
@@ -214,7 +217,7 @@ func (s *ImageService) TransferImages(srcServer, dstServer db.VpsServer, imageId
 	}
 
 	if app != nil && app.Event != nil {
-		app.Event.Emit("docker:image:transfer:complete", map[string]interface{}{
+		app.Event.Emit(sharedevents.ImageTransferComplete, map[string]interface{}{
 			"srcServerId": srcServer.ID,
 			"dstServerId": dstServer.ID,
 			"success":     true,
@@ -232,15 +235,15 @@ func (s *ImageService) TransferImages(srcServer, dstServer db.VpsServer, imageId
 
 // ListHistory lista histórico de downloads da imagem
 func (s *ImageService) ListHistory(profileId string) ([]db.ImageHistoryItem, error) {
-	return s.database.ListImageHistory(profileId)
+	return s.history.List(profileId)
 }
 
 // DeleteHistory remove itens específicos do histórico
 func (s *ImageService) DeleteHistory(ids []string) error {
-	return s.database.DeleteImageHistory(ids)
+	return s.history.Delete(ids)
 }
 
 // ClearHistory limpa todo o histórico de downloads do perfil
 func (s *ImageService) ClearHistory(profileId string) error {
-	return s.database.ClearImageHistory(profileId)
+	return s.history.Clear(profileId)
 }

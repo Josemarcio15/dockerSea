@@ -1,60 +1,17 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { t } from "$shared/stores/locale.svelte";
   import StatusBanner from "$shared/components/StatusBanner.svelte";
-  import { notifySuccess } from "$shared/stores/notification.svelte";
   import { ButtonPurple } from "$shared/components/buttons";
   import ServerCard from "./components/ServerCard.svelte";
-  import * as api from "./api";
+  import { createServersStore } from "./store.svelte";
   import type { Route } from "../../navigation/navigation.types";
 
   let { data, navigate }: { data: any; navigate?: (route: Route) => void } =
     $props();
-  let systemUsageCache = $state<Record<string, any>>({});
-  let loadingUsage = $state<Record<string, boolean>>({});
-
-  async function fetchServerUsage(server: any, force = false) {
-    if (!server?.id || (!force && systemUsageCache[server.id])) return;
-    loadingUsage[server.id] = true;
-    try {
-      const usage = await api.getSystemUsage(server);
-      if (usage) systemUsageCache[server.id] = usage;
-    } catch (error) {
-      console.warn("Não foi possível obter recursos do servidor:", error);
-    } finally {
-      loadingUsage[server.id] = false;
-    }
-  }
-
-  async function activateServer(server: any) {
-    try {
-      await api.setActiveServer(server.id);
-      data.activeVps = server;
-      data.servers = (await api.listServers()) || data.servers;
-      notifySuccess(`Servidor '${server.name}' ativado com sucesso!`);
-    } catch {
-      data.activeVps = server;
-      notifySuccess(`Servidor '${server.name}' selecionado.`);
-    }
-    fetchServerUsage(server);
-  }
-
-  async function loadServers() {
-    try {
-      const servers = await api.listServers();
-      if (!servers) return;
-      data.servers = servers;
-      const active = servers.find((server: any) => server.isActive);
-      if (active) {
-        data.activeVps = active;
-        fetchServerUsage(active);
-      }
-    } catch (error) {
-      console.warn("Erro ao carregar servidores do SQLite:", error);
-    }
-  }
-
-  onMount(loadServers);
+  const serverStore = createServersStore(() => data);
+  $effect(() => {
+    void serverStore.load();
+  });
 </script>
 
 <div class="space-y-6">
@@ -94,11 +51,11 @@
       {#each data.servers as server (server.id)}
         <ServerCard
           {server}
-          usage={systemUsageCache[server.id]}
+          usage={serverStore.usageCache[server.id]}
           isActive={data.activeVps?.id === server.id}
-          isLoading={loadingUsage[server.id]}
-          onRefresh={() => fetchServerUsage(server, true)}
-          onActivate={() => activateServer(server)}
+          isLoading={serverStore.loadingUsage[server.id]}
+          onRefresh={() => serverStore.fetchUsage(server, true)}
+          onActivate={() => serverStore.activate(server)}
           onViewContainers={() => navigate?.("containers")}
         />
       {/each}

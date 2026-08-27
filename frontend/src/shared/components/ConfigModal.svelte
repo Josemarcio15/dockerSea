@@ -588,7 +588,7 @@
         <div class="lg:col-start-2 flex flex-col min-w-0 gap-4">
         <div class="flex rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-1">
           <button type="button" class="flex-1 rounded-lg px-3 py-2 text-xs font-bold {editorTab === 'fields' ? 'bg-white dark:bg-slate-800 text-violet-600 shadow-sm' : 'text-slate-500'}" onclick={() => (editorTab = "fields")}>Campos</button>
-          <button type="button" class="flex-1 rounded-lg px-3 py-2 text-xs font-bold {editorTab === 'json' ? 'bg-white dark:bg-slate-800 text-violet-600 shadow-sm' : 'text-slate-500'}" onclick={() => { editorTab = "json"; if (!jsonEditor) syncJsonEditor(); }}>JSON</button>
+          <button type="button" class="flex-1 rounded-lg px-3 py-2 text-xs font-bold {editorTab === 'json' ? 'bg-white dark:bg-slate-800 text-violet-600 shadow-sm' : 'text-slate-500'}" onclick={() => { editorTab = "json"; syncJsonEditor(); }}>JSON</button>
         </div>
 
         {#if editorTab === "json"}
@@ -671,7 +671,7 @@
               size="xs"
               onclick={addPort}
             >
-              + {t("images.config_add_port")}
+              {t("images.config_add_port")}
             </ButtonBlue>
           </div>
           {#each ports as port, i}
@@ -712,7 +712,7 @@
               size="xs"
               onclick={addEnv}
             >
-              + {t("images.config_add_env")}
+              {t("images.config_add_env")}
             </ButtonBlue>
           </div>
           {#each envs as env, i}
@@ -753,7 +753,7 @@
               size="xs"
               onclick={addVolume}
             >
-              + {t("images.config_add_volume")}
+              {t("images.config_add_volume")}
             </ButtonBlue>
           </div>
           {#each volumes as vol, i}
@@ -851,7 +851,7 @@
               size="xs"
               onclick={addCommand}
             >
-              + {t("images.config_add_command")}
+              {t("images.config_add_command")}
             </ButtonBlue>
           </div>
 

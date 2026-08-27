@@ -16,6 +16,7 @@
     "no_vps": "Nenhum servidor selecionado",
     "select_all": "Marcar Todos",
     "deselect_all": "Desmarcar Todos",
+    "selected": "selecionados",
     "no_vps_title": "Nenhum Servidor Selecionado",
     "no_vps_desc": "Para visualizar e gerenciar os recursos do Docker (Containers, Imagens, Volumes, Redes, Stacks ou Image Builder), selecione ou ative uma VPS no menu de Servidores.",
     "go_to_servers": "Ir para Servidores"
@@ -98,7 +99,7 @@
     "filter_all": "Todos ({count})",
     "filter_in_use": "🟢 Em Uso ({count})",
     "filter_unused": "⚪ Sem Uso ({count})",
-    "filter_dangling": "⚠️ Órfãs (<none>) ({count})",
+    "filter_dangling": "⚠️ Órfãs ({count})",
     "status_in_use": "Em uso",
     "status_unused": "Não utilizada",
     "status_dangling": "Órfã",
@@ -178,6 +179,8 @@
     "transfer_no_servers": "Você precisa de pelo menos 2 servidores configurados para transferir imagens.",
     "transfer_select_images": "Selecione as imagens para transferir",
     "transfer_btn": "Transferir Imagens Selecionadas",
+    "transfer_action_btn": "Transferir Imagens",
+    "transferring": "Transferindo...",
     "transfer_same_server": "Origem e destino devem ser servidores diferentes.",
     "transfer_no_selection": "Selecione pelo menos uma imagem e um servidor de destino.",
     "transfer_in_progress": "Transferindo {count} imagem(ns)...",
@@ -322,6 +325,7 @@
     "executing": "Executando..."
   },
   "config": {
+    "language_changed": "Idioma alterado para {language}",
     "title": "Configuração",
     "connections_tab": "Servidores / Conexões",
     "install_tab": "Instalar Docker",
@@ -614,12 +618,17 @@
     "close": "Fechar"
   },
   "extras": {
+    "tab_deploy_temp": "Arquivos temporários",
+    "deploy_temp_title": "Arquivos temporários de deploy",
+    "deploy_temp_desc": "Arquivos remanescentes de operações de deploy na VPS.",
+    "deploy_temp_clean": "Limpar arquivos",
+    "deploy_temp_empty": "Nenhum arquivo temporário encontrado.",
     "title": "Extras",
     "tab_nginx": "Nginx",
     "tab_ports": "Portas",
     "sites_available": "sites-available",
     "sites_enabled": "sites-enabled",
-    "test_nginx": "Testar nginx -t",
+    "test_nginx": "Validar Nginx",
     "testing": "Testando...",
     "restart_nginx": "Reiniciar Nginx",
     "restarting": "Reiniciando...",

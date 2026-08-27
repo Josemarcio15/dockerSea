@@ -21,3 +21,15 @@ type PortEntry struct {
 	PID         string `json:"pid"`
 	Address     string `json:"address"`
 }
+
+type DeployTempFile struct {
+	Path  string `json:"path"`
+	Size  string `json:"size"`
+	IsDir bool   `json:"isDir"`
+}
+
+type NginxLogFile struct {
+	Name       string `json:"name"`
+	Size       string `json:"size"`
+	Compressed bool   `json:"compressed"`
+}

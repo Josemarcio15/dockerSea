@@ -57,9 +57,9 @@ func ShellQuote(arg string) string {
 
 // ComposeVolumeMount representa uma montagem de volume no JSON do Docker Compose
 type ComposeVolumeMount struct {
-	Type     string `json:"type"`     // 'bind', 'volume', 'tmpfs'
-	Source   string `json:"source"`   // caminho no host ou nome do volume
-	Target   string `json:"target"`   // caminho no container
+	Type     string `json:"type"`   // 'bind', 'volume', 'tmpfs'
+	Source   string `json:"source"` // caminho no host ou nome do volume
+	Target   string `json:"target"` // caminho no container
 	ReadOnly bool   `json:"read_only"`
 }
 

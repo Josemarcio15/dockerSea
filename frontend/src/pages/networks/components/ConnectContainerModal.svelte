@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
   import Modal from "$shared/components/Modal.svelte";
-  import type { Container } from "../../../../bindings/go-walis/internal/containers/models.js";
+  import type { Container } from "$lib/domains/containers";
 
   let {
     show = $bindable(false),

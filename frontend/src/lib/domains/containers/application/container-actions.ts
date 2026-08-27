@@ -10,9 +10,7 @@ export async function executeContainerAction(
   actionType: ContainerActionType,
   containerNames: string[],
 ): Promise<ContainerActionResult> {
-  const names = containerNames
-    .map((n) => n.trim())
-    .filter((n) => n.length > 0);
+  const names = containerNames.map((n) => n.trim()).filter((n) => n.length > 0);
 
   if (names.length === 0) {
     return {

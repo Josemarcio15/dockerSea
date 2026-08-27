@@ -17,6 +17,10 @@ export function removeSavedPath(path: string): Promise<void> {
   return BuilderBinding.RemoveSavedPath(path);
 }
 
-export function build(path: string, tag: string, locale: string): Promise<void> {
+export function build(
+  path: string,
+  tag: string,
+  locale: string,
+): Promise<void> {
   return BuilderBinding.Build(path, tag, locale);
 }

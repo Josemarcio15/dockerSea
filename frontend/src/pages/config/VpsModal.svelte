@@ -3,8 +3,10 @@
   import Input from "$shared/components/Input.svelte";
   import { ButtonYellow, ButtonPink } from "$shared/components/buttons";
   import { t } from "$shared/stores/locale.svelte";
-  import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
-  import * as ConfigService from "../../../bindings/go-walis/internal/config/configservice.js";
+  import {
+    notifySuccess,
+    notifyError,
+  } from "$shared/stores/notification.svelte";
 
   import { Dialogs } from "@wailsio/runtime";
 
@@ -30,11 +32,13 @@
     form = $bindable(),
     onSave,
     onTest,
+    onAutoDetect,
   }: {
     show: boolean;
     form: VpsFormData;
     onSave: (data: VpsFormData) => void;
     onTest: (data: VpsFormData) => void;
+    onAutoDetect: (data: VpsFormData) => Promise<any>;
   } = $props();
 
   let modalTab = $state<"connection" | "docker">("connection");
@@ -80,44 +84,43 @@
   async function handleAutoDetect() {
     isDetecting = true;
     try {
-      const payload: any = {
-        id: form.id,
-        name: form.name,
-        connectionType: form.connectionType,
-        host: form.host,
-        port: parseInt(form.port) || 22,
-        username: form.username,
-        authType: form.authType,
-        sshKeyPath: form.sshKeyPath,
-        sshKeyPassphrase: form.sshKeyPassphrase,
-        sshPassword: form.sshPassword,
-        sudoPassword: form.sudoPassword,
-        dockerSocketPath: form.dockerSocketPath,
-        dockerPath: form.dockerPath,
-        dockerComposePath: form.dockerComposePath,
-        isActive: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const res: any = await ConfigService.AutoDetectDocker(payload);
+      const res: any = await onAutoDetect(form);
       if (res && res.success) {
-        discoveredSockets = res.availableSockets || [res.dockerSocketPath || "/var/run/docker.sock"];
-        discoveredBins = res.availableBins || [res.dockerPath || "/usr/bin/docker"];
-        discoveredComposes = res.availableComposes || [res.dockerComposePath || "docker compose"];
+        discoveredSockets = res.availableSockets || [
+          res.dockerSocketPath || "/var/run/docker.sock",
+        ];
+        discoveredBins = res.availableBins || [
+          res.dockerPath || "/usr/bin/docker",
+        ];
+        discoveredComposes = res.availableComposes || [
+          res.dockerComposePath || "docker compose",
+        ];
 
-        if (!form.dockerSocketPath || !discoveredSockets.includes(form.dockerSocketPath)) {
-          form.dockerSocketPath = res.dockerSocketPath || discoveredSockets[0] || "/var/run/docker.sock";
+        if (
+          !form.dockerSocketPath ||
+          !discoveredSockets.includes(form.dockerSocketPath)
+        ) {
+          form.dockerSocketPath =
+            res.dockerSocketPath ||
+            discoveredSockets[0] ||
+            "/var/run/docker.sock";
         }
         if (!form.dockerPath || !discoveredBins.includes(form.dockerPath)) {
-          form.dockerPath = res.dockerPath || discoveredBins[0] || "/usr/bin/docker";
+          form.dockerPath =
+            res.dockerPath || discoveredBins[0] || "/usr/bin/docker";
         }
-        if (!form.dockerComposePath || !discoveredComposes.includes(form.dockerComposePath)) {
-          form.dockerComposePath = res.dockerComposePath || discoveredComposes[0] || "docker compose";
+        if (
+          !form.dockerComposePath ||
+          !discoveredComposes.includes(form.dockerComposePath)
+        ) {
+          form.dockerComposePath =
+            res.dockerComposePath || discoveredComposes[0] || "docker compose";
         }
         notifySuccess(res.message || "Ambiente Docker detectado!");
       } else {
-        notifyError(res?.message || "Não foi possível autodetectar. Verifique a conexão.");
+        notifyError(
+          res?.message || "Não foi possível autodetectar. Verifique a conexão.",
+        );
       }
     } catch (e: any) {
       notifyError(`Erro ao autodetectar: ${e.message || e}`);
@@ -135,7 +138,9 @@
       label: t("config.test_conn_btn"),
       variant: "secondary",
       onclick: () => onTest(form),
-      disabled: !form.name.trim() || (form.connectionType === "ssh" && !form.host.trim()),
+      disabled:
+        !form.name.trim() ||
+        (form.connectionType === "ssh" && !form.host.trim()),
     },
     {
       label: t("common.save"),
@@ -157,8 +162,19 @@
         : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}"
       onclick={() => (modalTab = "connection")}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582"
+        />
       </svg>
       Conexão & Acesso
     </button>
@@ -170,8 +186,19 @@
         : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}"
       onclick={() => (modalTab = "docker")}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.75 5.1a3 3 0 0 1 2.4-1.1h7.7a3 3 0 0 1 2.4 1.1l2.1 3.45a4.5 4.5 0 0 1 .9 2.7" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.75 5.1a3 3 0 0 1 2.4-1.1h7.7a3 3 0 0 1 2.4 1.1l2.1 3.45a4.5 4.5 0 0 1 .9 2.7"
+        />
       </svg>
       Docker Engine
     </button>
@@ -228,8 +255,12 @@
         bind:value={form.username}
       />
 
-      <div class="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+      <div
+        class="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800"
+      >
+        <h4
+          class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
+        >
           Autenticação SSH
         </h4>
 
@@ -240,10 +271,7 @@
           bind:value={form.sshKeyPath}
         >
           {#snippet trailing()}
-            <ButtonYellow
-              size="sm"
-              onclick={pickSshKey}
-            >
+            <ButtonYellow size="sm" onclick={pickSshKey}>
               {t("config.select_btn")}
             </ButtonYellow>
             <input
@@ -296,11 +324,14 @@
       class="p-3.5 rounded-xl bg-violet-500/5 border border-violet-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
     >
       <div class="space-y-0.5">
-        <h5 class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+        <h5
+          class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5"
+        >
           <span>⚡</span> Descoberta Automática de Ambiente
         </h5>
         <p class="text-[11px] text-slate-500 dark:text-slate-400">
-          Descobrir automaticamente o socket UNIX, docker e docker compose nesta VPS.
+          Descobrir automaticamente o socket UNIX, docker e docker compose nesta
+          VPS.
         </p>
       </div>
 
@@ -310,8 +341,19 @@
         disabled={form.connectionType === "ssh" && !form.host.trim()}
         onclick={handleAutoDetect}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-3.5 h-3.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
+          />
         </svg>
         Autodetectar
       </ButtonPink>
@@ -326,8 +368,12 @@
         bind:value={form.dockerSocketPath}
       />
       {#if discoveredSockets.length > 1}
-        <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-1.5">
-          <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+        <div
+          class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-1.5"
+        >
+          <span
+            class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block"
+          >
             Selecione o socket desejado ({discoveredSockets.length} encontrados):
           </span>
           <div class="flex flex-col gap-1.5">
@@ -341,15 +387,25 @@
                 onclick={() => (form.dockerSocketPath = sock)}
               >
                 <div class="flex items-center gap-2 min-w-0 flex-1">
-                  <span class="text-xs shrink-0">{sock.includes("/user/") ? "👤" : "⚙️"}</span>
+                  <span class="text-xs shrink-0"
+                    >{sock.includes("/user/") ? "👤" : "⚙️"}</span
+                  >
                   <div class="flex flex-col min-w-0">
-                    <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
-                      {sock.includes("/user/") ? "Rootless (Ambiente de Usuário)" : "Root / Sistema (Ambiente Padrão)"}
+                    <span
+                      class="text-[10px] font-semibold text-slate-400 dark:text-slate-500"
+                    >
+                      {sock.includes("/user/")
+                        ? "Rootless (Ambiente de Usuário)"
+                        : "Root / Sistema (Ambiente Padrão)"}
                     </span>
                     <span class="text-xs font-mono truncate">{sock}</span>
                   </div>
                 </div>
-                <div class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 {isSelected ? 'border-violet-500 bg-violet-500 text-white' : 'border-slate-300 dark:border-slate-700'}">
+                <div
+                  class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 {isSelected
+                    ? 'border-violet-500 bg-violet-500 text-white'
+                    : 'border-slate-300 dark:border-slate-700'}"
+                >
                   {#if isSelected}
                     <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
                   {/if}
@@ -370,8 +426,12 @@
         bind:value={form.dockerPath}
       />
       {#if discoveredBins.length > 1}
-        <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-1.5">
-          <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+        <div
+          class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-1.5"
+        >
+          <span
+            class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block"
+          >
             Selecione o binário do Docker ({discoveredBins.length} encontrados):
           </span>
           <div class="flex flex-col gap-1.5">
@@ -385,15 +445,25 @@
                 onclick={() => (form.dockerPath = bin)}
               >
                 <div class="flex items-center gap-2 min-w-0 flex-1">
-                  <span class="text-xs shrink-0">{bin.includes("/home/") ? "👤" : "⚙️"}</span>
+                  <span class="text-xs shrink-0"
+                    >{bin.includes("/home/") ? "👤" : "⚙️"}</span
+                  >
                   <div class="flex flex-col min-w-0">
-                    <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
-                      {bin.includes("/home/") ? "Binário do Usuário (Rootless)" : "Binário do Sistema"}
+                    <span
+                      class="text-[10px] font-semibold text-slate-400 dark:text-slate-500"
+                    >
+                      {bin.includes("/home/")
+                        ? "Binário do Usuário (Rootless)"
+                        : "Binário do Sistema"}
                     </span>
                     <span class="text-xs font-mono truncate">{bin}</span>
                   </div>
                 </div>
-                <div class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 {isSelected ? 'border-violet-500 bg-violet-500 text-white' : 'border-slate-300 dark:border-slate-700'}">
+                <div
+                  class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 {isSelected
+                    ? 'border-violet-500 bg-violet-500 text-white'
+                    : 'border-slate-300 dark:border-slate-700'}"
+                >
                   {#if isSelected}
                     <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
                   {/if}
@@ -414,8 +484,12 @@
         bind:value={form.dockerComposePath}
       />
       {#if discoveredComposes.length > 1}
-        <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-1.5">
-          <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+        <div
+          class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-1.5"
+        >
+          <span
+            class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block"
+          >
             Selecione o Compose ({discoveredComposes.length} encontrados):
           </span>
           <div class="flex flex-col gap-1.5">
@@ -431,13 +505,22 @@
                 <div class="flex items-center gap-2 min-w-0 flex-1">
                   <span class="text-xs shrink-0">📦</span>
                   <div class="flex flex-col min-w-0">
-                    <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
-                      {comp.includes("compose") && !comp.includes("docker-compose") ? "Plugin V2" : "Executável Standalone"}
+                    <span
+                      class="text-[10px] font-semibold text-slate-400 dark:text-slate-500"
+                    >
+                      {comp.includes("compose") &&
+                      !comp.includes("docker-compose")
+                        ? "Plugin V2"
+                        : "Executável Standalone"}
                     </span>
                     <span class="text-xs font-mono truncate">{comp}</span>
                   </div>
                 </div>
-                <div class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 {isSelected ? 'border-violet-500 bg-violet-500 text-white' : 'border-slate-300 dark:border-slate-700'}">
+                <div
+                  class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 {isSelected
+                    ? 'border-violet-500 bg-violet-500 text-white'
+                    : 'border-slate-300 dark:border-slate-700'}"
+                >
                   {#if isSelected}
                     <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
                   {/if}

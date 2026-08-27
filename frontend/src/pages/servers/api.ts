@@ -1,4 +1,4 @@
-import * as ServerBinding from "../../../bindings/go-walis/internal/dashboard/service.js";
+import * as ServerBinding from "../../../bindings/go-walis/internal/servers/service.js";
 
 export function listServers(): Promise<any[]> {
   return ServerBinding.ListServers() as Promise<any[]>;

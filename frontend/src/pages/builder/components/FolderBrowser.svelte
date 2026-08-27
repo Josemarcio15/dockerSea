@@ -13,6 +13,20 @@
   import type { BuilderFolder, BuilderStore } from "../types";
 
   let { store }: { store: BuilderStore } = $props();
+  let editablePath = $state("");
+  let lastSyncedPath = $state("");
+
+  $effect(() => {
+    if (store.currentPath && store.currentPath !== lastSyncedPath) {
+      editablePath = store.currentPath;
+      lastSyncedPath = store.currentPath;
+    }
+  });
+
+  async function navigateToPath() {
+    const path = editablePath.trim();
+    if (path && path !== store.currentPath) await store.browse(path);
+  }
   async function save() {
     try {
       await store.saveCurrentPath();
@@ -50,6 +64,9 @@
           onclick={() => store.browse(store.parentPath ?? "")}
           >{t("builder.nav_up")}</ButtonYellow
         >{/if}
+    </div>
+    {#if store.savedPaths.length > 0}
+      <div class="flex items-center gap-2 flex-wrap pt-1 border-t border-slate-100 dark:border-slate-800/60">
       {#each store.savedPaths as path}
         <div class="relative inline-block group">
           <ButtonGreen size="xs" onclick={() => store.browse(path)} title={path}
@@ -67,13 +84,17 @@
           >
         </div>
       {/each}
-    </div>
-    {#if store.currentPath}<div
-        class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-600 dark:text-slate-400 truncate"
+      </div>
+    {/if}
+    {#if store.currentPath}<input
+        type="text"
+        aria-label="Caminho da pasta do projeto"
+        class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-600 dark:text-slate-400 focus:outline-none focus:border-violet-500"
+        bind:value={editablePath}
         title={store.currentPath}
-      >
-        {store.currentPath}
-      </div>{/if}
+        onkeydown={(event) => { if (event.key === "Enter") void navigateToPath(); }}
+        onblur={() => void navigateToPath()}
+      />{/if}
     <div
       class="border border-slate-200 dark:border-slate-800 rounded-xl max-h-64 overflow-y-auto bg-slate-50 dark:bg-slate-900/20"
     >
@@ -107,5 +128,11 @@
             >⚠️ {t("builder.warn_no_dockerignore")}</span
           >{/if}
       </div>{/if}
+    {#if store.hasDockerignore && store.ignoredFiles.length > 0}
+      <details class="rounded-xl border border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20 p-3">
+        <summary class="cursor-pointer text-xs font-bold text-blue-700 dark:text-blue-300">Arquivos ignorados ({store.ignoredFiles.length})</summary>
+        <ul class="mt-2 max-h-32 overflow-y-auto space-y-1 text-[11px] font-mono text-slate-600 dark:text-slate-400">{#each store.ignoredFiles as file}<li class="break-all">{file}</li>{/each}</ul>
+      </details>
+    {/if}
   </div>
 </div>
