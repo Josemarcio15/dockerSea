@@ -55,8 +55,8 @@ go install github.com/go-task/task/v3/cmd/task@latest
 Clone the repository and install frontend dependencies:
 
 ```bash
-git clone git@github.com:Josemarcio15/docksea.git
-cd docksea
+git clone git@github.com:Josemarcio15/dockSea.git
+cd dockSea
 cd frontend
 npm install
 cd ..
