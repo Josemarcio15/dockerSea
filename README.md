@@ -2,11 +2,11 @@ DockSea
 
 DockSea is a modern, agentless Docker manager for local environments and multiple VPSs. It provides a single interface for monitoring and operating Docker hosts without installing a management agent or exposing the Docker API to the public internet.
 
-""Wails 3" (https://img.shields.io/badge/Built%20with-Wails%20v3-007acc.svg)" (https://v3.wails.io/)
-""Go" (https://img.shields.io/badge/Backend-Go%201.25-00ADD8.svg)" (https://go.dev/)
-""Svelte" (https://img.shields.io/badge/Frontend-Svelte%205-FF3E00.svg)" (https://svelte.dev/)
-""Tailwind CSS" (https://img.shields.io/badge/Styling-Tailwind%20v4-38B2AC.svg)" (https://tailwindcss.com/)
-""License" (https://img.shields.io/badge/License-MIT-green.svg)" (LICENSE)
+[![Wails 3](https://img.shields.io/badge/Built%20with-Wails%20v3-007acc.svg)](https://v3.wails.io/)
+[![Go](https://img.shields.io/badge/Backend-Go%201.25-00ADD8.svg)](https://go.dev/)
+[![Svelte](https://img.shields.io/badge/Frontend-Svelte%205-FF3E00.svg)](https://svelte.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20v4-38B2AC.svg)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Overview
 
