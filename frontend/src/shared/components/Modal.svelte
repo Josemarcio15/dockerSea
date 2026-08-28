@@ -21,11 +21,13 @@
   let {
     show = $bindable(false),
     title = "",
+    cancelLabel = "",
     buttons = [],
     children,
   }: {
     show: boolean;
     title: string;
+    cancelLabel?: string;
     buttons?: ModalButton[];
     children: Snippet;
   } = $props();
@@ -67,7 +69,7 @@
       >
         <!-- Cancel/Close Button -->
         <ButtonOrange onclick={() => (show = false)}>
-          {t("common.cancel")}
+          {cancelLabel || t("common.cancel")}
         </ButtonOrange>
 
         {#each buttons as btn}

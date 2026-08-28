@@ -92,6 +92,21 @@ func (s *ContainerService) ListContainers(server db.VpsServer, all bool) ([]Cont
 	return ListContainers(client, all)
 }
 
+func (s *ContainerService) CreateContainer(server db.VpsServer, input CreateContainerInput) ContainerActionResult {
+	if strings.TrimSpace(input.Name) == "" || strings.TrimSpace(input.Image) == "" {
+		return ContainerActionResult{Success: false, Message: "nome e imagem são obrigatórios"}
+	}
+	client, err := sharedDocker.NewClient(server)
+	if err != nil {
+		return ContainerActionResult{Success: false, Message: fmt.Sprintf("falha ao conectar no servidor: %v", err)}
+	}
+	defer client.Close()
+	if err := CreateContainer(client, input); err != nil {
+		return ContainerActionResult{Success: false, Message: err.Error()}
+	}
+	return ContainerActionResult{Success: true, Message: "Container criado com sucesso!"}
+}
+
 // ExecuteAction executa ações em lote: "start" | "stop" | "restart" | "rm"
 func (s *ContainerService) ExecuteAction(server db.VpsServer, actionType string, containerNames []string) ContainerActionResult {
 	if message := ValidateContainerAction(actionType); message != "" {

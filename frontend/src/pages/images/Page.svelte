@@ -1,7 +1,8 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
   import { useRefreshKey, triggerRefresh } from "$shared/stores/refresh.svelte";
-  import { notifySuccess } from "$shared/stores/notification.svelte";
+  import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
+  import * as ContainerService from "../../../bindings/go-walis/internal/containers/containerservice.js";
   import DockerseaLoading from "$shared/components/DockerseaLoading.svelte";
   import StatusBanner from "$shared/components/StatusBanner.svelte";
   import TerminalModal from "$shared/components/TerminalModal.svelte";
@@ -45,7 +46,11 @@
   });
 
   async function handleCreateContainer(config: any) {
-    notifySuccess(`Configuração para '${config.containerName}' preparada.`);
+    if (!data.activeVps) return notifyError("Nenhum servidor selecionado.");
+    const result = await ContainerService.CreateContainer(data.activeVps, config);
+    if (!result?.success) return notifyError(result?.message || "Não foi possível criar o container.");
+    notifySuccess(result.message || "Container criado com sucesso!");
+    triggerRefresh();
   }
 
   async function handleSaveProfile(profile: any) {

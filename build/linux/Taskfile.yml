@@ -180,7 +180,7 @@ tasks:
 
   run:
     cmds:
-      - "{{.BIN_DIR}}/{{.APP_NAME}}"
+      - "{{if .OUTPUT}}{{.OUTPUT}}{{else}}{{.BIN_DIR}}/{{.APP_NAME}}{{end}}"
 
   sign:deb:
     summary: Signs the DEB package

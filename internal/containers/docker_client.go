@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"go-walis/internal/core/connection"
@@ -120,6 +121,102 @@ func RemoveContainer(client *connection.Client, id string, force bool) error {
 		return fmt.Errorf("erro ao remover container (HTTP %d): %s", resp.StatusCode, string(body))
 	}
 
+	return nil
+}
+
+func CreateContainer(client *connection.Client, input CreateContainerInput) error {
+	httpClient := client.GetHttpClient()
+	if httpClient == nil {
+		return fmt.Errorf("cliente HTTP do Docker não disponível")
+	}
+	config := map[string]interface{}{"Image": input.Image}
+	if input.Name != "" {
+		config["Hostname"] = input.Name
+	}
+	if len(input.Env) > 0 {
+		env := []string{}
+		for _, item := range input.Env {
+			if strings.TrimSpace(item.Name) != "" {
+				env = append(env, item.Name+"="+item.Value)
+			}
+		}
+		if len(env) > 0 {
+			config["Env"] = env
+		}
+	}
+	if input.Command != "" {
+		config["Cmd"] = strings.Fields(input.Command)
+	}
+	hostConfig := map[string]interface{}{}
+	if input.RestartPolicy != "" {
+		hostConfig["RestartPolicy"] = map[string]interface{}{"Name": input.RestartPolicy}
+	}
+	binding := map[string][]map[string]string{}
+	exposed := map[string]struct{}{}
+	for _, p := range input.Ports {
+		privatePort, err := strconv.Atoi(strings.TrimSpace(p.Internal))
+		publicPort, publicErr := strconv.Atoi(strings.TrimSpace(p.External))
+		if err != nil || privatePort <= 0 {
+			continue
+		}
+		key := fmt.Sprintf("%d/tcp", privatePort)
+		exposed[key] = struct{}{}
+		if publicErr == nil && publicPort > 0 {
+			binding[key] = []map[string]string{{"HostPort": fmt.Sprintf("%d", publicPort), "HostIp": ""}}
+		}
+	}
+	if len(exposed) > 0 {
+		config["ExposedPorts"] = exposed
+		hostConfig["PortBindings"] = binding
+	}
+	if len(input.Volumes) > 0 {
+		binds := []string{}
+		for _, v := range input.Volumes {
+			if strings.TrimSpace(v) != "" {
+				binds = append(binds, v)
+			}
+		}
+		if len(binds) > 0 {
+			hostConfig["Binds"] = binds
+		}
+	}
+	config["HostConfig"] = hostConfig
+	body, err := json.Marshal(config)
+	if err != nil {
+		return fmt.Errorf("falha ao montar configuração: %w", err)
+	}
+	endpoint := "http://localhost/containers/create?name=" + url.QueryEscape(input.Name)
+	resp, err := httpClient.Post(endpoint, "application/json", bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("falha ao criar container: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusCreated {
+		data, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("Docker recusou a criação (HTTP %d): %s", resp.StatusCode, strings.TrimSpace(string(data)))
+	}
+	var created struct {
+		ID string `json:"Id"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&created); err != nil {
+		return fmt.Errorf("falha ao ler resposta do Docker: %w", err)
+	}
+	if input.Network != "" {
+		networkBody, _ := json.Marshal(map[string]string{"Container": created.ID})
+		networkURL := "http://localhost/networks/" + url.PathEscape(input.Network) + "/connect"
+		networkResp, err := httpClient.Post(networkURL, "application/json", bytes.NewReader(networkBody))
+		if err != nil {
+			return fmt.Errorf("falha ao conectar container à rede: %w", err)
+		}
+		defer networkResp.Body.Close()
+		if networkResp.StatusCode != http.StatusOK && networkResp.StatusCode != http.StatusCreated && networkResp.StatusCode != http.StatusNoContent {
+			data, _ := io.ReadAll(networkResp.Body)
+			return fmt.Errorf("falha ao conectar à rede (HTTP %d): %s", networkResp.StatusCode, strings.TrimSpace(string(data)))
+		}
+	}
+	if err := postContainerAction(client, created.ID, "start", nil); err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -3,12 +3,17 @@ version: "3"
 vars:
   APP_NAME: "DockSea"
   BIN_DIR: "bin"
+  APP_VERSION:
+    sh: 'awk ''$1 == "version:" && $2 != "\"3\"" { gsub(/"/, "", $2); print $2; exit }'' build/config.yml'
   PACKAGE_MANAGER: '{{.PACKAGE_MANAGER | default "npm"}}'
   VITE_PORT: "{{.WAILS_VITE_PORT | default 9245}}"
   # Target OS for build/package/run. Defaults to the host OS, and is overridden
   # by `wails3 build GOOS=...` (or the GOOS env var) for cross-compilation. The
   # tasks below dispatch to the matching platform Taskfile via this variable.
   GOOS: "{{.GOOS | default OS}}"
+  TARGET_ARCH: "{{.ARCH | default ARCH}}"
+  RELEASE_BINARY:
+    sh: 'printf "{{.BIN_DIR}}/{{.APP_NAME}}_%s_%s_%s{{if eq .GOOS "windows"}}.exe{{end}}" "$(awk ''$1 == "version:" && $2 != "\"3\"" { gsub(/"/, "", $2); print $2; exit }'' build/config.yml)" "{{.GOOS}}" "{{.TARGET_ARCH}}"'
 
 includes:
   common: ./build/Taskfile.yml
@@ -23,6 +28,8 @@ tasks:
     summary: Builds the application
     cmds:
       - task: "{{.GOOS}}:build"
+        vars:
+          OUTPUT: "{{.RELEASE_BINARY}}"
 
   package:
     summary: Packages a production build of the application
@@ -33,6 +40,8 @@ tasks:
     summary: Runs the application
     cmds:
       - task: "{{.GOOS}}:run"
+        vars:
+          OUTPUT: "{{.RELEASE_BINARY}}"
 
   dev:
     summary: Runs the application in development mode

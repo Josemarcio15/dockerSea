@@ -89,6 +89,7 @@
   let importFileInput = $state<HTMLInputElement>();
   let jsonEditor = $state("");
   let jsonMessage = $state("");
+  let jsonIsValid = $state(false);
   let editorTab = $state<"fields" | "json">("fields");
 
   const emptyConfigTemplate = {
@@ -152,6 +153,7 @@
       const cfg = { ...emptyConfigTemplate, ...(parsed.config || parsed) };
       containerName = cfg.containerName || "";
       projectName = cfg.projectName || "";
+      image = cfg.image || "";
       network = cfg.network || "";
       restartPolicy = cfg.restartPolicy || "";
       description = cfg.description || "";
@@ -160,12 +162,39 @@
       envs = (Array.isArray(cfg.envs) ? cfg.envs : []).map((e: any) => ({ name: e.name ?? "", value: e.value ?? "" }));
       volumes = (Array.isArray(cfg.volumes) ? cfg.volumes : []).map((v: any) => ({ host: v.host ?? "", container: v.container ?? "" }));
       commands = Array.isArray(cfg.commands) ? cfg.commands.map((c: any) => String(c ?? "")) : [""];
-      loadedProfileId = null;
-      loadedProfileName = "";
+      const matchingProfile = savedConfigs.find((saved) => saved.name === profileName);
+      loadedProfileId = matchingProfile?.id || null;
+      loadedProfileName = matchingProfile?.name || "";
       isModified = true;
+      jsonIsValid = true;
       jsonMessage = "JSON aplicado ao formulário.";
     } catch {
+      jsonIsValid = false;
       jsonMessage = "JSON inválido. Verifique a estrutura antes de aplicar.";
+    }
+  }
+
+  function saveJsonProfile() {
+    applyJson();
+    if (!jsonIsValid) return;
+    if (saveDisabled) {
+      jsonMessage = "Informe um nome de perfil válido antes de salvar.";
+      return;
+    }
+    triggerSave();
+    jsonMessage = "Perfil salvo no SQLite.";
+  }
+
+  function handleJsonChange(value: string) {
+    jsonEditor = value;
+    isModified = true;
+
+    // Mantém os campos e as validações sincronizados enquanto o JSON válido é editado.
+    try {
+      JSON.parse(value);
+      applyJson();
+    } catch {
+      // Enquanto o JSON estiver incompleto, aguarda a próxima edição.
     }
   }
 
@@ -249,7 +278,10 @@
 
   // Computed properties
   let hasEmptyVolume = $derived(
-    volumes.some((v) => !v.host.trim() || !v.container.trim()),
+    volumes.some((v) =>
+      (v.host.trim() && !v.container.trim()) ||
+      (!v.host.trim() && v.container.trim()),
+    ),
   );
 
   let nameAlreadyExists = $derived(
@@ -415,6 +447,7 @@
       .map((e) => `${e.name}=${e.value}`)
       .join("\n");
     const volStr = volumes
+      .filter((v) => v.host.trim() && v.container.trim())
       .map((v) => `${v.host}:${v.container || getDefaultContainerPath(image)}`)
       .join(" ");
     const commandStr = commands.filter((c) => c.trim() !== "").join(" && ");
@@ -449,9 +482,11 @@
     showConfirmNoVolume = false;
     show = false;
 
-    const volList = volumes.map(
+    const volList = volumes
+      .filter((v) => v.host.trim() && v.container.trim())
+      .map(
       (v) => `${v.host}:${v.container || getDefaultContainerPath(image)}`,
-    );
+      );
     const commandStr = commands.filter((c) => c.trim() !== "").join(" && ");
 
     onsubmit({
@@ -601,10 +636,10 @@
             <div class="flex gap-2 shrink-0">
               <ButtonCyan size="xs" onclick={loadExample}>Exemplo</ButtonCyan>
               <ButtonBlue size="xs" onclick={copyJson}>Copiar</ButtonBlue>
-              <ButtonGreen size="xs" onclick={applyJson}>Aplicar</ButtonGreen>
+              <ButtonGreen size="xs" disabled={!jsonIsValid || saveDisabled} onclick={saveJsonProfile}>Salvar</ButtonGreen>
             </div>
           </div>
-          <CodeEditor value={jsonEditor} mode="json" onchange={(value) => { jsonEditor = value; isModified = true; }} />
+          <CodeEditor value={jsonEditor} mode="json" onchange={handleJsonChange} />
           {#if jsonMessage}<p class="text-[10px] font-semibold {jsonMessage.includes('inválido') ? 'text-red-500' : 'text-emerald-600'}">{jsonMessage}</p>{/if}
         </div>
         {/if}

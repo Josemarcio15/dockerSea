@@ -34,8 +34,6 @@
     {#if store.status === "building"}<span
         class="text-xs text-amber-500 font-semibold"
         >{t("builder.building")}</span
-      >{:else if store.errorMsg}<span class="text-xs text-red-500 font-semibold"
-        >{store.errorMsg}</span
       >{/if}
     <div class="flex items-center gap-2 w-full">
       <ButtonGreen

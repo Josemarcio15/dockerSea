@@ -146,7 +146,7 @@ func ExecuteDeploy(
 	}
 
 	if stack.SourceType == "folder" && stack.FolderPath != "" {
-		if err := PackProjectDir(ctx, stack.FolderPath, stdinPipe); err != nil {
+		if err := PackProjectDirWithIgnore(ctx, stack.FolderPath, stdinPipe, ReadDockerignorePatterns(stack.FolderPath)); err != nil {
 			_ = stdinPipe.Close()
 			msg := fmt.Sprintf("falha no empacotamento da pasta local: %v", err)
 			broadcaster.EmitFailed(PhaseUploading, msg)

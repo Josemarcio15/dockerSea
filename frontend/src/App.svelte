@@ -1,4 +1,5 @@
 <script lang="ts">
+  import StatusBanner from "$shared/components/StatusBanner.svelte";
   import SidebarItem from "$shared/components/SidebarItem.svelte";
   import ActiveServerWidget from "$shared/components/ActiveServerWidget.svelte";
   import { setLocale, t } from "$shared/stores/locale.svelte";
@@ -253,6 +254,7 @@
 {/snippet}
 
 <div class="flex h-screen w-screen font-sans overflow-hidden {darkClass}">
+  <StatusBanner />
   <div
     class="w-60 h-full bg-linear-to-b from-violet-900 via-violet-800 to-indigo-900 text-white flex flex-col shadow-2xl shrink-0 overflow-y-auto overflow-x-hidden"
   >

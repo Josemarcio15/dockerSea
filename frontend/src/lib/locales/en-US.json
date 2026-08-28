@@ -33,6 +33,7 @@
     "profiles": "Profiles"
   },
   "containers": {
+    "status_stop": "Stopped",
     "title": "Containers",
     "start": "Start",
     "stop": "Stop",
@@ -74,6 +75,8 @@
     "card_view_logs": "View Logs",
     "card_view_env": "Environment Variables",
     "card_env_title": "Environment Variables",
+    "card_env_key": "Key",
+    "card_env_value": "Value",
     "card_env_empty": "(no environment variables configured)",
     "card_logs_title": "Logs: ",
     "card_fetching_logs": "Fetching logs...",
@@ -244,6 +247,7 @@
     "card_delete": "Delete",
     "field_name": "Stack Name",
     "field_project": "Project Name",
+    "folder_up_btn": "Up",
     "placeholder_name_ex": "e.g. My WordPress Stack",
     "placeholder_project_ex": "e.g. my-project",
     "save_btn": "Save",

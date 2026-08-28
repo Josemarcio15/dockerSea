@@ -33,6 +33,7 @@
     "profiles": "Perfis"
   },
   "containers": {
+    "status_stop": "Parado",
     "title": "Containers",
     "start": "Iniciar",
     "stop": "Parar",
@@ -74,6 +75,8 @@
     "card_view_logs": "Ver Logs",
     "card_view_env": "Variáveis de Ambiente",
     "card_env_title": "Variáveis de Ambiente",
+    "card_env_key": "Chave",
+    "card_env_value": "Valor",
     "card_env_empty": "(nenhuma variável de ambiente configurada)",
     "card_logs_title": "Logs: ",
     "card_fetching_logs": "Buscando logs...",
@@ -246,6 +249,7 @@
     "card_delete": "Deletar",
     "field_name": "Nome do Stack",
     "field_project": "Nome do Projeto",
+    "folder_up_btn": "Subir",
     "placeholder_name_ex": "Ex: Meu WordPress Stack",
     "placeholder_project_ex": "Ex: meu-projeto",
     "save_btn": "Salvar",

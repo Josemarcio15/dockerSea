@@ -34,11 +34,11 @@ type Container struct {
 	ImageID       string                     `json:"imageId"`
 	Command       string                     `json:"command"`
 	Created       int64                      `json:"created"`
-	State         string                     `json:"state"`         // "running" | "exited" | "paused" | "created"
-	Status        string                     `json:"status"`        // "Up 2 hours", "Exited (0) 5 minutes ago"
-	Ports         string                     `json:"ports"`         // Formato amigável: "0.0.0.0:80->80/tcp"
+	State         string                     `json:"state"`  // "running" | "exited" | "paused" | "created"
+	Status        string                     `json:"status"` // "Up 2 hours", "Exited (0) 5 minutes ago"
+	Ports         string                     `json:"ports"`  // Formato amigável: "0.0.0.0:80->80/tcp"
 	PortList      []PortMapping              `json:"portList"`
-	Networks      map[string]NetworkEndpoint `json:"networks"`      // Rede -> {ipAddress, gateway}
+	Networks      map[string]NetworkEndpoint `json:"networks"` // Rede -> {ipAddress, gateway}
 	Mounts        []MountInfo                `json:"mounts"`
 	RestartPolicy string                     `json:"restartPolicy"` // "always", "unless-stopped", "on-failure", "no"
 	Labels        map[string]string          `json:"labels"`
@@ -50,6 +50,27 @@ type ContainerActionResult struct {
 	Success bool     `json:"success"`
 	Message string   `json:"message"`
 	Errors  []string `json:"errors,omitempty"`
+}
+
+type CreateContainerInput struct {
+	Name          string            `json:"containerName"`
+	Image         string            `json:"image"`
+	Ports         []CreatePortInput `json:"ports"`
+	Env           []CreateEnvInput  `json:"envs"`
+	Volumes       []string          `json:"volumes"`
+	Network       string            `json:"network"`
+	RestartPolicy string            `json:"restartPolicy"`
+	Command       string            `json:"command"`
+}
+
+type CreatePortInput struct {
+	External string `json:"external"`
+	Internal string `json:"internal"`
+}
+
+type CreateEnvInput struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 // RawDockerContainer representa a estrutura padrão retornada pelo Docker Engine API (GET /containers/json)
@@ -68,8 +89,8 @@ type RawDockerContainer struct {
 		PublicPort  uint16 `json:"PublicPort"`
 		Type        string `json:"Type"`
 	} `json:"Ports"`
-	Labels  map[string]string `json:"Labels"`
-	Mounts  []struct {
+	Labels map[string]string `json:"Labels"`
+	Mounts []struct {
 		Type        string `json:"Type"`
 		Name        string `json:"Name"`
 		Source      string `json:"Source"`

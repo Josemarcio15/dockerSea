@@ -12,11 +12,25 @@ import (
 )
 
 // PackProjectDir compacta todo o conteúdo de um diretório de projeto em stream tar.gz.
-// REGRA CRÍTICA: Não aplica .dockerignore ao pacote geral, garantindo que arquivos
-// de runtime/compose (.env, configs, volumes) cheguem à VPS intactos.
-// O .dockerignore será interpretado exclusivamente pelo BuildKit remoto no momento do build.
 func PackProjectDir(ctx context.Context, folderPath string, writer io.Writer) error {
 	return packProjectDir(ctx, folderPath, writer, nil)
+}
+
+// ReadDockerignorePatterns lê os padrões do .dockerignore da raiz do projeto.
+// Padrões de negação são ignorados, como no fluxo de empacotamento do Builder.
+func ReadDockerignorePatterns(folderPath string) []string {
+	data, err := os.ReadFile(filepath.Join(folderPath, ".dockerignore"))
+	if err != nil {
+		return nil
+	}
+	var patterns []string
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" && !strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "!") {
+			patterns = append(patterns, line)
+		}
+	}
+	return patterns
 }
 
 func PackProjectDirWithIgnore(ctx context.Context, folderPath string, writer io.Writer, ignored []string) error {

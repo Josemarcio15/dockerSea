@@ -1,4 +1,5 @@
 import { getLocale } from "$shared/stores/locale.svelte";
+import { notifyError, notifySuccess } from "$shared/stores/notification.svelte";
 import * as api from "./api";
 import { folderNameFromPath, sanitizeTag, tagFromPath } from "./service";
 import type {
@@ -38,7 +39,9 @@ export const builderStore: BuilderStore = {
   get hasDockerignore() {
     return hasDockerignore;
   },
-  get ignoredFiles() { return ignoredFiles; },
+  get ignoredFiles() {
+    return ignoredFiles;
+  },
   get loading() {
     return loading;
   },
@@ -135,6 +138,7 @@ export const builderStore: BuilderStore = {
     } catch (error: any) {
       status = "error";
       errorMsg = error?.message || "Build falhou";
+      notifyError(errorMsg);
     }
   },
 
@@ -146,9 +150,13 @@ export const builderStore: BuilderStore = {
     if (result.success) {
       builtImage = result.image || this.effectiveTag;
       status = "success";
+      notifySuccess(`Imagem '${builtImage}' construída com sucesso!`);
     } else {
       errorMsg = result.message || "Build falhou";
       status = "error";
+      notifyError(
+        errorMsg || "Falha na construção da imagem. Verifique os logs.",
+      );
     }
   },
 };
