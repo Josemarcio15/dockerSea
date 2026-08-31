@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
   import { useRefreshKey } from "$shared/stores/refresh.svelte";
-  import * as ExtraService from "../../../bindings/go-walis/internal/extras/extraservice.js";
+  import * as ExtraService from "$bindings/extras/extraservice.js";
 
   let { activeVps }: { activeVps: any } = $props();
   let rows = $state<any[]>([]);

@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 
 	"go-walis/internal/core/connection"
 )
@@ -38,21 +39,30 @@ func ListContainers(client *connection.Client, all bool) ([]Container, error) {
 		return nil, fmt.Errorf("falha ao decodificar lista de containers: %w", err)
 	}
 
-	result := make([]Container, 0, len(rawList))
-	for _, raw := range rawList {
-		c := normalizeContainer(raw)
+	result := make([]Container, len(rawList))
+	var wg sync.WaitGroup
 
-		// Buscar variáveis de ambiente e restart policy detalhados via inspect
-		if inspect, err := InspectContainer(client, raw.ID); err == nil && inspect != nil {
-			c.Env = inspect.Config.Env
-			if inspect.HostConfig.RestartPolicy.Name != "" {
-				c.RestartPolicy = inspect.HostConfig.RestartPolicy.Name
-			}
+	for i, raw := range rawList {
+		result[i] = normalizeContainer(raw)
+
+		// Se o /containers/json não preencheu RestartPolicy, busca em paralelo com goroutine
+		if result[i].RestartPolicy == "" {
+			wg.Add(1)
+			go func(idx int, cID string) {
+				defer wg.Done()
+				if inspect, err := InspectContainer(client, cID); err == nil && inspect != nil {
+					if inspect.HostConfig.RestartPolicy.Name != "" {
+						result[idx].RestartPolicy = inspect.HostConfig.RestartPolicy.Name
+					}
+					if len(inspect.Config.Env) > 0 {
+						result[idx].Env = inspect.Config.Env
+					}
+				}
+			}(i, raw.ID)
 		}
-
-		result = append(result, c)
 	}
 
+	wg.Wait()
 	return result, nil
 }
 

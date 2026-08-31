@@ -9,6 +9,7 @@ import type { VpsServer, ImageHistoryItem } from "./api";
 import { type DockerImage, filterImages } from "$lib/domains/images";
 import { Events } from "@wailsio/runtime";
 import { EVENTS } from "$shared/events";
+import { getCached, setCached } from "$shared/stores/swr-cache";
 import * as pageApi from "./api";
 
 export function createImagesStore(
@@ -115,16 +116,28 @@ export function createImagesStore(
       loading = false;
       return;
     }
-    if (!silent) {
+
+    const cacheKey = `images:${server.id}`;
+    const cachedData = getCached<DockerImage[]>(cacheKey);
+
+    // Se temos dados em cache, renderizamos instantaneamente (0ms de espera)
+    if (cachedData && cachedData.length >= 0) {
+      images = cachedData;
+      loading = false;
+      silent = true; // Revalida em background sem exibir spinner
+    } else if (!silent) {
       loading = true;
     }
+
     fetchError = "";
     try {
       const list = await pageApi.list(server);
-      images = list || [];
+      const freshData = list || [];
+      images = freshData;
+      setCached(cacheKey, freshData);
     } catch (e: any) {
       fetchError = e.message || String(e);
-      if (!silent) {
+      if (!cachedData && !silent) {
         images = [];
       }
     } finally {

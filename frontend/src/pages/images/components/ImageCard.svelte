@@ -220,10 +220,9 @@
   {/if}
 
   <!-- Ação Sempre Visível (mesmo recolhido) -->
-  <div class="pt-1 border-t border-slate-100 dark:border-slate-800/60">
+  <div class="pt-1.5 border-t border-slate-100 dark:border-slate-800/60 flex justify-center">
     <ButtonBlue
       size="xs"
-      class="w-full justify-center"
       onclick={on_build}
     >
       {t("images.btn_build_container")}

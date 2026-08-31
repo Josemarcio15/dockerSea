@@ -3,6 +3,7 @@ import { triggerRefresh } from "$shared/stores/refresh.svelte";
 import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
 import type { VpsServer } from "./api";
 import type { DockerVolume } from "./types";
+import { getCached, setCached } from "$shared/stores/swr-cache";
 import { filterVolumeList } from "./service";
 import { listVolumes, createVolume, removeVolumes, pruneVolumes } from "./api";
 
@@ -30,16 +31,28 @@ export function createVolumesStore(getServer: () => VpsServer | undefined) {
       loading = false;
       return;
     }
-    if (!silent) {
+
+    const cacheKey = `volumes:${server.id}`;
+    const cachedData = getCached<DockerVolume[]>(cacheKey);
+
+    // Se temos dados em cache, renderizamos instantaneamente (0ms de espera)
+    if (cachedData && cachedData.length >= 0) {
+      volumes = cachedData;
+      loading = false;
+      silent = true; // Revalida em background sem travar com loading spinner
+    } else if (!silent) {
       loading = true;
     }
+
     fetchError = "";
     try {
       const list = await listVolumes(server);
-      volumes = list || [];
+      const freshData = list || [];
+      volumes = freshData;
+      setCached(cacheKey, freshData);
     } catch (e: any) {
       fetchError = e.message || String(e);
-      if (!silent) {
+      if (!cachedData && !silent) {
         volumes = [];
       }
     } finally {
@@ -154,12 +167,12 @@ export function createVolumesStore(getServer: () => VpsServer | undefined) {
     if (!server) return;
 
     showPruneModal = false;
-    notifySuccess(t("volumes.prune_confirm_msg"));
 
     try {
       const res = await pruneVolumes(server);
       if (res.success) {
-        notifySuccess(res.message);
+        notifySuccess(res.message || "Volumes não utilizados removidos com sucesso!");
+        await fetchAll(true);
       } else {
         notifyError(res.message || "Erro ao limpar volumes");
       }

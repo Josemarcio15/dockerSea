@@ -34,6 +34,9 @@
   },
   "containers": {
     "status_stop": "Stopped",
+    "status_start": "Starting {name}...",
+    "status_restart": "Restarting {name}...",
+    "status_rm": "Removing {name}...",
     "title": "Containers",
     "start": "Start",
     "stop": "Stop",
@@ -102,7 +105,7 @@
     "filter_all": "All ({count})",
     "filter_in_use": "🟢 In Use ({count})",
     "filter_unused": "⚪ Unused ({count})",
-    "filter_dangling": "⚠️ Dangling ({count})",
+    "filter_dangling": "🟡 Dangling ({count})",
     "status_in_use": "In use",
     "status_unused": "Unused",
     "status_dangling": "Dangling",
@@ -434,7 +437,8 @@
     "delete_success": "{count} volume(s) successfully removed!",
     "delete_error": "Error removing {count} volume(s): {error}",
     "create_success": "Volume '{name}' created successfully!",
-    "create_error": "Error creating volume: {error}"
+    "create_error": "Error creating volume: {error}",
+    "no_labels": "No labels configured"
   },
   "networks": {
     "title": "Docker Networks",

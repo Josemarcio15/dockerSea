@@ -1,16 +1,18 @@
-# Backlog arquitetural baseado em arquitetura.toml.
-# Organizado por lotes de execução e dependência.
-# A revisão de tipos any foi deliberadamente excluída.
-
-[meta]
-ignore = ["any"]
-project = "DockSea"
-scope = "arquitetura e separação de responsabilidades"
-source = "arquitetura.toml"
-
-[status]
-backend_domain_structure = "in_progress"
-documentation = "completed"
-frontend_page_structure = "completed"
-shared_infrastructure = "completed"
-tests = "completed"
+di = """
+src/
+├── lib/
+│   ├── domains/               # Regras e serviços por domínio (Containers, Images, Volumes, etc.)
+│   │   ├── containers/
+│   │   ├── images/
+│   │   └── ...
+│   └── shared/                # TUDO que é compartilhado
+│       ├── components/        # Componentes UI reutilizáveis (buttons, modals, etc.)
+│       ├── locales/           # pt-BR.json, en-US.json
+│       ├── navigation/        # Controle de rotas e navegação
+│       ├── session/           # Estado da sessão ativa (VPS, Profile)
+│       ├── stores/            # Stores globais (locale, notifications, refresh, SWR)
+│       └── events.ts          # Tópicos de eventos globais
+├── pages/
+├── App.svelte
+└── main.ts
+"""

@@ -1,5 +1,5 @@
-import * as ProfileService from "../../bindings/go-walis/internal/profiles/service.js";
-import * as ServerService from "../../bindings/go-walis/internal/servers/service.js";
+import * as ProfileService from "$bindings/profiles/service.js";
+import * as ServerService from "$bindings/servers/service.js";
 import type { SessionState } from "./session.types";
 
 export const session = $state<SessionState>({

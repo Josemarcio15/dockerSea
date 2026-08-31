@@ -10,6 +10,7 @@ import {
   stopStackUseCase,
   getStackLogsUseCase,
 } from "./api";
+import { getCached, setCached } from "$shared/stores/swr-cache";
 import { filterStacks } from "./service";
 import type { ServerCapabilities, StackItem } from "./api";
 import { browse } from "./api";
@@ -31,11 +32,22 @@ export function createStacksStore(getData: () => any) {
   }
 
   async function load() {
-    loading = true;
+    const data = getData();
+    const profileId = data?.activeProfile?.id || "default";
+    const cacheKey = `stacks:${profileId}`;
+    const cachedData = getCached<StackItem[]>(cacheKey);
+
+    if (cachedData && cachedData.length >= 0) {
+      stacks = cachedData;
+      loading = false;
+    } else {
+      loading = true;
+    }
+
     try {
-      const data = getData();
-      const profileId = data?.activeProfile?.id || "default";
-      stacks = (await listStacksUseCase(profileId)) || [];
+      const freshStacks = (await listStacksUseCase(profileId)) || [];
+      stacks = freshStacks;
+      setCached(cacheKey, freshStacks);
       capabilities = data?.activeVps
         ? await getServerCapabilitiesUseCase(profileId)
         : null;

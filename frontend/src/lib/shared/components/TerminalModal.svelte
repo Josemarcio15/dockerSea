@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getLocale, t } from "$shared/stores/locale.svelte";
   import { ButtonOrange } from "$shared/components/buttons";
+  import TerminalLogsView from "$shared/components/TerminalLogsView.svelte";
   import { tick } from "svelte";
 
   interface LayerProgress {
@@ -122,23 +123,36 @@
         continue;
       }
 
-      let colorClass = "text-green-400";
+      let colorClass = "text-slate-300";
+      const upper = trimmed.toUpperCase();
       if (
-        trimmed.includes("complete") ||
-        trimmed.includes("Sucesso") ||
-        trimmed.includes("Ok") ||
-        trimmed.includes("Downloaded")
+        upper.includes("FATAL") ||
+        upper.includes("ERROR") ||
+        upper.includes("ERRO") ||
+        upper.includes("FAIL") ||
+        upper.includes("PANIC") ||
+        upper.includes("❌")
       ) {
-        colorClass = "text-emerald-400";
+        colorClass = "text-red-400 font-semibold";
       } else if (
-        trimmed.includes("Erro") ||
-        trimmed.includes("Error") ||
-        trimmed.includes("❌")
+        upper.includes("WARN") ||
+        upper.includes("WARNING") ||
+        upper.includes("DETAIL:")
       ) {
-        colorClass = "text-red-400";
+        colorClass = "text-amber-300";
+      } else if (
+        upper.includes("READY TO ACCEPT CONNECTIONS") ||
+        upper.includes("COMPLETE") ||
+        upper.includes("SUCCESS") ||
+        upper.includes("SUCESSO") ||
+        upper.includes("OK")
+      ) {
+        colorClass = "text-emerald-400 font-medium";
+      } else if (upper.includes("LOG:") || upper.includes("INFO")) {
+        colorClass = "text-sky-300";
       }
 
-      filtered_lines.push({ line, colorClass });
+      filtered_lines.push({ line: trimmed, colorClass });
     }
 
     return { layers_order, layers_map, filtered_lines, has_layers };
@@ -299,13 +313,10 @@
           {/if}
 
           <!-- Terminal Logs block -->
-          <pre
+          <TerminalLogsView
+            logs={parsedData.filtered_lines.map((i) => i.line)}
             id={console_id}
-            class="bg-[#020817] text-green-400 p-4 rounded-xl text-xs font-mono overflow-auto whitespace-pre-wrap max-h-[50vh] flex-1 shadow-inner border border-slate-950">
-                        {#each parsedData.filtered_lines as item}
-              <div class={item.colorClass}>→ {item.line}</div>
-            {/each}
-                    </pre>
+          />
         {/if}
       </div>
 

@@ -169,3 +169,14 @@ func (s *ContainerService) GetLogs(server db.VpsServer, containerName string, ta
 
 	return GetContainerLogs(client, containerName, tail)
 }
+
+// InspectContainer obtém detalhes completos sob demanda de um container específico
+func (s *ContainerService) InspectContainer(server db.VpsServer, id string) (*RawDockerInspect, error) {
+	client, err := sharedDocker.NewClient(server)
+	if err != nil {
+		return nil, fmt.Errorf("falha ao conectar no servidor: %w", err)
+	}
+	defer client.Close()
+
+	return InspectContainer(client, id)
+}

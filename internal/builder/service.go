@@ -158,6 +158,9 @@ func (s *Service) Build(folderPath, projectName, locale string) error {
 	// Executa o build de forma assíncrona para streaming fluido
 	go func() {
 		ctx := context.Background()
+		emitStarted := func() {
+			emit("builder:started", map[string]interface{}{"projectName": tag})
+		}
 		emitProgress := func(line string) {
 			emit("builder:progress", map[string]interface{}{"line": line})
 		}
@@ -165,13 +168,12 @@ func (s *Service) Build(folderPath, projectName, locale string) error {
 			result := map[string]interface{}{
 				"success": success,
 				"image":   tag,
-			}
-			if msg != "" {
-				result["message"] = msg
+				"message": msg,
 			}
 			emit("builder:complete", result)
 		}
 
+		emitStarted()
 		emitProgress("→ [PREPARING] Conectando à VPS remota...")
 		client, err := sharedDocker.NewClient(*srv)
 		if err != nil {
@@ -280,15 +282,10 @@ func ignoredFiles(folderPath string) []string {
 		for _, p := range patterns {
 			if stacks.IsIgnoredPath(rel, p) {
 				if info.IsDir() {
-					// Diretórios ignorados são apresentados uma única vez,
-					// evitando uma lista enorme com todos os seus arquivos.
-					if strings.HasSuffix(strings.TrimSpace(p), "/") || strings.Contains(strings.TrimSpace(p), "/") {
-						files = append(files, filepath.ToSlash(rel)+"/")
-						return filepath.SkipDir
-					}
-				} else {
-					files = append(files, filepath.ToSlash(rel))
+					files = append(files, filepath.ToSlash(rel)+"/")
+					return filepath.SkipDir
 				}
+				files = append(files, filepath.ToSlash(rel))
 				return nil
 			}
 		}

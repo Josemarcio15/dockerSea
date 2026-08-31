@@ -20,6 +20,9 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
+//go:embed build/appicon.png
+var appIcon []byte
+
 //go:embed all:frontend/dist
 var assets embed.FS
 
@@ -45,6 +48,10 @@ func main() {
 	app := application.New(application.Options{
 		Name:        "DockSea",
 		Description: "DockSea Container Manager",
+		Icon:        appIcon,
+		Linux: application.LinuxOptions{
+			ProgramName: "DockSea",
+		},
 		Services: []application.Service{
 			application.NewService(builderService),
 			application.NewService(dashboardService),

@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"sync"
 	"time"
 
 	"go-walis/internal/core/db"
@@ -18,12 +17,14 @@ type Client struct {
 	server     db.VpsServer
 	sshClient  *ssh.Client
 	httpClient *http.Client
-	mu         sync.Mutex
+	lastPing   time.Time
+	startedAt  time.Time
 }
 
 // NewClient instancia um novo cliente de conexão
 func NewClient(server db.VpsServer) (*Client, error) {
-	c := &Client{server: server}
+	now := time.Now()
+	c := &Client{server: server, lastPing: now, startedAt: now}
 
 	if isLocal(server) {
 		socketPath := server.DockerSocketPath
@@ -38,6 +39,7 @@ func NewClient(server db.VpsServer) (*Client, error) {
 			},
 			Timeout: 30 * time.Second,
 		}
+		LogConnectionStarted(server, now)
 		return c, nil
 	}
 
@@ -62,6 +64,7 @@ func NewClient(server db.VpsServer) (*Client, error) {
 		Timeout: 30 * time.Second,
 	}
 
+	LogConnectionStarted(server, now)
 	return c, nil
 }
 
@@ -107,7 +110,7 @@ func (c *Client) GetStreamHttpClient() *http.Client {
 	}
 }
 
-// IsAlive verifica se a conexão ainda está saudável
+// IsAlive verifica se a conexão ainda está saudável (com cache de 10s para evitar RTT excessivo)
 func (c *Client) IsAlive() bool {
 	if isLocal(c.server) {
 		socketPath := c.server.DockerSocketPath
@@ -121,16 +124,30 @@ func (c *Client) IsAlive() bool {
 	if c.sshClient == nil {
 		return false
 	}
+
+	// Se testou a menos de 10 segundos, assume saudável
+	if time.Since(c.lastPing) < 10*time.Second {
+		return true
+	}
+
 	_, _, err := c.sshClient.SendRequest("keepalive@openssh.com", true, nil)
-	return err == nil
+	if err == nil {
+		c.lastPing = time.Now()
+		return true
+	}
+	return false
 }
 
-// Close encerra as conexões ativas
+// Close é um no-op para conexões gerenciadas pelo pool (para manter a conexão aberta entre requisições)
 func (c *Client) Close() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	// Mantido aberto para reúso no pool
+}
+
+// ForceClose encerra definitivamente a conexão SSH ativa
+func (c *Client) ForceClose() {
 	if c.sshClient != nil {
 		_ = c.sshClient.Close()
 		c.sshClient = nil
 	}
+	LogConnectionClosed(c.server, c.startedAt, time.Now())
 }

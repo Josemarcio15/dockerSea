@@ -1,5 +1,5 @@
-import ptBR from "$lib/locales/pt-BR.json";
-import enUS from "$lib/locales/en-US.json";
+import ptBR from "$shared/locales/pt-BR.json";
+import enUS from "$shared/locales/en-US.json";
 
 const translations: Record<string, any> = {
   "pt-BR": ptBR,

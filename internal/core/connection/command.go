@@ -7,6 +7,7 @@ import (
 	"io"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
 // ExecCommand executa um comando no servidor (com ou sem elevação sudo inteligente)
@@ -45,13 +46,17 @@ func (c *Client) StartCommandOutput(ctx context.Context, cmd string, useSudo boo
 		if err != nil {
 			return nil, nil, fmt.Errorf("falha ao abrir stdout pipe local: %w", err)
 		}
+		stderr, err := cmdObj.StderrPipe()
+		if err != nil {
+			return nil, nil, fmt.Errorf("falha ao abrir stderr pipe local: %w", err)
+		}
 		if err := cmdObj.Start(); err != nil {
 			return nil, nil, fmt.Errorf("falha ao iniciar comando local: %w", err)
 		}
 		waitFn := func() error {
 			return cmdObj.Wait()
 		}
-		return stdout, waitFn, nil
+		return io.MultiReader(stdout, stderr), waitFn, nil
 	}
 
 	if c.sshClient == nil {
@@ -63,32 +68,53 @@ func (c *Client) StartCommandOutput(ctx context.Context, cmd string, useSudo boo
 		return nil, nil, fmt.Errorf("falha ao criar sessão SSH: %w", err)
 	}
 
-	var stderrBuf bytes.Buffer
-	session.Stderr = &stderrBuf
-
 	stdout, err := session.StdoutPipe()
 	if err != nil {
 		_ = session.Close()
 		return nil, nil, fmt.Errorf("falha ao abrir stdout pipe SSH: %w", err)
 	}
 
+	stderr, err := session.StderrPipe()
+	if err != nil {
+		_ = session.Close()
+		return nil, nil, fmt.Errorf("falha ao abrir stderr pipe SSH: %w", err)
+	}
+
+	// Cria um pipe síncrono para fazer o merge concorrente de stdout e stderr sem deadlock
+	pr, pw := io.Pipe()
+
 	if err := session.Start(finalCmd); err != nil {
 		_ = session.Close()
+		_ = pr.Close()
+		_ = pw.Close()
 		return nil, nil, fmt.Errorf("falha ao iniciar comando SSH: %w", err)
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		_, _ = io.Copy(pw, stdout)
+	}()
+
+	go func() {
+		defer wg.Done()
+		_, _ = io.Copy(pw, stderr)
+	}()
+
+	go func() {
+		wg.Wait()
+		_ = pw.Close()
+	}()
+
 	waitFn := func() error {
 		defer session.Close()
-		if err := session.Wait(); err != nil {
-			if stderrBuf.Len() > 0 {
-				return fmt.Errorf("%w: %s", err, stderrBuf.String())
-			}
-			return err
-		}
-		return nil
+		defer pr.Close()
+		return session.Wait()
 	}
 
-	return stdout, waitFn, nil
+	return pr, waitFn, nil
 }
 
 // StartCommandInput inicia um comando e retorna seu stdin como io.WriteCloser para recepção de dados via streaming
@@ -154,10 +180,10 @@ func (c *Client) buildFinalCmd(cmd string, useSudo bool) string {
 		if username == "root" {
 			finalCmd = cmd
 		} else if strings.TrimSpace(c.server.SudoPassword) != "" {
-			finalCmd = fmt.Sprintf("echo %s | sudo -S -p '' %s", escapeShell(c.server.SudoPassword), cmd)
+			finalCmd = fmt.Sprintf("echo %s | sudo -S -p '' bash -c %s", escapeShell(c.server.SudoPassword), escapeShell(cmd))
 		} else {
 			if !strings.HasPrefix(cmd, "sudo ") {
-				finalCmd = fmt.Sprintf("sudo -n %s", cmd)
+				finalCmd = fmt.Sprintf("sudo -n bash -c %s", escapeShell(cmd))
 			}
 		}
 	}

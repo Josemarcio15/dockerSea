@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Modal from "$shared/components/Modal.svelte";
+  import FormModal from "$shared/components/FormModal.svelte";
 
   let {
     show = $bindable(false),
@@ -22,7 +22,7 @@
   } = $props();
 </script>
 
-<Modal bind:show {title}>
+<FormModal bind:show {title}>
   {#if loading}
     <div class="py-8 flex flex-col items-center justify-center space-y-3">
       <div
@@ -96,4 +96,4 @@
       </div>
     </div>
   {/if}
-</Modal>
+</FormModal>

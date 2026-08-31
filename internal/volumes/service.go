@@ -122,15 +122,50 @@ func (s *VolumeService) PruneVolumes(server db.VpsServer) VolumeActionResult {
 	}
 	defer client.Close()
 
+	// 1. Tenta o prune nativo do Docker Engine
 	res, err := PruneVolumes(client)
-	if err != nil {
+	count := 0
+	if err == nil && res != nil {
+		count = len(res.VolumesDeleted)
+	}
+
+	// 2. Se o prune da API retornou 0 (comum em drivers customizados ou volumes anônimos/locais),
+	// varre a lista de volumes e remove os que comprovadamente não estão em uso (inUse == false)
+	if count == 0 {
+		allVolumes, errList := ListVolumes(client)
+		if errList == nil {
+			var unusedNames []string
+			for _, v := range allVolumes {
+				if !v.InUse && v.Name != "" {
+					unusedNames = append(unusedNames, v.Name)
+				}
+			}
+
+			if len(unusedNames) > 0 {
+				deletedDirectly := 0
+				for _, uName := range unusedNames {
+					if errRem := RemoveVolume(client, uName, true); errRem == nil {
+						deletedDirectly++
+					}
+				}
+				if deletedDirectly > 0 {
+					return VolumeActionResult{
+						Success: true,
+						Message: fmt.Sprintf("%d volume(s) não utilizados removidos!", deletedDirectly),
+						Count:   deletedDirectly,
+					}
+				}
+			}
+		}
+	}
+
+	if err != nil && count == 0 {
 		return VolumeActionResult{
 			Success: false,
 			Message: fmt.Sprintf("Erro ao limpar volumes: %v", err),
 		}
 	}
 
-	count := len(res.VolumesDeleted)
 	return VolumeActionResult{
 		Success: true,
 		Message: fmt.Sprintf("%d volume(s) não utilizados removidos!", count),

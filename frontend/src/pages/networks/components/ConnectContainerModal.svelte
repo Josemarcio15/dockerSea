@@ -1,6 +1,6 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
-  import Modal from "$shared/components/Modal.svelte";
+  import FormModal from "$shared/components/FormModal.svelte";
   import type { Container } from "$lib/domains/containers";
 
   let {
@@ -18,7 +18,7 @@
   } = $props();
 </script>
 
-<Modal
+<FormModal
   bind:show
   title={t("networks.connect_modal_title")}
   buttons={[
@@ -58,11 +58,11 @@
     >
       {#each containers as container}
         <option value={container.name}>
-          {container.name} ({container.image})
+          {container.name}
         </option>
       {:else}
         <option value="" disabled>{t("networks.no_active_containers")}</option>
       {/each}
     </select>
   </div>
-</Modal>
+</FormModal>

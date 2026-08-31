@@ -7,7 +7,7 @@
   import { builderStore as store } from "./store.svelte";
   import FolderBrowser from "./components/FolderBrowser.svelte";
   import BuildControls from "./components/BuildControls.svelte";
-  import BuildLogs from "./components/BuildLogs.svelte";
+  import TaskProgressModal from "$shared/components/TaskProgressModal.svelte";
 
   let { data } = $props();
 
@@ -38,7 +38,7 @@
 {#if !data.activeVps}
   <VpsSelectWarning />
 {:else}
-  <div class="space-y-6">
+  <div class="space-y-6 max-w-4xl mx-auto">
     <div
       class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
     >
@@ -55,12 +55,18 @@
 
     <StatusBanner />
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="space-y-4">
-        <FolderBrowser {store} />
-        <BuildControls {store} {goToImages} />
-      </div>
-      <BuildLogs logs={store.logs} status={store.status} />
+    <div class="space-y-4">
+      <FolderBrowser {store} />
+      <BuildControls {store} {goToImages} />
     </div>
   </div>
+
+  <TaskProgressModal
+    bind:show={store.showProgressModal}
+    title={`Build de Imagem: ${store.effectiveTag}`}
+    eventPrefix="builder"
+    oncomplete={() => {
+      store.completeBuild({ success: true, image: store.effectiveTag });
+    }}
+  />
 {/if}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
-  import Modal from "$shared/components/Modal.svelte";
+  import FormModal from "$shared/components/FormModal.svelte";
 
   let {
     show = $bindable(false),
@@ -19,7 +19,7 @@
   } = $props();
 </script>
 
-<Modal
+<FormModal
   bind:show
   title={t("networks.create_title")}
   buttons={[
@@ -97,4 +97,4 @@
       bind:value={gateway}
     />
   </div>
-</Modal>
+</FormModal>

@@ -19,10 +19,59 @@ release: "1"
 contents:
   - src: "./bin/DockSea"
     dst: "/usr/local/bin/DockSea"
+    file_info:
+      mode: 0755
+  # Ícones padrão DockSea
+  - src: "./build/appicon.png"
+    dst: "/usr/share/icons/hicolor/512x512/apps/DockSea.png"
+    file_info:
+      mode: 0644
+  - src: "./build/appicon.png"
+    dst: "/usr/share/icons/hicolor/256x256/apps/DockSea.png"
+    file_info:
+      mode: 0644
   - src: "./build/appicon.png"
     dst: "/usr/share/icons/hicolor/128x128/apps/DockSea.png"
+    file_info:
+      mode: 0644
+  - src: "./build/appicon.png"
+    dst: "/usr/share/icons/hicolor/512x512/apps/docksea.png"
+    file_info:
+      mode: 0644
+  - src: "./build/appicon.png"
+    dst: "/usr/share/icons/hicolor/256x256/apps/docksea.png"
+    file_info:
+      mode: 0644
+  - src: "./build/appicon.png"
+    dst: "/usr/share/pixmaps/DockSea.png"
+    file_info:
+      mode: 0644
+  - src: "./build/appicon.png"
+    dst: "/usr/share/pixmaps/docksea.png"
+    file_info:
+      mode: 0644
+  # Ícones com App ID (com.samabe.docksea)
+  - src: "./build/appicon.png"
+    dst: "/usr/share/icons/hicolor/512x512/apps/com.samabe.docksea.png"
+    file_info:
+      mode: 0644
+  - src: "./build/appicon.png"
+    dst: "/usr/share/icons/hicolor/256x256/apps/com.samabe.docksea.png"
+    file_info:
+      mode: 0644
+  - src: "./build/appicon.png"
+    dst: "/usr/share/pixmaps/com.samabe.docksea.png"
+    file_info:
+      mode: 0644
+  # Desktop files
   - src: "./build/linux/DockSea.desktop"
     dst: "/usr/share/applications/DockSea.desktop"
+    file_info:
+      mode: 0644
+  - src: "./build/linux/com.samabe.docksea.desktop"
+    dst: "/usr/share/applications/com.samabe.docksea.desktop"
+    file_info:
+      mode: 0644
 
 # Default dependencies for the GTK4 + WebKitGTK 6.0 stack (Ubuntu 24.04+ / Debian 13+)
 depends:

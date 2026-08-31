@@ -34,6 +34,7 @@ func (s *Service) SaveServer(server db.VpsServer) error {
 	if message := ValidateServer(server); message != "" {
 		return fmt.Errorf("%s", message)
 	}
+	sharedDocker.CloseClient(server.ID)
 	return s.repository.SaveServer(server)
 }
 
@@ -41,6 +42,7 @@ func (s *Service) DeleteServer(id string) error {
 	if id == "" {
 		return fmt.Errorf("id inválido")
 	}
+	sharedDocker.CloseClient(id)
 	return s.repository.DeleteServer(id)
 }
 

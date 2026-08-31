@@ -1,8 +1,8 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
-  import Modal from "$shared/components/Modal.svelte";
+  import FormModal from "$shared/components/FormModal.svelte";
   import TerminalModal from "$shared/components/TerminalModal.svelte";
-  import PullProgressModal from "$shared/components/PullProgressModal.svelte";
+  import TaskProgressModal from "$shared/components/TaskProgressModal.svelte";
   import ConfirmDialog from "$shared/components/ConfirmDialog.svelte";
   import StackEditorModal from "./StackEditorModal.svelte";
   import StackFolderBrowserModal from "./StackFolderBrowserModal.svelte";
@@ -135,7 +135,7 @@
   onConfirm={onConfirmRemoveRemote}
 />
 
-<Modal
+<FormModal
   bind:show={showDeleteLocalModal}
   title={t("stacks.delete_local_btn")}
   buttons={[
@@ -150,7 +150,7 @@
       {t("stacks.delete_local_desc")}
     </p>
   </div>
-</Modal>
+</FormModal>
 
 <TerminalModal
   bind:show={showLogsTerminal}
@@ -160,7 +160,7 @@
   console_id="stack-logs-terminal"
 />
 
-<PullProgressModal
+<TaskProgressModal
   bind:show={showDeployModal}
   eventPrefix="stacks:deploy"
   title={deployTitle}

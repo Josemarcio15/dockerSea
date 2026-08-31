@@ -7,7 +7,7 @@
   import StatusBanner from "$shared/components/StatusBanner.svelte";
   import TerminalModal from "$shared/components/TerminalModal.svelte";
   import ConfigModal from "$shared/components/ConfigModal.svelte";
-  import PullProgressModal from "$shared/components/PullProgressModal.svelte";
+  import TaskProgressModal from "$shared/components/TaskProgressModal.svelte";
   import VpsSelectWarning from "$shared/components/VpsSelectWarning.svelte";
 
   import ImageToolbar from "./components/ImageToolbar.svelte";
@@ -570,9 +570,10 @@
 />
 
 <!-- Pull Progress modal -->
-<PullProgressModal
+<TaskProgressModal
   bind:show={imgState.showPullProgress}
-  imageName={imgState.pullImageTargetName}
+  title={imgState.pullImageTargetName ? `Download de Imagem: ${imgState.pullImageTargetName}` : "Download de Imagem"}
+  eventPrefix="docker:image:pull"
   oncomplete={async () => {
     notifySuccess("Processo de download finalizado!");
     await imgState.fetchImages(true);

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Modal from "$shared/components/Modal.svelte";
+  import FormModal from "$shared/components/FormModal.svelte";
   import Input from "$shared/components/Input.svelte";
   import { ButtonYellow, ButtonPink } from "$shared/components/buttons";
   import { t } from "$shared/stores/locale.svelte";
@@ -130,9 +130,9 @@
   }
 </script>
 
-<Modal
+<FormModal
   bind:show
-  title={form.id ? t("config.edit_title") : t("config.new_title")}
+  title={form.id ? t("servers.modal_edit_title") : t("servers.modal_new_title")}
   buttons={[
     {
       label: t("config.test_conn_btn"),
@@ -532,4 +532,4 @@
       {/if}
     </div>
   {/if}
-</Modal>
+</FormModal>

@@ -7,11 +7,13 @@
     content = $bindable(),
     tab,
     editorKey,
+    loading = false,
   }: {
     site: string;
     content: string;
     tab: string;
     editorKey: number;
+    loading?: boolean;
   } = $props();
 </script>
 
@@ -40,10 +42,21 @@
       class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
       >{t("extras.site_content_label")}</label
     >
-    {#key editorKey}<CodeEditor
-        value={content}
-        mode="nginx"
-        onchange={(value) => (content = value)}
-      />{/key}
+    {#if loading}
+      <div
+        class="h-[320px] w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c101b]/50 flex flex-col items-center justify-center gap-3 text-slate-400"
+      >
+        <div class="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-xs font-mono">Carregando {site || "arquivo"}...</span>
+      </div>
+    {:else}
+      {#key editorKey}
+        <CodeEditor
+          value={content}
+          mode="nginx"
+          onchange={(value) => (content = value)}
+        />
+      {/key}
+    {/if}
   </div>
 </div>

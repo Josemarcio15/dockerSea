@@ -15,7 +15,7 @@ export interface ContainersStore {
   readonly logsTitle: string;
   readonly logsLoading: boolean;
   readonly logsContent: string[];
-  fetchAll(silent?: boolean): Promise<void>;
+  fetchAll(silent?: boolean, forceRefresh?: boolean): Promise<void>;
   toggleAll(): void;
   handleToggleSelect(name: string): void;
   doActionSelected(action: ContainerActionType): Promise<void>;

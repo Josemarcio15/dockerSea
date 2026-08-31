@@ -8,6 +8,7 @@ import {
 import type { VpsServer } from "./api";
 import { api } from "./api";
 import { filterContainers } from "./service";
+import { getCached, setCached } from "$shared/stores/swr-cache";
 import type { Container, ContainerActionType, ContainersStore } from "./types";
 
 export function createContainersStore(
@@ -24,19 +25,33 @@ export function createContainersStore(
   let logsContent = $state<string[]>([]);
   let filteredContainers = $derived(filterContainers(containers, searchQuery));
 
-  async function fetchAll(silent = false) {
+  async function fetchAll(silent = false, forceRefresh = false) {
     const server = getServer();
     if (!server) {
       loading = false;
       return;
     }
-    if (!silent) loading = true;
+
+    const cacheKey = `containers:${server.id}`;
+    const cachedData = forceRefresh ? undefined : getCached<Container[]>(cacheKey);
+
+    // Se temos dados em cache e não é um refresh forçado, renderizamos instantaneamente (0ms)
+    if (cachedData && cachedData.length >= 0) {
+      containers = cachedData;
+      loading = false;
+      silent = true; // Busca em background sem travar o layout com spinner
+    } else if (!silent) {
+      loading = true;
+    }
+
     fetchError = "";
     try {
-      containers = (await api.list(server)) || [];
+      const freshData = (await api.list(server)) || [];
+      containers = freshData;
+      setCached(cacheKey, freshData);
     } catch (error: any) {
       fetchError = error.message || String(error);
-      if (!silent) containers = [];
+      if (!cachedData && !silent) containers = [];
     } finally {
       loading = false;
     }

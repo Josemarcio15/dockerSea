@@ -22,8 +22,15 @@ let builtImage = $state("");
 let errorMsg = $state("");
 let savedPaths = $state<string[]>([]);
 let customTag = $state("");
+let showProgressModal = $state(false);
 
-export const builderStore: BuilderStore = {
+export const builderStore: BuilderStore & { showProgressModal: boolean } = {
+  get showProgressModal() {
+    return showProgressModal;
+  },
+  set showProgressModal(val: boolean) {
+    showProgressModal = val;
+  },
   get currentPath() {
     return currentPath;
   },
@@ -133,6 +140,7 @@ export const builderStore: BuilderStore = {
     logs = [];
     errorMsg = "";
     builtImage = "";
+    showProgressModal = true;
     try {
       await api.build(currentPath, this.effectiveTag, getLocale());
     } catch (error: any) {
@@ -143,7 +151,7 @@ export const builderStore: BuilderStore = {
   },
 
   appendLog(line: string) {
-    logs.push(line);
+    logs = [...logs, line];
   },
 
   completeBuild(result: BuildResult) {

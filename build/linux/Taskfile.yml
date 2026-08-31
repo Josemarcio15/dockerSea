@@ -166,17 +166,38 @@ tasks:
       - wails3 tool package -name "{{.APP_NAME}}" -format archlinux -config ./build/linux/nfpm/nfpm.yaml -out {{.ROOT_DIR}}/bin
 
   generate:dotdesktop:
-    summary: Generates a `.desktop` file
+    summary: Generates `.desktop` files
     dir: build
     cmds:
       - mkdir -p {{.ROOT_DIR}}/build/linux/appimage
-      - wails3 generate .desktop -name "{{.APP_NAME}}" -exec "{{.EXEC}}" -icon "{{.ICON}}" -outputfile "{{.ROOT_DIR}}/build/linux/{{.APP_NAME}}.desktop" -categories "{{.CATEGORIES}}"
+      - |
+        cat << 'EOF' > "{{.ROOT_DIR}}/build/linux/{{.APP_NAME}}.desktop"
+        [Desktop Entry]
+        Type=Application
+        Name={{.APP_NAME}}
+        Comment=DockSea Container Manager
+        Exec=/usr/local/bin/{{.APP_NAME}} %u
+        Icon=/usr/share/pixmaps/DockSea.png
+        Terminal=false
+        Categories=Development;Utility;
+        StartupWMClass={{.APP_NAME}}
+        StartupNotify=true
+        EOF
+      - |
+        cat << 'EOF' > "{{.ROOT_DIR}}/build/linux/com.samabe.docksea.desktop"
+        [Desktop Entry]
+        Type=Application
+        Name={{.APP_NAME}}
+        Comment=DockSea Container Manager
+        Exec=/usr/local/bin/{{.APP_NAME}} %u
+        Icon=/usr/share/pixmaps/com.samabe.docksea.png
+        Terminal=false
+        Categories=Development;Utility;
+        StartupWMClass=com.samabe.docksea
+        StartupNotify=true
+        EOF
     vars:
       APP_NAME: "{{.APP_NAME}}"
-      EXEC: "{{.APP_NAME}}"
-      ICON: "{{.APP_NAME}}"
-      CATEGORIES: "Development;"
-      OUTPUTFILE: "{{.ROOT_DIR}}/build/linux/{{.APP_NAME}}.desktop"
 
   run:
     cmds:

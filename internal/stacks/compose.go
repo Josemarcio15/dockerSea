@@ -65,9 +65,9 @@ type ComposeVolumeMount struct {
 
 // ComposeServiceConfig representa a estrutura de um serviço no output do compose config
 type ComposeServiceConfig struct {
-	Image       string               `json:"image,omitempty"`
-	Volumes     []ComposeVolumeMount `json:"volumes,omitempty"`
-	Environment map[string]*string   `json:"environment,omitempty"`
+	Image       string                 `json:"image,omitempty"`
+	Volumes     []interface{}          `json:"volumes,omitempty"`
+	Environment map[string]interface{} `json:"environment,omitempty"`
 }
 
 // ComposeNormalizedConfig representa a raiz do JSON retornado por `docker compose config --format json`
@@ -78,11 +78,19 @@ type ComposeNormalizedConfig struct {
 	Networks map[string]interface{}          `json:"networks,omitempty"`
 }
 
-// ParseComposeConfigOutput faz o parse do JSON do docker compose config retornado pela VPS
+// ParseComposeConfigOutput faz o parse do JSON do docker compose config retornado pela VPS.
+// Trata casos onde o Docker Compose imprime warnings antes do JSON (ex: 'time=...' ou 'warn...').
 func ParseComposeConfigOutput(jsonOutput string) (*ComposeNormalizedConfig, error) {
 	trimmed := strings.TrimSpace(jsonOutput)
 	if trimmed == "" {
 		return nil, fmt.Errorf("saída de configuração do compose está vazia")
+	}
+
+	// Localiza o início e fim do JSON válido no caso de warnings no stdout
+	startIdx := strings.Index(trimmed, "{")
+	endIdx := strings.LastIndex(trimmed, "}")
+	if startIdx != -1 && endIdx != -1 && endIdx >= startIdx {
+		trimmed = trimmed[startIdx : endIdx+1]
 	}
 
 	var config ComposeNormalizedConfig
@@ -103,9 +111,29 @@ func HasRuntimeBindDependency(config *ComposeNormalizedConfig, remoteDeployDir s
 	cleanDeployDir := filepath.Clean(remoteDeployDir)
 
 	for _, service := range config.Services {
-		for _, v := range service.Volumes {
-			if strings.EqualFold(v.Type, "bind") && v.Source != "" {
-				cleanSource := filepath.Clean(v.Source)
+		for _, rawVol := range service.Volumes {
+			var volType string
+			var volSource string
+
+			if volMap, ok := rawVol.(map[string]interface{}); ok {
+				if t, ok := volMap["type"].(string); ok {
+					volType = t
+				}
+				if s, ok := volMap["source"].(string); ok {
+					volSource = s
+				}
+			} else if volStr, ok := rawVol.(string); ok {
+				parts := strings.Split(volStr, ":")
+				if len(parts) >= 2 {
+					volSource = parts[0]
+					if strings.HasPrefix(volSource, ".") || strings.HasPrefix(volSource, "/") || strings.HasPrefix(volSource, "~") {
+						volType = "bind"
+					}
+				}
+			}
+
+			if strings.EqualFold(volType, "bind") && volSource != "" {
+				cleanSource := filepath.Clean(volSource)
 				// Verifica se cleanSource é o próprio deployDir ou está dentro dele
 				if cleanSource == cleanDeployDir || strings.HasPrefix(cleanSource, cleanDeployDir+"/") || strings.HasPrefix(cleanSource, cleanDeployDir+"\\") {
 					return true

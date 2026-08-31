@@ -9,7 +9,7 @@
   import NetworkCard from "./components/NetworkCard.svelte";
   import CreateNetworkModal from "./components/CreateNetworkModal.svelte";
   import ConnectContainerModal from "./components/ConnectContainerModal.svelte";
-  import PruneNetworksModal from "./components/PruneNetworksModal.svelte";
+  import ConfirmDialog from "$shared/components/ConfirmDialog.svelte";
   import { createNetworksStore } from "./store.svelte";
 
   let { data } = $props();
@@ -102,7 +102,11 @@
   onSubmit={netState.doConnect}
 />
 
-<PruneNetworksModal
+<ConfirmDialog
   bind:show={netState.showPruneModal}
+  title={t("networks.prune_confirm_title")}
+  message={t("networks.prune_confirm_msg")}
+  confirmText={t("common.confirm")}
+  type="danger"
   onConfirm={netState.doPrune}
 />

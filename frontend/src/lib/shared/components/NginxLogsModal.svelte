@@ -2,7 +2,7 @@
   import { untrack } from "svelte";
   import { ButtonPink } from "$shared/components/buttons";
   import { useRefreshKey } from "$shared/stores/refresh.svelte";
-  import * as ExtraService from "../../../bindings/go-walis/internal/extras/extraservice.js";
+  import * as ExtraService from "$bindings/extras/extraservice.js";
 
   let {
     show = $bindable(false),

@@ -17,7 +17,10 @@
     "baseUrl": ".",
     "paths": {
       "$lib/*": ["src/lib/*"],
-      "$shared/*": ["src/shared/*"]
+      "$shared/*": ["src/lib/shared/*"],
+      "$navigation/*": ["src/lib/shared/navigation/*"],
+      "$session/*": ["src/lib/shared/session/*"],
+      "$bindings/*": ["bindings/go-walis/internal/*"]
     },
     "noEmit": true
   },

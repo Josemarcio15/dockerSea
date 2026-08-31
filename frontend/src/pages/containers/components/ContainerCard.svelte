@@ -3,7 +3,7 @@
   import type { Container } from "$lib/domains/containers";
   import { statsState } from "$shared/stores/stats.svelte";
   import { ButtonPurple, ButtonCyan } from "$shared/components/buttons";
-  import Modal from "$shared/components/Modal.svelte";
+  import FormModal from "$shared/components/FormModal.svelte";
 
   let {
     container,
@@ -336,7 +336,7 @@
     </div>
   {/if}
 
-  <Modal bind:show={showEnv} cancelLabel={t("common.close")} title={`${t("containers.card_env_title")} — ${container.name}`}>
+  <FormModal bind:show={showEnv} cancelLabel={t("common.close")} title={`${t("containers.card_env_title")} — ${container.name}`}>
           {#if container.env?.length}
             <div class="grid grid-cols-[minmax(8rem,0.8fr)_minmax(0,2fr)] overflow-hidden rounded-xl border border-cyan-200 dark:border-cyan-900/50">
               <div class="bg-slate-100 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-900 dark:text-slate-400">{t("containers.card_env_key")}</div>
@@ -352,5 +352,5 @@
     {:else}
       <p class="text-sm text-slate-500">{t("containers.card_env_empty")}</p>
     {/if}
-  </Modal>
+  </FormModal>
 </div>

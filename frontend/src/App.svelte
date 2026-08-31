@@ -16,8 +16,8 @@
   import Config from "./pages/config/Page.svelte";
   import Extras from "./pages/extras/Page.svelte";
   import Profiles from "./pages/profiles/Page.svelte";
-  import { loadSession, session } from "./session/session.svelte";
-  import { navigation, navigate } from "./navigation/navigation.svelte";
+  import { loadSession, session } from "$session/session.svelte";
+  import { navigation, navigate } from "$navigation/navigation.svelte";
 
   let { data = {} }: { data?: any } = $props();
 

@@ -17,6 +17,7 @@ let error = $state("");
 let content = $state("");
 let editorKey = $state(0);
 let busy = $state<string | null>(null);
+let loadingFile = $state(false);
 
 export const extrasStore = {
   get activeVps() {
@@ -42,6 +43,9 @@ export const extrasStore = {
   },
   get loading() {
     return loading;
+  },
+  get loadingFile() {
+    return loadingFile;
   },
   get error() {
     return error;
@@ -92,13 +96,19 @@ export const extrasStore = {
   async open(filename: string) {
     if (!activeVps || !filename) return;
     site = filename;
+    content = ""; // Limpa imediatamente o conteúdo anterior da memória do editor
+    editorKey += 1;
+    loadingFile = true;
     try {
-      content = (await api.readNginxSite(activeVps, filename, activeTab)) || "";
+      const fetchedContent = (await api.readNginxSite(activeVps, filename, activeTab)) || "";
+      content = fetchedContent;
       editorKey += 1;
     } catch (cause: any) {
       notifyError(
         cause?.message || String(cause) || "Não foi possível abrir o arquivo.",
       );
+    } finally {
+      loadingFile = false;
     }
   },
 

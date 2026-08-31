@@ -34,6 +34,9 @@
   },
   "containers": {
     "status_stop": "Parado",
+    "status_start": "Iniciando {name}...",
+    "status_restart": "Reiniciando {name}...",
+    "status_rm": "Removendo {name}...",
     "title": "Containers",
     "start": "Iniciar",
     "stop": "Parar",
@@ -102,7 +105,7 @@
     "filter_all": "Todos ({count})",
     "filter_in_use": "🟢 Em Uso ({count})",
     "filter_unused": "⚪ Sem Uso ({count})",
-    "filter_dangling": "⚠️ Órfãs ({count})",
+    "filter_dangling": "🟡 Órfãs ({count})",
     "status_in_use": "Em uso",
     "status_unused": "Não utilizada",
     "status_dangling": "Órfã",
@@ -436,7 +439,8 @@
     "delete_success": "{count} volume(s) removido(s) com sucesso!",
     "delete_error": "Erro ao remover {count} volume(s): {error}",
     "create_success": "Volume '{name}' criado com sucesso!",
-    "create_error": "Erro ao criar volume: {error}"
+    "create_error": "Erro ao criar volume: {error}",
+    "no_labels": "Nenhuma label configurada"
   },
   "networks": {
     "title": "Redes Docker",

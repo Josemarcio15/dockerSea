@@ -37,7 +37,7 @@
       totalCount={store.filteredContainers.length}
       allSelected={store.selectedNames.length ===
         store.filteredContainers.length && store.filteredContainers.length > 0}
-      onRefresh={() => store.fetchAll()}
+      onRefresh={() => store.fetchAll(false, true)}
       onToggleAll={store.toggleAll}
       onStart={() => store.doActionSelected("start")}
       onStop={() => store.doActionSelected("stop")}

@@ -8,7 +8,7 @@
   import VolumeToolbar from "./components/VolumeToolbar.svelte";
   import VolumeCard from "./components/VolumeCard.svelte";
   import CreateVolumeModal from "./components/CreateVolumeModal.svelte";
-  import PruneVolumesModal from "./components/PruneVolumesModal.svelte";
+  import ConfirmDialog from "$shared/components/ConfirmDialog.svelte";
   import { createVolumesStore } from "./store.svelte";
 
   let { data } = $props();
@@ -88,7 +88,11 @@
   onSubmit={vState.doCreate}
 />
 
-<PruneVolumesModal
+<ConfirmDialog
   bind:show={vState.showPruneModal}
+  title={t("volumes.prune_confirm_title")}
+  message={t("volumes.prune_confirm_msg")}
+  confirmText={t("volumes.prune_confirm_btn")}
+  type="danger"
   onConfirm={vState.doPrune}
 />

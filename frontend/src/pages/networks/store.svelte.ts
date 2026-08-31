@@ -2,6 +2,7 @@ import { t } from "$shared/stores/locale.svelte";
 import { triggerRefresh } from "$shared/stores/refresh.svelte";
 import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
 import type { VpsServer, Container, DockerNetwork } from "./types";
+import { getCached, setCached } from "$shared/stores/swr-cache";
 import { filterCustomNetworks } from "$lib/domains/networks";
 import * as api from "./api";
 import { createNetworkPayload, normalizeNetworkNames } from "./service";
@@ -38,17 +39,33 @@ export function createNetworksStore(getServer: () => VpsServer | undefined) {
       loading = false;
       return;
     }
-    if (!silent) {
+
+    const cacheKey = `networks:${server.id}`;
+    const cachedData = getCached<{ networks: DockerNetwork[]; containers: Container[] }>(cacheKey);
+
+    // Se temos dados em cache, renderizamos instantaneamente (0ms de espera)
+    if (cachedData) {
+      networks = cachedData.networks || [];
+      containers = cachedData.containers || [];
+      loading = false;
+      silent = true; // Revalida em background sem travar com spinner
+    } else if (!silent) {
       loading = true;
     }
+
     fetchError = "";
     try {
       const data = await api.list(server);
-      networks = data.networks || [];
-      containers = data.containers || [];
+      const freshData = {
+        networks: data.networks || [],
+        containers: data.containers || [],
+      };
+      networks = freshData.networks;
+      containers = freshData.containers;
+      setCached(cacheKey, freshData);
     } catch (e: any) {
       fetchError = e.message || String(e);
-      if (!silent) {
+      if (!cachedData && !silent) {
         networks = [];
         containers = [];
       }

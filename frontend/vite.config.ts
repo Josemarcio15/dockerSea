@@ -14,7 +14,10 @@ export default defineConfig({
   resolve: {
     alias: {
       $lib: path.resolve(__dirname, "./src/lib"),
-      $shared: path.resolve(__dirname, "./src/shared"),
+      $shared: path.resolve(__dirname, "./src/lib/shared"),
+      $navigation: path.resolve(__dirname, "./src/lib/shared/navigation"),
+      $session: path.resolve(__dirname, "./src/lib/shared/session"),
+      $bindings: path.resolve(__dirname, "./bindings/go-walis/internal"),
     },
   },
   plugins: [tailwindcss(), svelte(), wails("./bindings")],

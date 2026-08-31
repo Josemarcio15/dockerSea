@@ -1,6 +1,6 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
-  import Modal from "$shared/components/Modal.svelte";
+  import FormModal from "$shared/components/FormModal.svelte";
   import { ButtonRed, Button } from "$shared/components/buttons";
 
   let {
@@ -22,7 +22,7 @@
   } = $props();
 </script>
 
-<Modal
+<FormModal
   bind:show
   title={t("volumes.modal_title")}
   buttons={[
@@ -113,4 +113,4 @@
       </div>
     {/each}
   </div>
-</Modal>
+</FormModal>
