@@ -85,7 +85,8 @@ func ExecuteDeploy(
 
 	var logBuffer bytes.Buffer
 	recordLog := func(line string) {
-		logBuffer.WriteString(line + "\n")
+		logBuffer.WriteString(line)
+		logBuffer.WriteByte('\n')
 	}
 
 	// 4. Obter ou criar conexão com o servidor VPS
@@ -224,6 +225,9 @@ func ExecuteDeploy(
 		line := scanner.Text()
 		recordLog(line)
 		broadcaster.EmitProgress(PhaseBuilding, line)
+	}
+	if scanErr := scanner.Err(); scanErr != nil {
+		recordLog(fmt.Sprintf("erro de leitura dos logs de build: %v", scanErr))
 	}
 
 	if err := waitUp(); err != nil {

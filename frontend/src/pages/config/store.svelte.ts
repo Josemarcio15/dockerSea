@@ -1,5 +1,6 @@
 import { getLocale, setLocale, t } from "$shared/stores/locale.svelte";
 import { notifySuccess, notifyError } from "$shared/stores/notification.svelte";
+import { Dialogs } from "@wailsio/runtime";
 import * as api from "./api";
 import { dockerDetectionPayload, serverPayload } from "./service";
 import type { DiagnosticResult, VpsFormData, VpsServer } from "./types";
@@ -29,28 +30,43 @@ export function createConfigStore(getData: () => any) {
   let diagnosticResult = $state<DiagnosticResult | null>(null);
   let showDeleteConfirm = $state(false);
   let serverToDelete = $state<VpsServer | null>(null);
+  let showResetConfirm = $state(false);
+  let isBackingUp = $state(false);
+  let isResetting = $state(false);
+  let dbPath = $state("");
 
   async function load() {
     try {
+      const dbInfo = await api.getDatabaseInfo();
+      if (dbInfo?.path) {
+        dbPath = dbInfo.path;
+      }
       const servers = await api.listServers();
       if (servers?.length) {
         const data = getData();
         data.servers = servers;
         const active = servers.find((server) => server.isActive);
         if (active) data.activeVps = active;
+      } else {
+        const data = getData();
+        data.servers = [];
+        data.activeVps = null;
       }
     } catch (error) {
       console.warn("Wails runtime ainda não disponível:", error);
     }
   }
+
   function openCreate() {
     form = { ...defaultForm };
     showVpsModal = true;
   }
+
   function openEdit(server: VpsServer) {
     form = { ...defaultForm, ...server, port: String(server.port || "22") };
     showVpsModal = true;
   }
+
   async function test(value = form) {
     diagnosticLoading = true;
     showDiagnosticModal = true;
@@ -76,9 +92,11 @@ export function createConfigStore(getData: () => any) {
       diagnosticLoading = false;
     }
   }
+
   async function autoDetect(value: VpsFormData) {
     return api.autoDetectDocker(dockerDetectionPayload(value));
   }
+
   async function save(value: VpsFormData) {
     if (!value.name.trim()) return;
     try {
@@ -90,10 +108,12 @@ export function createConfigStore(getData: () => any) {
     }
     showVpsModal = false;
   }
+
   function requestDelete(server: VpsServer) {
     serverToDelete = server;
     showDeleteConfirm = true;
   }
+
   async function confirmDelete() {
     if (!serverToDelete) return;
     try {
@@ -105,6 +125,7 @@ export function createConfigStore(getData: () => any) {
     }
     showDeleteConfirm = false;
   }
+
   async function select(server: VpsServer) {
     try {
       await api.setActiveServer(server.id);
@@ -115,6 +136,7 @@ export function createConfigStore(getData: () => any) {
       notifySuccess(`Servidor '${server.name}' selecionado como ativo.`);
     }
   }
+
   function changeLocale(locale: string) {
     const data = getData();
     setLocale(locale);
@@ -125,6 +147,93 @@ export function createConfigStore(getData: () => any) {
       }),
     );
   }
+
+  let isRestoring = $state(false);
+
+  async function exportBackup() {
+    isBackingUp = true;
+    try {
+      const now = new Date();
+      const dateStr = now.toISOString().slice(0, 10);
+      const defaultFilename = `docksea_backup_${dateStr}.db`;
+
+      const selected = await Dialogs.SaveFile({
+        Title: t("config.db_save_dialog_title"),
+        DefaultFilename: defaultFilename,
+        Filters: [
+          {
+            DisplayName: "SQLite Database (*.db)",
+            Pattern: "*.db",
+          },
+        ],
+      });
+
+      if (!selected || typeof selected !== "string") {
+        return; // Usuário cancelou
+      }
+
+      await api.exportDatabaseBackup(selected);
+      notifySuccess(t("config.db_backup_success", { path: selected }));
+    } catch (error: any) {
+      notifyError(`Erro ao exportar backup: ${error?.message || error}`);
+    } finally {
+      isBackingUp = false;
+    }
+  }
+
+  async function restoreBackup() {
+    isRestoring = true;
+    try {
+      const selected = await Dialogs.OpenFile({
+        Title: t("config.db_open_dialog_title"),
+        CanChooseFiles: true,
+        CanChooseDirectories: false,
+        AllowsMultipleSelection: false,
+        Filters: [
+          {
+            DisplayName: "SQLite Database (*.db)",
+            Pattern: "*.db",
+          },
+        ],
+      });
+
+      if (!selected) {
+        return; // Usuário cancelou
+      }
+
+      const filePath = Array.isArray(selected) ? selected[0] : selected;
+      if (!filePath || typeof filePath !== "string") {
+        return;
+      }
+
+      await api.restoreDatabaseBackup(filePath);
+      await load();
+      notifySuccess(t("config.db_restore_success"));
+    } catch (error: any) {
+      notifyError(`Erro ao restaurar backup: ${error?.message || error}`);
+    } finally {
+      isRestoring = false;
+    }
+  }
+
+  function requestResetDb() {
+    showResetConfirm = true;
+  }
+
+  async function confirmResetDb() {
+    isResetting = true;
+    try {
+      await api.resetDatabase();
+      await load();
+      notifySuccess(t("config.db_reset_success"));
+    } catch (error: any) {
+      notifyError(`Erro ao resetar banco: ${error?.message || error}`);
+    } finally {
+      isResetting = false;
+      showResetConfirm = false;
+    }
+  }
+
   return {
     get form() {
       return form;
@@ -162,6 +271,24 @@ export function createConfigStore(getData: () => any) {
     get serverToDelete() {
       return serverToDelete;
     },
+    get showResetConfirm() {
+      return showResetConfirm;
+    },
+    set showResetConfirm(value: boolean) {
+      showResetConfirm = value;
+    },
+    get isBackingUp() {
+      return isBackingUp;
+    },
+    get isRestoring() {
+      return isRestoring;
+    },
+    get isResetting() {
+      return isResetting;
+    },
+    get dbPath() {
+      return dbPath;
+    },
     get activeLocale() {
       return getData().activeProfile?.locale || getLocale();
     },
@@ -175,5 +302,9 @@ export function createConfigStore(getData: () => any) {
     confirmDelete,
     select,
     changeLocale,
+    exportBackup,
+    restoreBackup,
+    requestResetDb,
+    confirmResetDb,
   };
 }

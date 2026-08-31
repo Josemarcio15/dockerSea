@@ -10,3 +10,11 @@ export const testConnection = (server: any) =>
   ServerBinding.TestConnection(server);
 export const autoDetectDocker = (server: any) =>
   ConfigBinding.AutoDetectDocker(server);
+export const getDatabaseInfo = () => ConfigBinding.GetDatabaseInfo();
+export const exportDatabaseBackup = (destinationPath: string) =>
+  ConfigBinding.ExportDatabaseBackup(destinationPath);
+export const restoreDatabaseBackup = (sourcePath: string) =>
+  ConfigBinding.RestoreDatabaseBackup(sourcePath);
+export const resetDatabase = () => ConfigBinding.ResetDatabase();
+
+

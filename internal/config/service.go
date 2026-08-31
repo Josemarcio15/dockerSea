@@ -107,3 +107,32 @@ func (s *ConfigService) SaveContainerConfig(config db.ContainerConfig) error {
 func (s *ConfigService) DeleteContainerConfig(id string) error {
 	return s.database.DeleteContainerConfig(id)
 }
+
+type DatabaseInfo struct {
+	Path string `json:"path"`
+}
+
+func (s *ConfigService) GetDatabaseInfo() DatabaseInfo {
+	return DatabaseInfo{
+		Path: s.database.GetDBPath(),
+	}
+}
+
+func (s *ConfigService) ExportDatabaseBackup(destinationPath string) error {
+	if destinationPath == "" {
+		return fmt.Errorf("caminho de destino é obrigatório")
+	}
+	return s.database.Backup(destinationPath)
+}
+
+func (s *ConfigService) RestoreDatabaseBackup(sourcePath string) error {
+	if sourcePath == "" {
+		return fmt.Errorf("caminho de origem é obrigatório")
+	}
+	return s.database.Restore(sourcePath)
+}
+
+func (s *ConfigService) ResetDatabase() error {
+	return s.database.Reset()
+}
+

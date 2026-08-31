@@ -133,7 +133,7 @@ func (s *StackService) DeployStack(profileID string, stackID string) StackAction
 		return StackActionResult{Success: false, Message: "Stack não encontrada"}
 	}
 
-	server, err := s.resolveServer(profileID)
+	server, err := s.resolveServer()
 	if err != nil {
 		return StackActionResult{Success: false, Message: fmt.Sprintf("falha ao resolver servidor VPS: %v", err)}
 	}
@@ -153,7 +153,7 @@ func (s *StackService) StopStack(profileID string, stackID string) StackActionRe
 		return StackActionResult{Success: false, Message: "Stack não encontrada"}
 	}
 
-	server, err := s.resolveServer(profileID)
+	server, err := s.resolveServer()
 	if err != nil {
 		return StackActionResult{Success: false, Message: fmt.Sprintf("falha ao resolver servidor VPS: %v", err)}
 	}
@@ -179,7 +179,7 @@ func (s *StackService) RemoveStackRemote(profileID string, stackID string, delet
 		return StackActionResult{Success: false, Message: "Stack não encontrada"}
 	}
 
-	server, err := s.resolveServer(profileID)
+	server, err := s.resolveServer()
 	if err != nil {
 		return StackActionResult{Success: false, Message: fmt.Sprintf("falha ao resolver servidor VPS: %v", err)}
 	}
@@ -205,7 +205,7 @@ func (s *StackService) GetStackLogs(profileID string, stackID string, tail int) 
 		return "", fmt.Errorf("stack não encontrada")
 	}
 
-	server, err := s.resolveServer(profileID)
+	server, err := s.resolveServer()
 	if err != nil {
 		return "", fmt.Errorf("falha ao resolver servidor VPS: %w", err)
 	}
@@ -226,7 +226,7 @@ func (s *StackService) GetServerCapabilities(profileID string) (ServerCapabiliti
 		return caps, fmt.Errorf("banco de dados SQLite não inicializado")
 	}
 
-	server, err := s.resolveServer(profileID)
+	server, err := s.resolveServer()
 	if err != nil {
 		return caps, err
 	}
@@ -241,7 +241,7 @@ func (s *StackService) GetServerCapabilities(profileID string) (ServerCapabiliti
 }
 
 // resolveServer localiza o servidor cadastrado (preferencialmente ativo)
-func (s *StackService) resolveServer(profileID string) (*db.VpsServer, error) {
+func (s *StackService) resolveServer() (*db.VpsServer, error) {
 	servers, err := s.database.ListVpsServers()
 	if err != nil {
 		return nil, err

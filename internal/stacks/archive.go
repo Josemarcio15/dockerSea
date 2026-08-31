@@ -120,10 +120,8 @@ func packProjectDir(ctx context.Context, folderPath string, writer io.Writer, ig
 func matchedIgnore(path, pattern string) bool {
 	pattern = strings.TrimSpace(strings.TrimPrefix(pattern, "!"))
 	pattern = strings.TrimPrefix(pattern, "/")
+	pattern = strings.TrimSuffix(pattern, "/")
 	path = filepath.ToSlash(path)
-	if strings.HasSuffix(pattern, "/") {
-		pattern = strings.TrimSuffix(pattern, "/")
-	}
 	if ok, _ := filepath.Match(pattern, path); ok {
 		return true
 	}
