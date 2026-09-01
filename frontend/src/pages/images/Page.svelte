@@ -24,6 +24,7 @@
     ButtonOrange,
   } from "$shared/components/buttons";
   import { createImagesStore } from "./store.svelte";
+  import { viewModeStore } from "$shared/stores/viewMode.svelte";
 
   let { data } = $props();
   const imgState = createImagesStore(
@@ -183,7 +184,7 @@
             onDeleteSelected={requestDeleteSelectedImages}
           />
 
-          <!-- Images Cards Grid -->
+          <!-- Images Cards Grid / List -->
           {#if imgState.filteredImages.length === 0}
             <div
               class="text-sm text-slate-400 dark:text-slate-500 py-16 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/20"
@@ -191,9 +192,7 @@
               {t("images.empty_images")}
             </div>
           {:else}
-            <div
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
+            <div class={viewModeStore.getGridClass()}>
               {#each imgState.filteredImages as img (img.id + "_" + img.repo + "_" + img.tag)}
                 <ImageCard
                   {img}

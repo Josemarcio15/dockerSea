@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
+  import ColumnLayoutSwitcher from "$shared/components/ColumnLayoutSwitcher.svelte";
   import {
     ButtonGreen,
     ButtonYellow,
@@ -44,6 +45,9 @@
     </div>
 
     <div class="flex items-center gap-2">
+      <!-- 1, 2, 3 Colunas Switcher -->
+      <ColumnLayoutSwitcher />
+
       <input
         type="text"
         placeholder={t("networks.search_placeholder")}

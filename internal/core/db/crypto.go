@@ -16,7 +16,6 @@ import (
 
 const (
 	appSecretNamespace = "docksea-app-secrets-v1"
-	legacyKey          = "docksea-temporary-key-change-before-release"
 )
 
 func getMachineKey() string {
@@ -69,7 +68,7 @@ func decryptSecret(value string) (string, error) {
 		return "", nil
 	}
 
-	// 1. Tentar descriptografar com a chave da máquina atual
+	// Tentar descriptografar com a chave exclusiva da máquina atual
 	aead, err := encryptionCipher()
 	if err == nil && len(data) >= aead.NonceSize() {
 		plaintext, err := aead.Open(nil, data[:aead.NonceSize()], data[aead.NonceSize():], nil)
@@ -78,15 +77,7 @@ func decryptSecret(value string) (string, error) {
 		}
 	}
 
-	// 2. Fallback: Tentar descriptografar com a chave legada se o usuário já tinha dados salvos
-	legacyAead, err := encryptionCipherWithKey(legacyKey)
-	if err == nil && len(data) >= legacyAead.NonceSize() {
-		plaintext, err := legacyAead.Open(nil, data[:legacyAead.NonceSize()], data[legacyAead.NonceSize():], nil)
-		if err == nil {
-			return string(plaintext), nil
-		}
-	}
-
-	// 3. Fallback gracioso: retorna vazio caso mude de computador
+	// Se falhou (ex: banco importado de outra máquina/outro SO),
+	// retorna string vazia para que o usuário redigite a senha na nova máquina
 	return "", nil
 }

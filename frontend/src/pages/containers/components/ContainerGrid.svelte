@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
+  import { viewModeStore } from "$shared/stores/viewMode.svelte";
   import type { Container } from "../types";
   import ContainerCard from "./ContainerCard.svelte";
 
@@ -21,7 +22,7 @@
     {t("containers.empty")}
   </div>
 {:else}
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class={viewModeStore.getGridClass()}>
     {#each containers as container (container.id)}
       <ContainerCard
         {container}

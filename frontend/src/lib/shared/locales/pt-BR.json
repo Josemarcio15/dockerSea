@@ -81,6 +81,10 @@
     "card_env_key": "Chave",
     "card_env_value": "Valor",
     "card_env_empty": "(nenhuma variável de ambiente configurada)",
+    "card_labels": "Labels",
+    "card_labels_title": "Labels",
+    "card_labels_empty": "(nenhuma label configurada)",
+    "card_view_labels": "Ver Labels",
     "card_logs_title": "Logs: ",
     "card_fetching_logs": "Buscando logs...",
     "card_no_logs": "(sem logs)"
@@ -524,6 +528,7 @@
     "card_no_containers": "Nenhum container conectado a esta rede.",
     "card_disconnect_btn": "Desconectar",
     "card_remove_btn": "Remover Rede",
+    "card_labels": "Labels",
     "containers_count": "{count} container(s)"
   },
   "profiles": {

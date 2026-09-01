@@ -24,16 +24,16 @@
   } = $props();
 </script>
 <div
-  class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all gap-4 {isActive
-    ? 'border-violet-500/80 bg-violet-500/5 dark:bg-violet-950/20 shadow-xs'
-    : 'border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30'}"
+  class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border-2 transition-all gap-4 shadow-sm {isActive
+    ? 'border-violet-500 bg-violet-50/60 dark:bg-violet-950/20'
+    : 'border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900/30'}"
 >
   <!-- Info -->
   <div class="flex items-center gap-3.5 min-w-0">
     <div
       class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 {isActive
         ? 'bg-violet-600 text-white shadow-md shadow-violet-500/20'
-        : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}"
+        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}"
     >
       {#if server.connectionType === "ssh"}
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
@@ -48,19 +48,19 @@
 
     <div class="flex flex-col min-w-0">
       <div class="flex items-center gap-2">
-        <span class="font-bold text-sm text-slate-850 dark:text-white truncate">
+        <span class="font-bold text-sm text-slate-900 dark:text-white truncate">
           {server.name}
         </span>
         {#if isActive}
           <span
-            class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-xs"
+            class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20 shadow-xs"
           >
             {t("profiles.active_badge")}
           </span>
         {/if}
       </div>
 
-      <span class="text-xs text-slate-400 dark:text-slate-500 font-mono truncate">
+      <span class="text-xs text-slate-600 dark:text-slate-400 font-mono truncate font-medium">
         {server.connectionType === "ssh"
           ? `${server.username}@${server.host}:${server.port}`
           : "Local Docker Engine"}

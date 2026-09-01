@@ -86,10 +86,12 @@
 </script>
 
 <div
-  class="relative rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200/80 dark:border-slate-800/80 hover:border-violet-500/40 dark:hover:border-violet-500/40 hover:shadow-lg dark:hover:shadow-violet-950/20 transition-all duration-200 flex flex-col justify-between overflow-hidden self-start w-full text-slate-700 dark:text-slate-200 shadow-sm p-3.5 gap-3 group"
+  class="relative rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-800/80 hover:border-violet-500/50 dark:hover:border-violet-500/40 shadow-sm hover:shadow-md dark:shadow-none dark:hover:shadow-violet-950/20 transition-all duration-200 flex flex-col justify-between overflow-hidden self-start w-full text-slate-800 dark:text-slate-200 p-3.5 gap-3 group"
 >
-  <!-- Card Header Compacto -->
-  <div class="flex items-center gap-2.5 min-w-0">
+  <!-- Card Header Compacto Elevado -->
+  <div
+    class="flex items-center gap-2.5 min-w-0 p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+  >
     <!-- Checkbox -->
     <button
       type="button"
@@ -105,7 +107,7 @@
 
     <!-- Ícone de Volume / Disco -->
     <div
-      class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-2 flex items-center justify-center shrink-0 shadow-inner text-base"
+      class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 flex items-center justify-center shrink-0 shadow-inner text-base"
     >
       💾
     </div>
@@ -121,7 +123,7 @@
 
       <div class="flex items-center gap-1.5 mt-0.5 min-w-0">
         <span
-          class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border border-slate-200/60 dark:border-slate-700/50 truncate"
+          class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700/50 truncate"
         >
           {vol.driver || "local"}
         </span>
@@ -129,7 +131,7 @@
         <span
           class="text-[10px] font-medium flex items-center gap-1 shrink-0 {vol.inUse
             ? 'text-emerald-600 dark:text-emerald-400'
-            : 'text-slate-400 dark:text-slate-500'}"
+            : 'text-slate-500 dark:text-slate-400'}"
         >
           <span
             class="w-1.5 h-1.5 rounded-full {vol.inUse
@@ -144,7 +146,7 @@
     <!-- Botão Expandir -->
     <button
       type="button"
-      class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer transition-colors text-[10px] shrink-0 border border-slate-200/50 dark:border-slate-700/50"
+      class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center cursor-pointer transition-colors text-[10px] shrink-0 border border-slate-200 dark:border-slate-700/50"
       onclick={() => (expanded = !expanded)}
       title="Mais detalhes"
     >
@@ -154,53 +156,85 @@
 
   <!-- Expanded Details -->
   {#if expanded}
-    <div class="flex flex-col gap-2.5 text-xs pt-1 border-t border-slate-100 dark:border-slate-800/60">
+    <div
+      class="p-3.5 rounded-2xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 space-y-2.5 text-xs"
+    >
       <!-- Escopo e Tamanho Grid -->
       <div class="grid grid-cols-2 gap-2 text-[11px]">
-        <div class="flex flex-col p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50">
-          <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Escopo</span>
-          <span class="font-mono text-blue-600 dark:text-blue-400 font-semibold">{vol.scope || "local"}</span>
+        <div
+          class="flex flex-col p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 mb-1"
+            >Escopo</span
+          >
+          <span
+            class="font-mono text-blue-600 dark:text-blue-400 font-bold text-xs"
+            >{vol.scope || "local"}</span
+          >
         </div>
 
-        <div class="flex flex-col p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50">
-          <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">
+        <div
+          class="flex flex-col p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 mb-1"
+          >
             {t("volumes.label_size")}
           </span>
-          <span class="font-semibold text-slate-700 dark:text-slate-200 truncate">
+          <span
+            class="font-bold text-slate-800 dark:text-slate-200 truncate text-xs"
+          >
             {displaySize}
           </span>
         </div>
       </div>
 
       <!-- Data de Criação -->
-      <div class="flex items-center justify-between text-[11px] px-1">
-        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+      <div
+        class="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md text-[11px]"
+      >
+        <span
+          class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+        >
           {t("volumes.label_created")}
         </span>
-        <span class="font-medium text-slate-700 dark:text-slate-300">
+        <span class="font-medium text-slate-800 dark:text-slate-200">
           {formattedDate || "—"}
         </span>
       </div>
 
       <!-- Ponto de Montagem -->
-      <div class="flex flex-col gap-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/60">
-        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+      <div
+        class="flex flex-col gap-1 p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+      >
+        <span
+          class="w-fit px-1.5 py-0.2 rounded text-[9px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 font-bold uppercase tracking-wider mb-0.5"
+        >
           {t("volumes.label_mount")}
         </span>
-        <span class="font-mono text-[10px] text-slate-700 dark:text-slate-300 break-all select-all">
+        <span
+          class="font-mono text-[10px] text-slate-800 dark:text-slate-200 break-all select-all font-medium"
+        >
           {vol.mountpoint}
         </span>
       </div>
 
       <!-- Containers Vinculados -->
       {#if containers.length > 0}
-        <div class="flex flex-col gap-1.5 p-2 rounded-xl bg-purple-50/40 dark:bg-purple-950/20 border border-purple-200/50 dark:border-purple-900/30">
-          <span class="text-[9px] text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider">
+        <div
+          class="flex flex-col gap-1.5 p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 font-bold uppercase tracking-wider"
+          >
             {t("volumes.connected_containers")}
           </span>
           <div class="flex flex-wrap gap-1">
             {#each containers as c}
-              <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-purple-200/60 dark:border-purple-900/50 text-[10px] text-purple-700 dark:text-purple-300 font-medium">
+              <span
+                class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] text-purple-700 dark:text-purple-300 font-medium"
+              >
                 {c[0]} <span class="opacity-70 text-[9px]">({c[1]})</span>
               </span>
             {/each}
@@ -210,14 +244,20 @@
 
       <!-- Labels -->
       {#if labels.length > 0}
-        <div class="flex flex-col gap-1.5 p-2 rounded-xl bg-pink-50/40 dark:bg-pink-950/20 border border-pink-200/50 dark:border-pink-900/30">
-          <span class="text-[9px] text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider">
+        <div
+          class="flex flex-col gap-1.5 p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] text-pink-700 dark:text-pink-300 bg-pink-100 dark:bg-pink-950/60 font-bold uppercase tracking-wider"
+          >
             {t("volumes.label_labels")}
           </span>
-          <div class="flex flex-wrap gap-1">
+          <div class="flex flex-col gap-1">
             {#each labels as [k, v]}
-              <span class="font-mono text-[9px] px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 border border-pink-200/50 text-slate-600 dark:text-slate-300 truncate max-w-full">
-                {k}: {v}
+              <span
+                class="font-mono text-[9px] px-1.5 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 break-all select-all"
+              >
+                <span class="font-bold text-pink-600 dark:text-pink-400">{k}:</span> {v}
               </span>
             {/each}
           </div>

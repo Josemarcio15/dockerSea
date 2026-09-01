@@ -157,9 +157,9 @@ export function createConfigStore(getData: () => any) {
       const dateStr = now.toISOString().slice(0, 10);
       const defaultFilename = `docksea_backup_${dateStr}.db`;
 
-      const selected = await Dialogs.SaveFile({
+      const selected = await (Dialogs.SaveFile as any)({
         Title: t("config.db_save_dialog_title"),
-        DefaultFilename: defaultFilename,
+        Filename: defaultFilename,
         Filters: [
           {
             DisplayName: "SQLite Database (*.db)",

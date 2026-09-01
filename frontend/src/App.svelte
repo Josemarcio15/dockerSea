@@ -51,7 +51,7 @@
   });
 
   let isDark = $state(true);
-  let appVersion = "0.0.3-alpha";
+  let appVersion = "0.0.5-alpha";
   let hasProfile = $state(true);
 
   let darkClass = $derived(isDark ? "dark" : "");

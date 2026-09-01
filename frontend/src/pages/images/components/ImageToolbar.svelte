@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from "$shared/stores/locale.svelte";
+  import ColumnLayoutSwitcher from "$shared/components/ColumnLayoutSwitcher.svelte";
   import { ButtonGreen, ButtonYellow, ButtonRed } from "$shared/components/buttons";
 
   let {
@@ -135,11 +136,16 @@
       {/if}
     </div>
 
-    <input
-      type="text"
-      placeholder={t("common.search")}
-      class="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-855 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-violet-500 transition-all w-60"
-      bind:value={searchQuery}
-    />
+    <div class="flex items-center gap-2">
+      <!-- 1, 2, 3 Colunas Switcher -->
+      <ColumnLayoutSwitcher />
+
+      <input
+        type="text"
+        placeholder={t("common.search")}
+        class="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-855 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-violet-500 transition-all w-60"
+        bind:value={searchQuery}
+      />
+    </div>
   </div>
 </div>

@@ -90,10 +90,12 @@
 </script>
 
 <div
-  class="relative rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200/80 dark:border-slate-800/80 hover:border-violet-500/40 dark:hover:border-violet-500/40 hover:shadow-lg dark:hover:shadow-violet-950/20 transition-all duration-200 flex flex-col justify-between overflow-hidden self-start w-full text-slate-700 dark:text-slate-200 shadow-sm p-3.5 gap-3 group"
+  class="relative rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-800/80 hover:border-violet-500/50 dark:hover:border-violet-500/40 shadow-sm hover:shadow-md dark:shadow-none dark:hover:shadow-violet-950/20 transition-all duration-200 flex flex-col justify-between overflow-hidden self-start w-full text-slate-800 dark:text-slate-200 p-3.5 gap-3 group"
 >
-  <!-- Card Header Principal -->
-  <div class="flex items-center gap-2.5 min-w-0">
+  <!-- Card Header Principal Elevado -->
+  <div
+    class="flex items-center gap-2.5 min-w-0 p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+  >
     <!-- Checkbox Customizado -->
     <button
       type="button"
@@ -109,7 +111,7 @@
 
     <!-- Logo / Ícone -->
     <div
-      class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-2 flex items-center justify-center shrink-0 shadow-inner"
+      class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 flex items-center justify-center shrink-0 shadow-inner"
     >
       {#if iconUrl}
         <img
@@ -130,7 +132,7 @@
           title={img.repo}
         >
           {#if !img.repo || img.repo === "<none>"}
-            <span class="text-slate-400 italic font-normal">&lt;sem tag&gt;</span>
+            <span class="text-slate-500 dark:text-slate-400 italic font-normal">&lt;sem tag&gt;</span>
           {:else}
             {img.repo}
           {/if}
@@ -139,7 +141,7 @@
 
       <div class="flex items-center gap-1.5 mt-0.5">
         <span
-          class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 font-semibold border border-violet-200/50 dark:border-violet-800/40 truncate max-w-[85px]"
+          class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 font-semibold border border-violet-200 dark:border-violet-800/40 truncate max-w-[85px]"
           title={img.tag}
         >
           {img.tag || "latest"}
@@ -148,7 +150,7 @@
         <span
           class="text-[10px] font-medium flex items-center gap-1 {isInUse
             ? 'text-emerald-600 dark:text-emerald-400'
-            : 'text-slate-400 dark:text-slate-500'}"
+            : 'text-slate-500 dark:text-slate-400'}"
         >
           <span
             class="w-1.5 h-1.5 rounded-full {isInUse
@@ -163,9 +165,9 @@
     <!-- Botão Expandir / Recolher Detalhes -->
     <button
       type="button"
-      class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer transition-colors text-[10px] shrink-0 border border-slate-200/50 dark:border-slate-700/50"
+      class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center cursor-pointer transition-colors text-[10px] shrink-0 border border-slate-200 dark:border-slate-700/50"
       onclick={() => (expanded = !expanded)}
-      title={expanded ? "Recolher detalhes" : "Mais detalhes"}
+      title="Mais detalhes"
     >
       {expanded ? "▲" : "▼"}
     </button>
@@ -173,43 +175,69 @@
 
   <!-- Detalhes Extras (visíveis apenas quando expandido) -->
   {#if expanded}
-    <div class="flex flex-col gap-2.5 text-xs pt-1 border-t border-slate-100 dark:border-slate-800/60 animate-fadeIn">
+    <div
+      class="p-3.5 rounded-2xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 space-y-2.5 text-xs animate-fadeIn"
+    >
       <!-- ID & Tamanho Grid -->
       <div class="grid grid-cols-2 gap-2 text-[11px]">
-        <div class="flex flex-col p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50">
-          <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">ID</span>
-          <span class="font-mono text-blue-600 dark:text-blue-400 font-semibold truncate">{img.id.substring(0, 8)}</span>
+        <div
+          class="flex flex-col p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 mb-1"
+            >ID</span
+          >
+          <span
+            class="font-mono text-blue-600 dark:text-blue-400 font-bold truncate text-xs"
+            >{img.id.substring(0, 8)}</span
+          >
         </div>
 
-        <div class="flex flex-col p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50">
-          <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">
+        <div
+          class="flex flex-col p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 mb-1"
+          >
             {t("images.card_size")}
           </span>
-          <span class="font-semibold text-slate-700 dark:text-slate-200 truncate">
+          <span
+            class="font-bold text-slate-800 dark:text-slate-200 truncate text-xs"
+          >
             {img.size}
           </span>
         </div>
       </div>
 
       <!-- Data de Criação -->
-      <div class="flex items-center justify-between text-[11px] px-1">
-        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+      <div
+        class="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md text-[11px]"
+      >
+        <span
+          class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+        >
           {t("images.card_created")}
         </span>
-        <span class="font-medium text-slate-700 dark:text-slate-300">
+        <span class="font-medium text-slate-800 dark:text-slate-200">
           {createdStr || "—"}
         </span>
       </div>
 
       <!-- Containers Usando -->
       {#if img.containersUsing && img.containersUsing.length > 0}
-        <div class="flex flex-col gap-1.5 p-2 rounded-xl bg-purple-50/40 dark:bg-purple-950/20 border border-purple-200/50 dark:border-purple-900/30">
-          <span class="text-[9px] text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider">
+        <div
+          class="flex flex-col gap-1.5 p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 font-bold uppercase tracking-wider"
+          >
             {t("images.card_containers_using")}
           </span>
           <div class="flex flex-wrap gap-1">
             {#each img.containersUsing as containerName}
-              <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-purple-200/60 dark:border-purple-900/50 text-[10px] text-purple-700 dark:text-purple-300 font-medium">
+              <span
+                class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] text-purple-700 dark:text-purple-300 font-medium"
+              >
                 {containerName}
               </span>
             {/each}

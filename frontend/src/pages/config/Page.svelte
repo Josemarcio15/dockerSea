@@ -85,11 +85,11 @@
       >
         <div>
           <h2
-            class="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2"
+            class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2"
           >
             {t("config.servers_title")}
           </h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
             {t("config.servers_desc")}
           </p>
         </div>
@@ -138,8 +138,8 @@
             type="button"
             class="w-full flex items-center justify-between p-3 rounded-xl border text-sm font-semibold transition-all cursor-pointer {activeLocale ===
             'pt-BR'
-              ? 'border-violet-500 bg-violet-500/5 text-violet-750 dark:text-violet-300'
-              : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 text-slate-700 dark:text-slate-300'}"
+              ? 'border-violet-500 bg-violet-50 dark:bg-violet-500/10 text-violet-900 dark:text-violet-300 font-bold shadow-xs'
+              : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-transparent hover:bg-slate-100 dark:hover:bg-slate-900/30 text-slate-800 dark:text-slate-300'}"
             onclick={() => doChangeLocale("pt-BR")}
           >
             <span>{t("config.lang_pt_br")}</span>
@@ -154,8 +154,8 @@
             type="button"
             class="w-full flex items-center justify-between p-3 rounded-xl border text-sm font-semibold transition-all cursor-pointer {activeLocale ===
             'en-US'
-              ? 'border-violet-500 bg-violet-500/5 text-violet-750 dark:text-violet-300'
-              : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 text-slate-700 dark:text-slate-300'}"
+              ? 'border-violet-500 bg-violet-50 dark:bg-violet-500/10 text-violet-900 dark:text-violet-300 font-bold shadow-xs'
+              : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-transparent hover:bg-slate-100 dark:hover:bg-slate-900/30 text-slate-800 dark:text-slate-300'}"
             onclick={() => doChangeLocale("en-US")}
           >
             <span>{t("config.lang_en_us")}</span>
@@ -173,21 +173,21 @@
         class="bg-white dark:bg-[#0b0f19] border border-slate-200/70 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm space-y-4"
       >
         <h3
-          class="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2"
+          class="text-sm font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
           </svg>
           {t("config.db_section_title")}
         </h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">
+        <p class="text-xs text-slate-600 dark:text-slate-400">
           {t("config.db_section_desc")}
         </p>
 
         {#if store.dbPath}
           <div class="space-y-1">
-            <span class="text-[11px] font-semibold text-slate-400 uppercase">{t("config.db_path_label")}</span>
-            <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-600 dark:text-slate-400 break-all select-all">
+            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase">{t("config.db_path_label")}</span>
+            <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-[11px] font-mono text-slate-800 dark:text-slate-400 break-all select-all font-semibold">
               {store.dbPath}
             </div>
           </div>
@@ -196,7 +196,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <button
             type="button"
-            class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold bg-violet-500/10 hover:bg-violet-500/20 text-violet-700 dark:text-violet-300 border border-violet-500/30 transition-all cursor-pointer disabled:opacity-50"
+            class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white dark:bg-violet-500/10 dark:hover:bg-violet-500/20 dark:text-violet-300 border border-transparent dark:border-violet-500/30 transition-all cursor-pointer disabled:opacity-50 shadow-sm"
             disabled={store.isBackingUp || store.isRestoring}
             onclick={store.exportBackup}
           >

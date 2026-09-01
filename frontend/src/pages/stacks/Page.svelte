@@ -188,7 +188,7 @@
         <input
           type="text"
           placeholder={t("stacks.search_placeholder")}
-          class="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] text-slate-850 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all w-60"
+          class="px-4 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#0b0f19] text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 shadow-2xs transition-all w-60"
           bind:value={stackStore.searchQuery}
         />
         <ButtonBlue size="sm" onclick={openCreate}

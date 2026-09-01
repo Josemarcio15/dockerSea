@@ -175,7 +175,10 @@
         <Button size="sm" onclick={() => (showDeleteDialog = false)}>
           {t("common.cancel")}
         </Button>
-        <ButtonRed size="sm" onclick={() => store.remove()}>
+        <ButtonRed size="sm" onclick={async () => {
+          showDeleteDialog = false;
+          await store.remove();
+        }}>
           {t("common.delete")}
         </ButtonRed>
       </div>

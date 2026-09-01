@@ -2,7 +2,7 @@
   import { t } from "$shared/stores/locale.svelte";
   import type { Container } from "$lib/domains/containers";
   import { statsState } from "$shared/stores/stats.svelte";
-  import { ButtonPurple, ButtonCyan } from "$shared/components/buttons";
+  import { ButtonPurple, ButtonCyan, ButtonPink } from "$shared/components/buttons";
   import FormModal from "$shared/components/FormModal.svelte";
 
   let {
@@ -19,6 +19,9 @@
 
   let expanded = $state(false);
   let showEnv = $state(false);
+  let showLabels = $state(false);
+
+  const labels = $derived(Object.entries(container.labels || {}));
 
   const myStats = $derived(
     statsState?.stats
@@ -171,10 +174,12 @@
 </script>
 
 <div
-  class="relative rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200/80 dark:border-slate-800/80 hover:border-violet-500/40 dark:hover:border-violet-500/40 hover:shadow-lg dark:hover:shadow-violet-950/20 transition-all duration-200 flex flex-col justify-between overflow-hidden self-start w-full text-slate-700 dark:text-slate-200 shadow-sm p-3.5 gap-3 group"
+  class="relative rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-800/80 hover:border-violet-500/50 dark:hover:border-violet-500/40 shadow-sm hover:shadow-md dark:shadow-none dark:hover:shadow-violet-950/20 transition-all duration-200 flex flex-col justify-between overflow-hidden self-start w-full text-slate-800 dark:text-slate-200 p-3.5 gap-3 group"
 >
-  <!-- Card Header Compacto -->
-  <div class="flex items-center gap-2.5 min-w-0">
+  <!-- Card Header Compacto Elevado -->
+  <div
+    class="flex items-center gap-2.5 min-w-0 p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+  >
     <!-- Checkbox -->
     <button
       type="button"
@@ -190,7 +195,7 @@
 
     <!-- Logo / Ícone Tecnológico -->
     <div
-      class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-2 flex items-center justify-center shrink-0 shadow-inner"
+      class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 flex items-center justify-center shrink-0 shadow-inner"
     >
       {#if iconUrl}
         <img
@@ -214,7 +219,7 @@
 
       <div class="flex items-center gap-1.5 mt-0.5 min-w-0">
         <span
-          class="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border border-slate-200/60 dark:border-slate-700/50 truncate max-w-[130px]"
+          class="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700/50 truncate max-w-[130px]"
           title={container.image}
         >
           {container.image}
@@ -230,7 +235,7 @@
     <!-- Botão Expandir -->
     <button
       type="button"
-      class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer transition-colors text-[10px] shrink-0 border border-slate-200/50 dark:border-slate-700/50"
+      class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center cursor-pointer transition-colors text-[10px] shrink-0 border border-slate-200 dark:border-slate-700/50"
       onclick={() => (expanded = !expanded)}
       title="Mais detalhes"
     >
@@ -240,19 +245,34 @@
 
   <!-- Expanded Details (Mostra todos os dados apenas ao expandir) -->
   {#if expanded}
-    <div class="flex flex-col gap-2.5 text-xs pt-1 border-t border-slate-100 dark:border-slate-800/60">
+    <div
+      class="p-3.5 rounded-2xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 space-y-2.5 text-xs"
+    >
       <!-- ID & Criado Em Grid -->
       <div class="grid grid-cols-2 gap-2 text-[11px]">
-        <div class="flex flex-col p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50">
-          <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">ID</span>
-          <span class="font-mono text-blue-600 dark:text-blue-400 font-semibold">{shortCid}</span>
+        <div
+          class="flex flex-col p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 mb-1"
+            >ID</span
+          >
+          <span class="font-mono text-indigo-600 dark:text-indigo-400 font-bold text-xs"
+            >{shortCid}</span
+          >
         </div>
 
-        <div class="flex flex-col p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50">
-          <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">
+        <div
+          class="flex flex-col p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 mb-1"
+          >
             {t("containers.card_created")}
           </span>
-          <span class="font-medium text-slate-700 dark:text-slate-300 truncate">
+          <span
+            class="font-medium text-slate-800 dark:text-slate-200 truncate text-xs"
+          >
             {createdStr || "—"}
           </span>
         </div>
@@ -260,38 +280,67 @@
 
       <!-- Live Stats se ativo -->
       {#if myStats}
-        <div class="grid grid-cols-2 gap-2 text-[11px] p-2 rounded-xl bg-violet-50/30 dark:bg-violet-950/20 border border-violet-200/40 dark:border-violet-900/30 font-mono">
-          <div>
-            <span class="text-[9px] uppercase font-bold text-violet-400">CPU</span>
-            <p class="font-semibold text-violet-700 dark:text-violet-300 m-0">{myStats.CPUPerc || "0%"}</p>
+        <div class="grid grid-cols-2 gap-2 text-[11px] font-mono">
+          <div
+            class="p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+          >
+            <span
+              class="px-1.5 py-0.2 rounded text-[9px] uppercase font-bold tracking-wider bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300"
+              >CPU</span
+            >
+            <p
+              class="font-bold text-slate-900 dark:text-slate-100 mt-1 mb-0 text-sm"
+            >
+              {myStats.CPUPerc || "0%"}
+            </p>
           </div>
-          <div>
-            <span class="text-[9px] uppercase font-bold text-blue-400">RAM</span>
-            <p class="font-semibold text-blue-700 dark:text-blue-300 m-0">{myStats.MemUsage || "0B"}</p>
+          <div
+            class="p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+          >
+            <span
+              class="px-1.5 py-0.2 rounded text-[9px] uppercase font-bold tracking-wider bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"
+              >RAM</span
+            >
+            <p
+              class="font-bold text-slate-900 dark:text-slate-100 mt-1 mb-0 text-sm"
+            >
+              {myStats.MemUsage || "0B"}
+            </p>
           </div>
         </div>
       {/if}
 
       <!-- Política de Reinício -->
-      <div class="flex flex-col gap-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50 text-[11px]">
-        <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">
+      <div
+        class="flex flex-col p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md text-[11px]"
+      >
+        <span
+          class="w-fit px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 mb-1"
+        >
           {t("containers.card_restart")}
         </span>
-        <span class="font-medium text-slate-700 dark:text-slate-300">
+        <span class="font-medium text-slate-800 dark:text-slate-200">
           {restartPolicyDisplay}
         </span>
       </div>
 
       <!-- Redes Conectadas -->
       {#if networkItems.length > 0}
-        <div class="flex flex-col gap-1.5 p-2 rounded-xl bg-purple-50/40 dark:bg-purple-950/20 border border-purple-200/50 dark:border-purple-900/30">
-          <span class="text-[9px] text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider">
+        <div
+          class="flex flex-col gap-1.5 p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 font-bold uppercase tracking-wider"
+          >
             {t("containers.card_networks")}
           </span>
           <div class="flex flex-wrap gap-1">
             {#each networkItems as net}
-              <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-purple-200/60 dark:border-purple-900/50 text-[10px] text-purple-700 dark:text-purple-300 font-medium">
-                {net.name} {net.ip !== '—' ? `(${net.ip})` : ''}
+              <span
+                class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] text-purple-700 dark:text-purple-300 font-medium"
+              >
+                {net.name}
+                {net.ip !== "—" ? `(${net.ip})` : ""}
               </span>
             {/each}
           </div>
@@ -300,14 +349,20 @@
 
       <!-- Portas Mapeadas -->
       {#if portItems.length > 0}
-        <div class="flex flex-col gap-1.5 p-2 rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-900/30">
-          <span class="text-[9px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">
+        <div
+          class="flex flex-col gap-1.5 p-2.5 rounded-xl bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 shadow-md"
+        >
+          <span
+            class="w-fit px-1.5 py-0.2 rounded text-[9px] text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 font-bold uppercase tracking-wider"
+          >
             {t("containers.card_ports")}
           </span>
           <div class="flex flex-wrap gap-1">
             {#each portItems as port}
               {#if port}
-                <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border font-mono text-[10px] font-semibold {port.class}">
+                <span
+                  class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] font-semibold {port.class}"
+                >
                   {port.formatted}
                 </span>
               {/if}
@@ -316,13 +371,50 @@
         </div>
       {/if}
 
-      <!-- Actions -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+      <!-- Container Details & Actions Footer -->
+      <div class="pt-2 border-t border-slate-300 dark:border-slate-800 grid grid-cols-3 gap-1.5">
+        <ButtonPink
+          size="xs"
+          class="w-full"
+          onclick={() => (showLabels = true)}
+        >
+          {#snippet icon()}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-3 h-3"
+            >
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+              <line x1="7" y1="7" x2="7.01" y2="7" />
+            </svg>
+          {/snippet}
+          {t("containers.card_view_labels")}
+        </ButtonPink>
         <ButtonCyan
           size="xs"
           class="w-full"
           onclick={() => (showEnv = true)}
         >
+          {#snippet icon()}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-3 h-3"
+            >
+              <rect width="18" height="18" x="3" y="3" rx="2" />
+              <path d="M7 8h10M7 12h10M7 16h6" />
+            </svg>
+          {/snippet}
           {t("containers.card_view_env")}
         </ButtonCyan>
         <ButtonPurple
@@ -330,27 +422,59 @@
           class="w-full"
           onclick={() => on_open_logs(container.name)}
         >
+          {#snippet icon()}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-3 h-3"
+            >
+              <polyline points="4 17 10 11 4 5" />
+              <line x1="12" x2="20" y1="19" y2="19" />
+            </svg>
+          {/snippet}
           {t("containers.card_view_logs")}
         </ButtonPurple>
       </div>
     </div>
   {/if}
 
+  <!-- Modal de Variáveis de Ambiente -->
   <FormModal bind:show={showEnv} cancelLabel={t("common.close")} title={`${t("containers.card_env_title")} — ${container.name}`}>
-          {#if container.env?.length}
-            <div class="grid grid-cols-[minmax(8rem,0.8fr)_minmax(0,2fr)] overflow-hidden rounded-xl border border-cyan-200 dark:border-cyan-900/50">
-              <div class="bg-slate-100 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-900 dark:text-slate-400">{t("containers.card_env_key")}</div>
-              <div class="bg-slate-100 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-900 dark:text-slate-400">{t("containers.card_env_value")}</div>
-              {#each container.env as env}
-                {@const separator = env.indexOf("=")}
-                {@const key = separator >= 0 ? env.slice(0, separator) : env}
-                {@const value = separator >= 0 ? env.slice(separator + 1) : ""}
-                <code class="block break-all border-t border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-orange-800 dark:border-slate-800 dark:bg-slate-950/60 dark:text-orange-400">{key}</code>
-                <code class="block break-all border-t border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-300">{value}</code>
-              {/each}
-            </div>
+    {#if container.env?.length}
+      <div class="grid grid-cols-[minmax(8rem,0.8fr)_minmax(0,2fr)] overflow-hidden rounded-xl border border-cyan-200 dark:border-cyan-900/50">
+        <div class="bg-slate-100 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-900 dark:text-slate-400">{t("containers.card_env_key")}</div>
+        <div class="bg-slate-100 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-900 dark:text-slate-400">{t("containers.card_env_value")}</div>
+        {#each container.env as env}
+          {@const separator = env.indexOf("=")}
+          {@const key = separator >= 0 ? env.slice(0, separator) : env}
+          {@const value = separator >= 0 ? env.slice(separator + 1) : ""}
+          <code class="block break-all border-t border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-orange-800 dark:border-slate-800 dark:bg-slate-950/60 dark:text-orange-400">{key}</code>
+          <code class="block break-all border-t border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-300">{value}</code>
+        {/each}
+      </div>
     {:else}
       <p class="text-sm text-slate-500">{t("containers.card_env_empty")}</p>
+    {/if}
+  </FormModal>
+
+  <!-- Modal de Labels -->
+  <FormModal bind:show={showLabels} cancelLabel={t("common.close")} title={`${t("containers.card_labels_title")} — ${container.name}`}>
+    {#if labels.length}
+      <div class="grid grid-cols-[minmax(8rem,1fr)_minmax(0,2fr)] overflow-hidden rounded-xl border border-pink-200 dark:border-pink-900/50">
+        <div class="bg-slate-100 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-900 dark:text-slate-400">{t("containers.card_env_key")}</div>
+        <div class="bg-slate-100 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-900 dark:text-slate-400">{t("containers.card_env_value")}</div>
+        {#each labels as [k, v]}
+          <code class="block break-all select-all border-t border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-pink-700 dark:border-slate-800 dark:bg-slate-950/60 dark:text-pink-400">{k}</code>
+          <code class="block break-all select-all border-t border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-300">{v || "—"}</code>
+        {/each}
+      </div>
+    {:else}
+      <p class="text-sm text-slate-500">{t("containers.card_labels_empty")}</p>
     {/if}
   </FormModal>
 </div>

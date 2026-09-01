@@ -10,6 +10,7 @@
   import CreateVolumeModal from "./components/CreateVolumeModal.svelte";
   import ConfirmDialog from "$shared/components/ConfirmDialog.svelte";
   import { createVolumesStore } from "./store.svelte";
+  import { viewModeStore } from "$shared/stores/viewMode.svelte";
 
   let { data } = $props();
 
@@ -54,7 +55,7 @@
         <p class="text-xs whitespace-pre-wrap">{vState.fetchError}</p>
       </div>
     {:else}
-      <!-- Volumes Grid -->
+      <!-- Volumes Grid / List -->
       {#if vState.filteredVolumes.length === 0}
         <div
           class="text-sm text-slate-400 dark:text-slate-500 py-16 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/20"
@@ -62,7 +63,7 @@
           {t("volumes.empty")}
         </div>
       {:else}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class={viewModeStore.getGridClass()}>
           {#each vState.filteredVolumes as vol (vol.name)}
             <VolumeCard
               {vol}

@@ -11,6 +11,7 @@
   import ConnectContainerModal from "./components/ConnectContainerModal.svelte";
   import ConfirmDialog from "$shared/components/ConfirmDialog.svelte";
   import { createNetworksStore } from "./store.svelte";
+  import { viewModeStore } from "$shared/stores/viewMode.svelte";
 
   let { data } = $props();
 
@@ -56,7 +57,7 @@
         <p class="text-xs whitespace-pre-wrap">{netState.fetchError}</p>
       </div>
     {:else}
-      <!-- Networks Grid -->
+      <!-- Networks Grid / List -->
       {#if netState.filteredNetworks.length === 0}
         <div
           class="text-sm text-slate-400 dark:text-slate-500 py-16 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/20"
@@ -64,9 +65,7 @@
           {t("networks.empty")}
         </div>
       {:else}
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-        >
+        <div class={viewModeStore.getGridClass()}>
           {#each netState.filteredNetworks as network (network.id)}
             <NetworkCard
               {network}

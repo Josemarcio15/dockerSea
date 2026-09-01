@@ -4,7 +4,7 @@
   import { ButtonPurple } from "$shared/components/buttons";
   import ServerCard from "./components/ServerCard.svelte";
   import { createServersStore } from "./store.svelte";
-  import type { Route } from "../../navigation/navigation.types";
+  import type { Route } from "$navigation/navigation.types";
 
   let { data, navigate }: { data: any; navigate?: (route: Route) => void } =
     $props();
@@ -34,7 +34,7 @@
 
   {#if data.servers.length === 0}
     <div
-      class="flex flex-col items-center justify-center py-20 px-6 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white dark:bg-[#0b0f19] shadow-sm max-w-2xl mx-auto"
+      class="flex flex-col items-center justify-center py-20 px-6 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white/80 dark:bg-[#0b0f19]/80 backdrop-blur-sm shadow-sm max-w-2xl mx-auto"
     >
       <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">
         {t("devices.empty_title")}

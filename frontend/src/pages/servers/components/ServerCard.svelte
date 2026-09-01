@@ -38,22 +38,24 @@
 </script>
 
 <div
-  class="group relative rounded-2xl bg-white dark:bg-[#0c1220] border transition-all duration-300 flex flex-col justify-between p-5 gap-5 shadow-md dark:shadow-lg dark:shadow-black/40 hover:-translate-y-1 hover:border-slate-300 dark:hover:border-slate-700 {isActive
-    ? 'border-violet-500 ring-2 ring-violet-500/10'
-    : 'border-slate-200 dark:border-slate-800/80'}"
+  class="group relative rounded-2xl bg-white/90 dark:bg-[#0c1220]/90 backdrop-blur-sm border border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 flex flex-col justify-between p-5 gap-5 shadow-sm hover:shadow-md dark:shadow-black/40 hover:-translate-y-0.5"
 >
   <div class="space-y-4">
     <div class="flex items-start justify-between">
       {#if isActive}
         <span
-          class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm"
-          >{t("profiles.active_badge")}</span
+          class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 shadow-2xs"
         >
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"
+          ></span>
+          {t("profiles.active_badge")}
+        </span>
       {:else}
         <span
-          class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-900 text-slate-500 border border-slate-200/50 dark:border-slate-800/50"
-          >{t("profiles.inactive_badge")}</span
+          class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400 border border-slate-200/70 dark:border-slate-700/60"
         >
+          {t("profiles.inactive_badge")}
+        </span>
       {/if}
       {#if isActive}
         <ButtonPink
@@ -68,11 +70,13 @@
     </div>
 
     <div>
-      <h3 class="font-bold text-slate-850 dark:text-white text-lg">
+      <h3
+        class="font-bold text-slate-900 dark:text-white text-lg tracking-tight"
+      >
         {server.name}
       </h3>
       <p
-        class="text-xs text-slate-400 dark:text-slate-500 font-mono mt-1 truncate"
+        class="text-xs text-indigo-600 dark:text-indigo-400 font-mono mt-1 truncate font-medium"
       >
         {server.connectionType === "ssh"
           ? `${server.username}@${server.host}:${server.port}`
@@ -82,7 +86,7 @@
 
     {#if isLoading}
       <div
-        class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/50 space-y-2 animate-pulse"
+        class="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/50 space-y-2 animate-pulse"
       >
         <div
           class="h-2.5 bg-slate-200 dark:bg-slate-700/50 rounded-full w-3/4"
@@ -92,49 +96,59 @@
         ></div>
       </div>
     {:else if usage}
+      <!-- Container interno em tom gelo, elevado, com RAM, Disco, Swap e Uptime -->
       <div
-        class="p-3.5 rounded-xl bg-slate-50 dark:bg-[#080d1a] border border-slate-200/60 dark:border-slate-800/60 space-y-3"
+        class="p-4 rounded-2xl bg-[#f8fafc] dark:bg-[#0c1220] border border-slate-200/90 dark:border-slate-800 shadow-md divide-y divide-slate-200/60 dark:divide-slate-800/80 space-y-3.5"
       >
-        {#each [{ label: "🧠 RAM", used: usage.memUsed, total: usage.memTotal, percent: usage.memUsagePerc, color: usage.memUsagePerc > 85 ? "bg-rose-500" : usage.memUsagePerc > 65 ? "bg-amber-500" : "bg-emerald-500" }, { label: "💾 Disco (/)", used: usage.diskUsed, total: usage.diskTotal, percent: usage.diskUsagePerc, color: usage.diskUsagePerc > 85 ? "bg-rose-500" : usage.diskUsagePerc > 70 ? "bg-amber-500" : "bg-cyan-500" }] as metric}
-          <div class="space-y-1">
-            <div class="flex justify-between text-[11px] font-semibold">
-              <span class="text-slate-500 dark:text-slate-400"
+        {#each [{ label: "RAM", used: usage.memUsed, total: usage.memTotal, percent: usage.memUsagePerc, color: usage.memUsagePerc > 85 ? "bg-rose-500" : usage.memUsagePerc > 65 ? "bg-amber-500" : "bg-emerald-500", badge: "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300" }, { label: "Disco (/)", used: usage.diskUsed, total: usage.diskTotal, percent: usage.diskUsagePerc, color: usage.diskUsagePerc > 85 ? "bg-rose-500" : usage.diskUsagePerc > 70 ? "bg-amber-500" : "bg-sky-500", badge: "bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300" }] as metric, i}
+          <div class="space-y-2 {i > 0 ? 'pt-3.5' : ''}">
+            <div class="flex justify-between items-center text-xs font-semibold">
+              <span
+                class="px-2 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider {metric.badge}"
                 >{metric.label}</span
               >
-              <span class="text-slate-700 dark:text-slate-300 font-mono"
-                >{formatBytes(metric.used)} / {formatBytes(metric.total)} ({metric.percent.toFixed(
-                  1,
-                )}%)</span
+              <span
+                class="text-slate-900 dark:text-slate-100 font-mono font-bold"
+                >{formatBytes(metric.used)} / {formatBytes(metric.total)}
+                <span class="text-indigo-600 dark:text-indigo-400"
+                  >({metric.percent.toFixed(1)}%)</span
+                ></span
               >
             </div>
             <div
-              class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden"
+              class="h-2.5 w-full bg-slate-200/80 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-300/80 dark:border-slate-700 shadow-inner"
             >
               <div
-                class="h-full rounded-full transition-all duration-500 {metric.color}"
+                class="h-full rounded-full transition-all duration-500 {metric.color} shadow-xs"
                 style="width: {Math.min(100, Math.max(0, metric.percent))}%"
               ></div>
             </div>
           </div>
         {/each}
+
         {#if usage.swapTotal > 0}
-          <div class="space-y-1">
-            <div class="flex justify-between text-[11px] font-semibold">
-              <span class="text-slate-500 dark:text-slate-400">🔄 Swap</span
-              ><span class="text-slate-700 dark:text-slate-300 font-mono"
-                >{formatBytes(usage.swapUsed)} / {formatBytes(usage.swapTotal)} ({usage.swapUsagePerc.toFixed(
-                  1,
-                )}%)</span
+          <div class="pt-3.5 space-y-2">
+            <div class="flex justify-between items-center text-xs font-semibold">
+              <span
+                class="px-2 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"
+                >Swap</span
+              >
+              <span
+                class="text-slate-900 dark:text-slate-100 font-mono font-bold"
+                >{formatBytes(usage.swapUsed)} / {formatBytes(usage.swapTotal)}
+                <span class="text-indigo-600 dark:text-indigo-400"
+                  >({usage.swapUsagePerc.toFixed(1)}%)</span
+                ></span
               >
             </div>
             <div
-              class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden"
+              class="h-2.5 w-full bg-slate-200/80 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-300/80 dark:border-slate-700 shadow-inner"
             >
               <div
                 class="h-full rounded-full transition-all duration-500 {usage.swapUsagePerc >
                 70
                   ? 'bg-rose-500'
-                  : 'bg-indigo-500'}"
+                  : 'bg-indigo-500'} shadow-xs"
                 style="width: {Math.min(
                   100,
                   Math.max(0, usage.swapUsagePerc),
@@ -143,23 +157,65 @@
             </div>
           </div>
         {/if}
-        {#if usage.uptime}<div
-            class="pt-1 border-t border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between text-[10px] text-slate-400"
+
+        {#if usage.uptime}
+          <div
+            class="pt-3 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400 font-medium"
           >
-            <span class="truncate max-w-35" title={usage.uptime}
-              >⏱️ {usage.uptime}</span
-            >{#if usage.cpuCount}<span>⚡ {usage.cpuCount} CPU(s)</span>{/if}
-          </div>{/if}
+            <span class="truncate max-w-35 font-medium" title={usage.uptime}
+              >{usage.uptime}</span
+            >{#if usage.cpuCount}<span
+                class="font-mono font-bold text-indigo-600 dark:text-indigo-400"
+                >{usage.cpuCount} CPU(s)</span
+              >{/if}
+          </div>
+        {/if}
       </div>
     {/if}
   </div>
   <div
-    class="flex items-center gap-2.5 border-t border-slate-100 dark:border-slate-900 pt-4"
+    class="flex items-center gap-2.5 border-t border-slate-100 dark:border-slate-800/70 pt-4"
   >
-    {#if isActive}<ButtonBlue size="sm" onclick={onViewContainers}
-        >{t("devices.view_containers")}</ButtonBlue
-      >{:else}<ButtonPurple class="flex-1" onclick={onActivate}
-        >{t("devices.activate")}</ButtonPurple
-      >{/if}
+    {#if isActive}
+      <ButtonBlue size="sm" class="flex items-center justify-center gap-2" onclick={onViewContainers}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="w-4 h-4"
+        >
+          <path
+            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+          />
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+          <line x1="12" y1="22.08" x2="12" y2="12" />
+        </svg>
+        <span>{t("devices.view_containers")}</span>
+      </ButtonBlue>
+    {:else}
+      <ButtonPurple
+        class="flex-1 flex items-center justify-center gap-2"
+        onclick={onActivate}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="w-4 h-4"
+        >
+          <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+          <line x1="12" y1="2" x2="12" y2="12" />
+        </svg>
+        <span>{t("devices.activate")}</span>
+      </ButtonPurple>
+    {/if}
   </div>
 </div>
