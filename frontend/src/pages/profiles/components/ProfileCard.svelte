@@ -24,7 +24,7 @@
         </span>
       {/if}
 
-      <!-- Ícone decorativo 3D em card branco -->
+      <!-- Decorative 3D icon on white card -->
       <div
         class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm shadow-[inset_0_-2px_0_0_rgba(0,0,0,0.05)] flex items-center justify-center text-slate-700 dark:text-slate-300"
       >

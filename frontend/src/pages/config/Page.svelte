@@ -19,7 +19,7 @@
   const showDeleteConfirm = $derived(store.showDeleteConfirm);
   const activeLocale = $derived(store.activeLocale);
 
-  // Carregar servidores do SQLite ao abrir a tela
+  // Load SQLite servers upon opening the screen
   $effect(() => {
     void store.load();
   });
@@ -273,7 +273,7 @@
   result={diagnosticResult}
 />
 
-<!-- Modal de Confirmação de Exclusão de VPS -->
+<!-- Confirmação de Exclusão de VPS Modal -->
 <ConfirmDialog
   bind:show={store.showDeleteConfirm}
   title="Remover VPS"
@@ -283,7 +283,7 @@
   onConfirm={confirmDeleteVps}
 />
 
-<!-- Modal de Confirmação de Reset do Banco -->
+<!-- Confirmação de Reset do Banco Modal -->
 <ConfirmDialog
   bind:show={store.showResetConfirm}
   title={t("config.db_reset_confirm_title")}

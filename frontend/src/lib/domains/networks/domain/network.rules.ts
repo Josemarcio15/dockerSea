@@ -1,17 +1,17 @@
 /**
- * Redes padrão do Docker que possuem restrições especiais
+ * Default Docker networks that have special restrictions
  */
 export const DEFAULT_DOCKER_NETWORKS = ["bridge", "host", "none"] as const;
 
 /**
- * Verifica se uma rede é considerada padrão/do sistema
+ * Checks if a network is considered default/system
  */
 export function isDefaultNetwork(name: string): boolean {
   return DEFAULT_DOCKER_NETWORKS.includes(name as any);
 }
 
 /**
- * Validação simples de formato de nome de rede Docker
+ * Simple Docker network name format validation
  */
 export function isValidNetworkName(name: string): boolean {
   if (!name || name.trim().length === 0) return false;
@@ -21,7 +21,7 @@ export function isValidNetworkName(name: string): boolean {
 }
 
 /**
- * Filtra redes customizadas (exclui redes padrão e aplica busca)
+ * Filters custom networks (excludes default networks and applies search)
  */
 export function filterCustomNetworks<T extends { name: string }>(
   networks: T[],

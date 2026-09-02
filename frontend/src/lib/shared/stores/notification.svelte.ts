@@ -2,18 +2,18 @@
  * Global notification banner store.
  *
  * Use `notifySuccess(msg)`, `notifyWarning(msg)`, `notifyError(msg)` em
- * qualquer página ou componente. O banner desaparece automaticamente após 5s.
+ * any page or component. The banner automatically dismisses after 5s.
  *
  * @example
  * ```svelte
  * import { notifySuccess, notifyWarning, notifyError } from "$shared/stores/notification.svelte";
  *
- * notifySuccess("VPS selecionada com sucesso");
- * notifyWarning("Nenhuma imagem selecionada");
- * notifyError("Erro ao deletar imagens");
+ * notifySuccess("VPS selected successfully");
+ * notifyWarning("No image selected");
+ * notifyError("Error deleting images");
  *
- * // Para erros capturados (e.message):
- * notifyError(e?.message ?? "Erro desconhecido");
+ * // For caught errors (e.message):
+ * notifyError(e?.message ?? "Unknown error");
  * ```
  */
 

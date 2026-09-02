@@ -78,6 +78,6 @@ func decryptSecret(value string) (string, error) {
 	}
 
 	// Se falhou (ex: banco importado de outra máquina/outro SO),
-	// retorna string vazia para que o usuário redigite a senha na nova máquina
+	// Returns string vazia para que o usuário redigite a senha na nova máquina
 	return "", nil
 }

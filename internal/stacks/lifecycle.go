@@ -86,7 +86,7 @@ func ExecuteStopStack(
 			return StackActionResult{Success: false, Message: fmt.Sprintf("erro ao gerar pasta efêmera: %v", err)}
 		}
 
-		// Cria pasta efêmera e envia o YAML canônico
+		// Creates pasta efêmera e envia o YAML canônico
 		mkdirCmd := fmt.Sprintf("mkdir -p %s", lifecycleDir)
 		if _, err := client.ExecCommand(mkdirCmd, false); err != nil {
 			return StackActionResult{Success: false, Message: fmt.Sprintf("falha ao criar pasta efêmera na VPS: %v", err)}

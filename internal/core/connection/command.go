@@ -80,7 +80,7 @@ func (c *Client) StartCommandOutput(ctx context.Context, cmd string, useSudo boo
 		return nil, nil, fmt.Errorf("falha ao abrir stderr pipe SSH: %w", err)
 	}
 
-	// Cria um pipe síncrono para fazer o merge concorrente de stdout e stderr sem deadlock
+	// Creates um pipe síncrono para fazer o merge concorrente de stdout e stderr sem deadlock
 	pr, pw := io.Pipe()
 
 	if err := session.Start(finalCmd); err != nil {

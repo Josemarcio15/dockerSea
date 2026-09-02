@@ -40,7 +40,7 @@
 <div
   class="flex flex-col xl:flex-row xl:items-center justify-between p-4 bg-white dark:bg-[#0c1220] border-2 border-slate-300/80 dark:border-slate-700 rounded-2xl gap-4 hover:border-violet-500/50 dark:hover:border-violet-500/40 transition-all shadow-md hover:shadow-lg"
 >
-  <!-- Informações Principais da Stack -->
+  <!-- Stack Main Information -->
   <div class="flex items-start gap-4 min-w-0 flex-1">
     <div
       class="w-11 h-11 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center font-bold text-xs shrink-0 border border-violet-500/20 mt-0.5 shadow-inner"
@@ -49,7 +49,7 @@
     </div>
 
     <div class="min-w-0 flex-1 space-y-2">
-      <!-- Linha 1: Título e Badges de Status -->
+      <!-- Row 1: Title and Status Badges -->
       <div class="flex items-center gap-2.5 flex-wrap">
         <h3
           class="font-bold text-slate-900 dark:text-white text-base leading-tight m-0"
@@ -80,7 +80,7 @@
         {/if}
       </div>
 
-      <!-- Linha 2: Metadados da Stack -->
+      <!-- Row 2: Stack Metadata -->
       <div
         class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-slate-500 dark:text-slate-400"
       >
@@ -114,9 +114,9 @@
     </div>
   </div>
 
-  <!-- Ações da Stack -->
+  <!-- Stack Actions -->
   <div class="flex flex-wrap items-center gap-2 shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-100 dark:border-slate-800/60">
-    <!-- Deploy (Verde) -->
+    <!-- Deploy (Green) -->
     <ButtonGreen size="sm" onclick={on_deploy}>
       {#snippet icon()}
         <svg
@@ -135,7 +135,7 @@
       {t("stacks.deploy_btn")}
     </ButtonGreen>
 
-    <!-- Parar / Remover Container (Amarelo / Âmbar) -->
+    <!-- Stop / Remove Container (Yellow / Amber) -->
     <ButtonYellow size="sm" onclick={on_stop}>
       {#snippet icon()}
         <svg
@@ -150,7 +150,7 @@
       {t("stacks.stop_btn")}
     </ButtonYellow>
 
-    <!-- Logs (Azul) -->
+    <!-- Logs (Blue) -->
     <ButtonBlue size="sm" onclick={on_logs}>
       {#snippet icon()}
         <svg
@@ -170,7 +170,7 @@
       {t("stacks.logs_btn")}
     </ButtonBlue>
 
-    <!-- Editar (Roxo / Púrpura) -->
+    <!-- Edit (Purple) -->
     <ButtonPurple size="sm" onclick={on_edit}>
       {#snippet icon()}
         <svg
@@ -192,7 +192,7 @@
       {t("stacks.edit_btn")}
     </ButtonPurple>
 
-    <!-- Remover da VPS / Down (Laranja) -->
+    <!-- Removes from VPS / Down (Orange) -->
     <ButtonOrange size="sm" onclick={on_remove_remote}>
       {#snippet icon()}
         <svg
@@ -214,7 +214,7 @@
       {t("stacks.remove_remote_btn")}
     </ButtonOrange>
 
-    <!-- Excluir Definição Local (Vermelho / Rose) -->
+    <!-- Delete Local Definition (Red / Rose) -->
     <ButtonRed size="sm" onclick={on_delete_local}>
       {#snippet icon()}
         <svg

@@ -93,10 +93,10 @@ func TransferImages(ctx context.Context, srcClient, dstClient *connection.Client
 		},
 	}
 
-	// Executa a cópia em stream direto com buffer de alta performance de 128KB
+	// Executes a cópia em stream direto com buffer de alta performance de 128KB
 	copyBuf := make([]byte, 128*1024)
 	_, copyErr := io.CopyBuffer(dstStdin, progressReader, copyBuf)
-	_ = dstStdin.Close() // Fecha o stdin para sinalizar EOF ao docker load
+	_ = dstStdin.Close() // Closes o stdin para sinalizar EOF ao docker load
 
 	if copyErr != nil {
 		return fmt.Errorf("erro durante streaming de dados: %w", copyErr)

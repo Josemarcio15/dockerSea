@@ -134,7 +134,7 @@ func HasRuntimeBindDependency(config *ComposeNormalizedConfig, remoteDeployDir s
 
 			if strings.EqualFold(volType, "bind") && volSource != "" {
 				cleanSource := filepath.Clean(volSource)
-				// Verifica se cleanSource é o próprio deployDir ou está dentro dele
+				// Checks se cleanSource é o próprio deployDir ou está dentro dele
 				if cleanSource == cleanDeployDir || strings.HasPrefix(cleanSource, cleanDeployDir+"/") || strings.HasPrefix(cleanSource, cleanDeployDir+"\\") {
 					return true
 				}

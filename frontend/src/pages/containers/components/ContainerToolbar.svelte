@@ -49,7 +49,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <!-- 1, 2, 3 Colunas Switcher -->
+      <!-- 1, 2, 3 Columns Switcher -->
       <ColumnLayoutSwitcher />
 
       <input
@@ -126,7 +126,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <!-- Iniciar (Verde) -->
+      <!-- Start (Green) -->
       <ButtonGreen
         size="sm"
         disabled={selectedCount === 0}
@@ -149,7 +149,7 @@
         {t("containers.start")}
       </ButtonGreen>
 
-      <!-- Reiniciar (Azul) -->
+      <!-- Restart (Blue) -->
       <ButtonBlue
         size="sm"
         disabled={selectedCount === 0}
@@ -175,7 +175,7 @@
         {t("containers.restart")}
       </ButtonBlue>
 
-      <!-- Parar (Amarelo) -->
+      <!-- Stop (Yellow) -->
       <ButtonYellow
         size="sm"
         disabled={selectedCount === 0}
@@ -194,7 +194,7 @@
         {t("containers.stop")}
       </ButtonYellow>
 
-      <!-- Remover (Vermelho) -->
+      <!-- Delete (Red) -->
       <ButtonRed
         size="sm"
         disabled={selectedCount === 0}

@@ -1,6 +1,6 @@
 /**
  * SWR (Stale-While-Revalidate) Cache Store
- * Permite navegação instantânea (0ms) com sincronização em background.
+ * Allows instant navigation (0ms) with background synchronization.
  */
 
 type CacheEntry<T> = {

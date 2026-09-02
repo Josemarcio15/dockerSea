@@ -113,26 +113,26 @@
     // Clean up any stray unprintable characters
     let html = result.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "");
 
-    // Realce especial em rosa para SQL e queries SELECT / INSERT / UPDATE / DELETE / JOIN
+    // Special pink highlight for SQL and queries SELECT / INSERT / UPDATE / DELETE / JOIN
     html = highlightSql(html);
 
     return html;
   }
 
   function highlightSql(html: string): string {
-    // Se a linha tiver [SQL...] ou começar com keywords SQL, realça a tag e os comandos SQL em rosa/pink
+    // If the line has [SQL...] or starts with SQL keywords, highlight the tag and SQL commands in pink
     html = html.replace(
       /(\[SQL(?::[^\]]+)?\])/gi,
       '<span class="text-pink-600 dark:text-pink-400 font-bold">$1</span>',
     );
 
-    // Realce de queries SQL: SELECT, INSERT INTO, UPDATE, DELETE, FROM, WHERE, LEFT JOIN, INNER JOIN, ORDER BY, GROUP BY, LIMIT
+    // Highlight of SQL queries: SELECT, INSERT INTO, UPDATE, DELETE, FROM, WHERE, LEFT JOIN, INNER JOIN, ORDER BY, GROUP BY, LIMIT
     html = html.replace(
       /\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM|FROM|WHERE|LEFT\s+JOIN|RIGHT\s+JOIN|INNER\s+JOIN|JOIN|ORDER\s+BY|GROUP\s+BY|LIMIT|OFFSET|COALESCE|COUNT|SUM|AVG|CASE|WHEN|THEN|ELSE|END)\b/g,
       '<span class="text-pink-600 dark:text-pink-400 font-bold">$1</span>',
     );
 
-    // Realce para tags HTTP (GET, POST, PUT, DELETE, PATCH)
+    // Highlight for HTTP tags (GET, POST, PUT, DELETE, PATCH)
     html = html.replace(
       /(\[HTTP\])/gi,
       '<span class="text-purple-600 dark:text-purple-400 font-bold">$1</span>',

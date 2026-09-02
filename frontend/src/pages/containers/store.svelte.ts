@@ -39,7 +39,7 @@ export function createContainersStore(
     if (cachedData && cachedData.length >= 0) {
       containers = cachedData;
       loading = false;
-      silent = true; // Busca em background sem travar o layout com spinner
+      silent = true; // Searches em background sem travar o layout com spinner
     } else if (!silent) {
       loading = true;
     }

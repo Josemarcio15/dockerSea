@@ -32,7 +32,7 @@
 </script>
 
 {#if notif.message}
-  <!-- Toast flutuante com z-index alto e backdrop-blur para sobrepor a tela sem empurrar layout -->
+  <!-- Floating toast with high z-index and backdrop-blur to overlay screen without pushing layout -->
   <div
     class="fixed top-6 right-6 z-9999 max-w-md w-full pointer-events-auto animate-slideIn"
   >

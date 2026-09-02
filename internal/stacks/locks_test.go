@@ -32,7 +32,7 @@ func TestStackLockManager_SerializesSameKey(t *testing.T) {
 		t.Fatalf("esperado contador = 20, obtido %d (corrida de concorrência detectada)", counter)
 	}
 
-	// Verifica se o mapa foi limpo após término
+	// Checks se o mapa foi limpo após término
 	mgr.mu.Lock()
 	mapLen := len(mgr.locks)
 	mgr.mu.Unlock()

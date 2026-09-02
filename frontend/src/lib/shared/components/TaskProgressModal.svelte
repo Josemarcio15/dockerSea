@@ -86,7 +86,7 @@
       const phasePrefix = data.phase ? `[${data.phase.toUpperCase()}] ` : "";
       logs = [...logs, `→ ${phasePrefix}${data.message}`];
 
-      // Progressão gradual de acordo com a fase do deploy ou build
+      // Gradual progression according to the deploy or build phase
       if (phase === "preparing" && percent < 15) percent = 15;
       else if (phase === "uploading" && percent < 30) percent = 30;
       else if (phase === "validating" && percent < 45) percent = 45;
@@ -257,7 +257,7 @@
         </button>
       </div>
 
-      <!-- Barra de Progresso Geral 0-100% -->
+      <!-- General Progress Bar 0-100% -->
       <div
         class="border border-slate-800 rounded-2xl p-4 bg-[#070b14]/80 space-y-2.5 shadow-inner shrink-0"
       >
@@ -279,12 +279,12 @@
         </div>
       </div>
 
-      <!-- Terminal de Logs Reutilizável (Ocupa todo o espaço vertical restante sem pular) -->
+      <!-- Reusable Logs Terminal (Occupies full remaining vertical space without jumping) -->
       <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
         <TerminalLogsView {logs} maxHeight="h-full max-h-full" />
       </div>
 
-      <!-- Rodapé / Ação -->
+      <!-- Footer / Action -->
       <div
         class="flex justify-between items-center pt-3 border-t border-slate-800/80"
       >

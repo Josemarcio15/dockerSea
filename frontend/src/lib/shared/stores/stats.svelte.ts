@@ -80,8 +80,8 @@ function startStream(vpsId: string) {
   eventSource.onerror = () => {
     statsState.loading = false;
     statsState.checking = false;
-    // No desktop Wails application existe uma rota HTTP /api/stats;
-    // a ausência dessa rota não significa que a VPS esteja offline.
+    // In the desktop Wails application there is an HTTP /api/stats route;
+    // the absence of this route does not mean the VPS is offline.
     if (typeof window !== "undefined" && !["http:", "https:"].includes(window.location.protocol)) {
       statsState.online = true;
       statsState.error = null;

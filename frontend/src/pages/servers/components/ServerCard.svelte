@@ -96,7 +96,7 @@
         ></div>
       </div>
     {:else if usage}
-      <!-- Container interno em tom gelo, elevado, com RAM, Disco, Swap e Uptime -->
+      <!-- Inner elevated ice-toned container, with RAM, Disk, Swap and Uptime -->
       <div
         class="p-4 rounded-2xl bg-[#f8fafc] dark:bg-[#0c1220] border border-slate-200/90 dark:border-slate-800 shadow-md divide-y divide-slate-200/60 dark:divide-slate-800/80 space-y-3.5"
       >

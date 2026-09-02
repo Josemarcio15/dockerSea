@@ -5,7 +5,7 @@
 <div
   class="inline-flex rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] p-1 shadow-2xs gap-0.5"
 >
-  <!-- 1 por linha (Lista) -->
+  <!-- 1 per row (List) -->
   <button
     type="button"
     class="p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {viewModeStore.columns ===
@@ -13,7 +13,7 @@
       ? 'bg-violet-600 text-white shadow-xs'
       : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}"
     onclick={() => viewModeStore.setColumns(1)}
-    title="1 por linha (Lista)"
+    title="1 per row (List)"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -31,7 +31,7 @@
     </svg>
   </button>
 
-  <!-- 2 por linha (Grade Dupla) -->
+  <!-- 2 per row (Double Grid) -->
   <button
     type="button"
     class="p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {viewModeStore.columns ===
@@ -56,7 +56,7 @@
     </svg>
   </button>
 
-  <!-- 3 por linha (Grade Tripla) -->
+  <!-- 3 per row (Triple Grid) -->
   <button
     type="button"
     class="p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer {viewModeStore.columns ===

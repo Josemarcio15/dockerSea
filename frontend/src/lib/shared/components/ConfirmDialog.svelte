@@ -47,7 +47,7 @@
     <div
       class="bg-white dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-800 rounded-2xl w-105 max-w-full flex flex-col p-6 shadow-2xl animate-scaleIn text-slate-800 dark:text-slate-200 gap-4"
     >
-      <!-- Header com Ícone -->
+      <!-- Header with Icon -->
       <div class="flex items-start gap-3.5">
         <div
           class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg {type ===

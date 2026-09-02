@@ -443,7 +443,7 @@
     </div>
   {/if}
 
-  <!-- Modal de Variáveis de Ambiente -->
+  <!-- Environment Variables Modal -->
   <FormModal bind:show={showEnv} cancelLabel={t("common.close")} title={`${t("containers.card_env_title")} — ${container.name}`}>
     {#if container.env?.length}
       <div class="grid grid-cols-[minmax(8rem,0.8fr)_minmax(0,2fr)] overflow-hidden rounded-xl border border-cyan-200 dark:border-cyan-900/50">
@@ -462,7 +462,7 @@
     {/if}
   </FormModal>
 
-  <!-- Modal de Labels -->
+  <!-- Labels Modal -->
   <FormModal bind:show={showLabels} cancelLabel={t("common.close")} title={`${t("containers.card_labels_title")} — ${container.name}`}>
     {#if labels.length}
       <div class="grid grid-cols-[minmax(8rem,1fr)_minmax(0,2fr)] overflow-hidden rounded-xl border border-pink-200 dark:border-pink-900/50">

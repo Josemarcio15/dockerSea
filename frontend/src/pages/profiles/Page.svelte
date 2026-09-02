@@ -46,7 +46,7 @@
   </div>
 </div>
 
-<!-- Modal: Adicionar/Editar Perfil -->
+<!-- Modal: Add/Edit Profile -->
 <ProfileForm
   bind:show={store.showModal}
   id={store.form.id}
@@ -54,7 +54,7 @@
   onSave={store.save}
 />
 
-<!-- Modal de Confirmação de Exclusão de Perfil -->
+<!-- Profile Delete Confirmation Modal -->
 <ConfirmDialog
   bind:show={store.showDeleteConfirm}
   title="Remover Perfil"

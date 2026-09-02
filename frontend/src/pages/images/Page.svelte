@@ -581,7 +581,7 @@
   }}
 />
 
-<!-- Modal de Carregamento da Transferência com Progresso em Tempo Real -->
+<!-- Carregamento da Transferência com Progresso em Tempo Real Modal -->
 {#if imgState.transferInProgress}
   <div
     class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn"
@@ -604,7 +604,7 @@
         </p>
       </div>
 
-      <!-- Barra de progresso abstrata 0 - 100% -->
+      <!-- progresso abstrata 0 - 100% Bar -->
       <div
         class="w-full bg-[#070a12] border border-slate-800 rounded-2xl p-5 space-y-3.5 shadow-inner text-left"
       >

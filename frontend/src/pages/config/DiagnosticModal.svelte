@@ -34,7 +34,7 @@
     </div>
   {:else if result}
     <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-      <!-- Status Banner Resumo -->
+      <!-- Status Banner Summary -->
       <div
         class="p-4 rounded-2xl border flex items-start gap-3 text-sm font-semibold {result.success
           ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50'
@@ -46,7 +46,7 @@
         </div>
       </div>
 
-      <!-- Etapas do Diagnóstico -->
+      <!-- Diagnostic Steps -->
       <div class="space-y-3">
         <h4
           class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"

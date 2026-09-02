@@ -50,7 +50,7 @@
     ondeleteprofile: (profileId: string) => void;
   } = $props();
 
-  // Lazy fetch volumes/networks apenas quando o modal abre
+  // Lazy fetch volumes/networks only when the modal opens
   let existingVolumes = $state<string[]>([]);
   let existingNetworks = $state<string[]>([]);
 
@@ -201,12 +201,12 @@
     jsonEditor = value;
     isModified = true;
 
-    // Mantém os campos e as validações sincronizados enquanto o JSON válido é editado.
+    // Keeps fields and validations synchronized while valid JSON is being edited.
     try {
       JSON.parse(value);
       applyJson();
     } catch {
-      // Enquanto o JSON estiver incompleto, aguarda a próxima edição.
+      // While JSON is incomplete, waits for next edit.
     }
   }
 
@@ -276,7 +276,7 @@
           : [""];
       isModified = true;
     } catch {
-      // O formulário permanece intacto quando o arquivo não é JSON válido.
+      // The form remains intact when the file is not valid JSON.
     } finally {
       input.value = "";
     }

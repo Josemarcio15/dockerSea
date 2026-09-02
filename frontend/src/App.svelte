@@ -5,7 +5,7 @@
   import { setLocale, t } from "$shared/stores/locale.svelte";
   import { onMount } from "svelte";
 
-  // Importar componentes de páginas
+  // Import page components
   import Servers from "./pages/servers/Page.svelte";
   import Containers from "./pages/containers/Page.svelte";
   import Images from "./pages/images/Page.svelte";
@@ -433,7 +433,7 @@
     </button>
   </div>
 
-  <!-- Main Content Area onde as rotas (páginas) são renderizadas -->
+  <!-- Main Content Area where routes (pages) are rendered -->
   <div
     class="flex-1 p-6 bg-slate-200 dark:from-slate-900 dark:to-indigo-950 dark:bg-gradient-to-br overflow-y-auto"
   >

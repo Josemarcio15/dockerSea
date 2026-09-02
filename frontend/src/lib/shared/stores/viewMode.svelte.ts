@@ -33,7 +33,7 @@ export const viewModeStore = {
     if (currentColumns === 2) {
       return "grid grid-cols-2 gap-3 w-full";
     }
-    // Força exatamente 3 colunas independentemente do tamanho da janela
+    // Force exactly 3 columns regardless of window size
     return "grid grid-cols-3 gap-3 w-full";
   },
 };

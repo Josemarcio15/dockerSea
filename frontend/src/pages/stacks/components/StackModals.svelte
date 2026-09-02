@@ -31,7 +31,7 @@
     onBrowseNavigate = () => {},
     onBrowseSelect = () => {},
 
-    // Remove remote modal
+    // Removes remote modal
     showRemoveRemoteModal = $bindable(false),
     removeRemoteTargetName = "",
     deleteVolumes = $bindable(false),

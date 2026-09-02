@@ -19,7 +19,7 @@
   let { data } = $props();
   let mainTab = $state<"nginx" | "ports" | "deploy_temp">("nginx");
 
-  // Estado Deploy Temp
+  // Deploy Temp State
   let deployFiles = $state<any[]>([]);
   let deployLoading = $state(false);
   let deployPath = $state("$HOME/.docksea");
@@ -30,7 +30,7 @@
   let showDeleteDialog = $state(false);
   let showLogs = $state(false);
 
-  // Derivações reativas da store
+  // Reactive store derivations
   const site = $derived(store.site);
   const busy = $derived(store.busy);
   const available = $derived(store.available);

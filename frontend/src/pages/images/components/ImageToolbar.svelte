@@ -137,7 +137,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <!-- 1, 2, 3 Colunas Switcher -->
+      <!-- 1, 2, 3 Columns Switcher -->
       <ColumnLayoutSwitcher />
 
       <input

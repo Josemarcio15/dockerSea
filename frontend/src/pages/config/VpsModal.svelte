@@ -44,12 +44,12 @@
   let modalTab = $state<"connection" | "docker">("connection");
   let isDetecting = $state(false);
 
-  // Lista de caminhos descobertos
+  // List of discovered paths
   let discoveredSockets = $state<string[]>([]);
   let discoveredBins = $state<string[]>([]);
   let discoveredComposes = $state<string[]>([]);
 
-  // Limpa o estado temporário e opções descobertas quando o modal abre ou fecha
+  // Clear temporary state and discovered options when modal opens or closes
   $effect(() => {
     if (!show) {
       discoveredSockets = [];
@@ -205,7 +205,7 @@
   </div>
 
   {#if modalTab === "connection"}
-    <!-- ABA 1: CONEXÃO -->
+    <!-- TAB 1: CONNECTION -->
     <Input
       label={t("config.field_name")}
       placeholder={t("config.placeholder_name")}
@@ -319,7 +319,7 @@
       </div>
     {/if}
   {:else}
-    <!-- ABA 2: DOCKER ENGINE -->
+    <!-- TAB 2: DOCKER ENGINE -->
     <div
       class="p-3.5 rounded-xl bg-violet-500/5 border border-violet-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
     >

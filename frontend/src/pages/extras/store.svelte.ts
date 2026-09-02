@@ -96,7 +96,7 @@ export const extrasStore = {
   async open(filename: string) {
     if (!activeVps || !filename) return;
     site = filename;
-    content = ""; // Limpa imediatamente o conteúdo anterior da memória do editor
+    content = ""; // Immediately clears previous content from editor memory
     editorKey += 1;
     loadingFile = true;
     try {

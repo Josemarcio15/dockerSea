@@ -12,14 +12,14 @@ import (
 )
 
 func TestPackProjectDir_Success(t *testing.T) {
-	// Cria estrutura temporária de projeto de teste
+	// Creates estrutura temporária de projeto de teste
 	tempDir, err := os.MkdirTemp("", "docksea_archive_test_*")
 	if err != nil {
 		t.Fatalf("erro ao criar temp dir: %v", err)
 	}
 	defer os.RemoveAll(tempDir)
 
-	// Cria arquivos diversos: compose.yaml, Dockerfile, .env, .dockerignore, subpastas com binários e arquivos Unicode
+	// Creates arquivos diversos: compose.yaml, Dockerfile, .env, .dockerignore, subpastas com binários e arquivos Unicode
 	files := map[string]string{
 		"compose.yaml":                 "services:\n  app:\n    image: test",
 		"Dockerfile":                   "FROM alpine\nCMD [\"echo\", \"hello\"]",
